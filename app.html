@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lume · i tuoi dati in chiaro</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,600;8..60,700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --white:#ffffff; --paper:#fdfcfa; --cream:#f5f2ed; --ink:#1a1814; --ink2:#3d3a35;
+  --muted:#9a9590; --rule:#e2ddd6; --orange:#d94f1e; --amber:#e8a020; --amber-bg:#fff8e8;
+  --orange-bg:#fff2ec; --green:#2a7a4b; --green-bg:#edf7f2; --blue:#1a5ea8; --blue-bg:#edf2fb;
+  --serif:'Source Serif 4',Georgia,serif; --lora:'Lora',Georgia,serif; --mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:15px;}
+body{background:var(--white);color:var(--ink);font-family:var(--serif);min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;background-image:repeating-linear-gradient(to bottom,transparent,transparent 27px,var(--rule) 27px,var(--rule) 28px);opacity:0.28;pointer-events:none;z-index:0;}
+
+.page{max-width:980px;margin:0 auto;padding:0 36px 80px;position:relative;z-index:1;}
+.page::before{content:'';position:absolute;top:0;bottom:0;left:88px;width:1.5px;background:rgba(217,79,30,0.15);}
+
+/* ── MASTHEAD ── */
+.masthead{padding:36px 0 0;}
+.mast-eye{font-family:var(--mono);font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;padding-left:52px;}
+.mast-title{display:flex;align-items:baseline;padding-left:52px;}
+.brand-name{font-family:var(--lora);font-size:50px;font-weight:700;letter-spacing:-0.03em;line-height:1;}
+.brand-dot{font-family:var(--lora);font-size:50px;color:var(--orange);line-height:1;}
+.brand-tag{font-family:var(--serif);font-size:13px;font-style:italic;color:var(--muted);margin-left:14px;padding-left:14px;border-left:1.5px solid var(--rule);align-self:center;line-height:1.3;}
+.mast-rule{border:none;border-top:2.5px solid var(--ink);margin:12px 0 0;}
+.mast-sub{border:none;border-top:1px solid var(--ink);margin:4px 0 0;}
+
+/* ── DROP ── */
+.drop-section{padding:32px 0 32px 52px;}
+.drop-intro{font-size:20px;font-weight:600;font-style:italic;line-height:1.35;margin-bottom:4px;max-width:480px;}
+.drop-intro em{font-style:normal;background:var(--orange);color:white;padding:0 4px;}
+.drop-desc{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:0.08em;margin-bottom:18px;}
+.drop-zone{border:1.5px dashed var(--rule);background:var(--paper);padding:36px 28px;text-align:center;cursor:pointer;transition:all .2s;max-width:520px;position:relative;}
+.drop-zone::before{content:'→ TRASCINA QUI';position:absolute;top:9px;left:13px;font-family:var(--mono);font-size:7px;letter-spacing:.18em;color:var(--rule);}
+.drop-zone:hover,.drop-zone.dg{border-color:var(--orange);background:var(--orange-bg);}
+.drop-zone h2{font-family:var(--lora);font-size:18px;font-weight:600;margin-bottom:5px;}
+.drop-zone p{font-family:var(--mono);font-size:9px;color:var(--muted);margin-bottom:16px;letter-spacing:.08em;}
+.btn-load{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;background:var(--ink);color:white;border:none;padding:10px 22px;cursor:pointer;transition:background .15s;}
+.btn-load:hover{background:var(--orange);}
+#fi{display:none;}
+
+/* ── SHEET TABS ── */
+.sheet-bar{display:none;padding-left:52px;gap:0;border-bottom:1.5px solid var(--ink);margin-top:20px;}
+.sheet-tab{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;padding:6px 14px;cursor:pointer;color:var(--muted);border:1px solid transparent;border-bottom:none;margin-bottom:-1.5px;transition:all .15s;}
+.sheet-tab:hover{color:var(--ink);}
+.sheet-tab.active{border-color:var(--ink);color:var(--ink);background:white;font-weight:500;}
+
+/* ── OVERVIEW STATS ── */
+.overview{display:none;padding-left:52px;margin:20px 0;}
+.ov-grid{display:grid;grid-template-columns:repeat(5,1fr);border:1.5px solid var(--ink);}
+.ov-cell{padding:12px 10px;border-right:1px solid var(--rule);}
+.ov-cell:last-child{border-right:none;}
+.ov-n{font-family:var(--lora);font-size:26px;font-weight:700;line-height:1;letter-spacing:-.02em;color:var(--orange);}
+.ov-l{font-family:var(--mono);font-size:7px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-top:3px;}
+.ov-s{font-family:var(--mono);font-size:8px;color:var(--ink2);margin-top:1px;}
+
+/* ── MAIN TABS ── */
+.main-tabs{display:none;padding-left:52px;margin-top:24px;}
+.tab-nav{display:flex;gap:0;border-bottom:2px solid var(--ink);margin-bottom:0;}
+.tab-btn{font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;padding:9px 20px;cursor:pointer;color:var(--muted);border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;}
+.tab-btn:hover{color:var(--ink);}
+.tab-btn.active{color:var(--orange);border-bottom-color:var(--orange);font-weight:500;}
+.tab-panel{display:none;padding-top:24px;}
+.tab-panel.active{display:block;}
+
+/* ── SEC HEAD ── */
+.sec-head{display:flex;align-items:baseline;gap:10px;margin:0 0 14px;border-bottom:1px solid var(--rule);padding-bottom:5px;}
+.sec-title{font-family:var(--lora);font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;}
+.sec-count{font-family:var(--mono);font-size:8px;background:var(--amber);color:white;padding:1px 7px;letter-spacing:.1em;}
+.sec-line{flex:1;}
+
+/* ═══════════════════════════════════════════
+   TAB 1 — VISUALIZZAZIONI
+═══════════════════════════════════════════ */
+.viz-layout{display:grid;grid-template-columns:220px 1fr;gap:20px;}
+
+/* Field list */
+.field-list{border:1.5px solid var(--ink);}
+.field-list-head{background:var(--ink);color:white;font-family:var(--mono);font-size:8px;letter-spacing:.16em;text-transform:uppercase;padding:7px 12px;}
+.field-list-body{padding:8px;}
+.field-item{font-family:var(--mono);font-size:10px;padding:5px 8px;cursor:grab;border:1px solid transparent;margin-bottom:3px;display:flex;align-items:center;gap:6px;transition:all .15s;user-select:none;}
+.field-item:hover{background:var(--paper);border-color:var(--rule);}
+.field-item.dragging{opacity:.4;}
+.fi-type{font-size:7px;padding:1px 5px;letter-spacing:.1em;}
+.fi-num{background:var(--orange-bg);color:var(--orange);}
+.fi-txt{background:var(--blue-bg);color:var(--blue);}
+.fi-dat{background:var(--green-bg);color:var(--green);}
+
+/* Viz config */
+.viz-config{display:flex;flex-direction:column;gap:14px;}
+.config-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.config-lbl{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);min-width:60px;}
+
+.drop-target{min-height:34px;border:1.5px dashed var(--rule);background:var(--paper);padding:6px 10px;font-family:var(--mono);font-size:9px;color:var(--muted);display:flex;align-items:center;gap:6px;flex-wrap:wrap;flex:1;transition:all .2s;min-width:120px;}
+.drop-target.over{border-color:var(--orange);background:var(--orange-bg);}
+.field-chip{background:var(--ink);color:white;font-family:var(--mono);font-size:8px;padding:3px 8px;display:flex;align-items:center;gap:5px;letter-spacing:.06em;}
+.chip-rm{cursor:pointer;color:rgba(255,255,255,.5);font-size:10px;line-height:1;}
+.chip-rm:hover{color:var(--orange);}
+
+select.sm{font-family:var(--mono);font-size:9px;letter-spacing:.06em;background:white;border:1px solid var(--rule);color:var(--ink);padding:6px 24px 6px 9px;cursor:pointer;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='4'%3E%3Cpath d='M0 0l3.5 4L7 0z' fill='%231a1814'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;}
+select.sm:focus{border-color:var(--orange);}
+
+.btn-sm{font-family:var(--mono);font-size:8px;letter-spacing:.12em;text-transform:uppercase;padding:6px 12px;border:1px solid var(--rule);background:white;color:var(--muted);cursor:pointer;transition:all .15s;}
+.btn-sm:hover,.btn-sm.active{background:var(--ink);color:white;border-color:var(--ink);}
+.btn-orange{background:var(--orange);color:white;border-color:var(--orange);}
+.btn-orange:hover{background:#c03e10;}
+
+.chart-frame{border:1.5px solid var(--ink);background:var(--paper);padding:20px;}
+.chart-frame canvas{max-height:300px;}
+
+/* Filter row */
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:8px;background:var(--cream);border:1px solid var(--rule);}
+.filter-chip{font-family:var(--mono);font-size:8px;padding:3px 8px;background:white;border:1px solid var(--rule);cursor:pointer;transition:all .15s;letter-spacing:.06em;}
+.filter-chip.active{background:var(--amber);color:white;border-color:var(--amber);}
+
+/* ═══════════════════════════════════════════
+   TAB 2 — ANALISI
+═══════════════════════════════════════════ */
+.analysis-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.model-card{border:1.5px solid var(--ink);background:white;cursor:pointer;transition:all .15s;position:relative;}
+.model-card:hover{background:var(--paper);}
+.model-card.selected{border-color:var(--orange);}
+.model-card.selected::before{content:'';position:absolute;top:0;left:0;right:0;height:2.5px;background:var(--orange);}
+.model-head{padding:14px 14px 8px;}
+.model-icon{font-size:20px;margin-bottom:6px;}
+.model-name{font-family:var(--lora);font-size:13px;font-weight:600;margin-bottom:3px;}
+.model-desc{font-family:var(--mono);font-size:9px;color:var(--muted);line-height:1.5;letter-spacing:.03em;}
+.model-tag{font-family:var(--mono);font-size:7px;letter-spacing:.14em;text-transform:uppercase;padding:2px 7px;margin:0 14px 14px;display:inline-block;}
+.mt-cluster{background:var(--blue-bg);color:var(--blue);}
+.mt-stat{background:var(--orange-bg);color:var(--orange);}
+.mt-ml{background:var(--green-bg);color:var(--green);}
+
+.analysis-panel{margin-top:20px;border:1.5px solid var(--ink);display:none;}
+.ap-head{background:var(--ink);color:white;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;}
+.ap-title{font-family:var(--lora);font-size:14px;font-weight:600;}
+.ap-close{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,.5);cursor:pointer;letter-spacing:.1em;text-transform:uppercase;}
+.ap-close:hover{color:white;}
+.ap-body{padding:20px;}
+.ap-config{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--rule);}
+.ap-field{display:flex;flex-direction:column;gap:4px;}
+.ap-field label{font-family:var(--mono);font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);}
+.ap-field select,.ap-field input{font-family:var(--mono);font-size:10px;border:1px solid var(--rule);padding:6px 9px;background:white;color:var(--ink);outline:none;width:140px;}
+.ap-field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='4'%3E%3Cpath d='M0 0l3.5 4L7 0z' fill='%231a1814'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center;padding-right:22px;}
+.ap-field input:focus,.ap-field select:focus{border-color:var(--orange);}
+
+.result-box{background:var(--paper);border:1px solid var(--rule);padding:16px;font-family:var(--mono);font-size:10px;line-height:1.9;}
+.result-kv{display:grid;grid-template-columns:auto 1fr;gap:2px 16px;margin-bottom:10px;}
+.rk{color:var(--muted);}
+.rv{color:var(--ink);font-weight:500;}
+.rv.good{color:var(--green);}
+.rv.warn{color:var(--amber);}
+.rv.bad{color:var(--orange);}
+.result-chart{margin-top:14px;border-top:1px solid var(--rule);padding-top:14px;}
+.result-chart canvas{max-height:220px;}
+
+.cluster-legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.cl-item{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9px;}
+.cl-dot{width:10px;height:10px;border-radius:50%;}
+
+/* ═══════════════════════════════════════════
+   TAB 3 — PIVOT
+═══════════════════════════════════════════ */
+.pivot-layout{display:grid;grid-template-columns:180px 1fr;gap:16px;}
+
+.pv-fields{border:1.5px solid var(--ink);}
+.pv-fhead{background:var(--ink);color:white;font-family:var(--mono);font-size:8px;letter-spacing:.16em;text-transform:uppercase;padding:7px 10px;}
+.pv-fbody{padding:6px;}
+.pv-field{font-family:var(--mono);font-size:9px;padding:5px 7px;cursor:grab;border:1px solid transparent;margin-bottom:2px;display:flex;align-items:center;gap:5px;transition:all .15s;user-select:none;}
+.pv-field:hover{background:var(--paper);border-color:var(--rule);}
+
+.pv-config{display:flex;flex-direction:column;gap:10px;}
+
+.pv-drop-area{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.pv-zone{border:1.5px dashed var(--rule);background:var(--paper);min-height:50px;padding:8px;}
+.pv-zone-lbl{font-family:var(--mono);font-size:8px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.pv-zone.over{border-color:var(--orange);background:var(--orange-bg);}
+.pv-zone-chips{display:flex;gap:4px;flex-wrap:wrap;}
+.pv-chip{background:var(--ink2);color:white;font-family:var(--mono);font-size:8px;padding:2px 7px;display:flex;align-items:center;gap:4px;}
+.pv-chip-rm{cursor:pointer;color:rgba(255,255,255,.4);font-size:9px;}
+.pv-chip-rm:hover{color:var(--orange);}
+
+.pv-measure-row{display:flex;gap:8px;align-items:center;padding:8px;background:var(--cream);border:1px solid var(--rule);}
+.pv-mlbl{font-family:var(--mono);font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);}
+
+.pivot-table-wrap{overflow:auto;border:1.5px solid var(--ink);}
+.pivot-table{border-collapse:collapse;font-family:var(--mono);font-size:9px;min-width:100%;}
+.pivot-table th{background:var(--cream);padding:7px 12px;text-align:left;border:1px solid var(--rule);font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:400;white-space:nowrap;}
+.pivot-table th.row-head{background:var(--ink);color:white;border-color:var(--ink);}
+.pivot-table th.col-head{background:var(--ink2);color:white;border-color:var(--ink2);}
+.pivot-table td{padding:6px 12px;border:1px solid var(--rule);white-space:nowrap;color:var(--ink2);}
+.pivot-table td.val{text-align:right;color:var(--orange);font-weight:500;}
+.pivot-table td.row-lbl{background:var(--paper);font-weight:500;color:var(--ink);border-right:1.5px solid var(--ink);}
+.pivot-table tr:hover td{background:var(--amber-bg);}
+.pivot-table .grand{background:var(--cream);font-weight:500;color:var(--ink);border-top:1.5px solid var(--ink);}
+
+.pv-empty{text-align:center;padding:40px;font-family:var(--mono);font-size:10px;color:var(--muted);border:1.5px solid var(--ink);background:var(--paper);}
+
+/* ── FOOTER ── */
+footer{border-top:2.5px solid var(--ink);margin-top:60px;padding:14px 36px 14px 88px;display:flex;justify-content:space-between;align-items:baseline;position:relative;z-index:1;}
+.ft-brand{font-family:var(--lora);font-size:15px;font-weight:700;}
+.ft-brand span{color:var(--orange);}
+.ft-note{font-family:var(--mono);font-size:8px;color:var(--muted);letter-spacing:.1em;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fu{animation:fadeUp .3s ease forwards;}
+
+@media(max-width:680px){
+  .page{padding:0 16px 60px;}
+  .page::before{display:none;}
+  .mast-title,.drop-section,.sheet-bar,.overview,.main-tabs{padding-left:0;}
+  .ov-grid{grid-template-columns:repeat(3,1fr);}
+  .analysis-grid{grid-template-columns:1fr;}
+  .viz-layout,.pivot-layout{grid-template-columns:1fr;}
+  .pv-drop-area{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- MASTHEAD -->
+<header class="masthead">
+  <div class="mast-eye">Analisi dati AI powered · Elaborazione locale · Browser only</div>
+  <div class="mast-title">
+    <svg width="28" height="38" viewBox="0 0 22 28" fill="none" style="margin-right:10px;flex-shrink:0;align-self:center;">
+      <path d="M11 2 C11 2, 18 8, 18 15 C18 20.5, 15 25, 11 25 C7 25, 4 20.5, 4 15 C4 8, 11 2, 11 2Z" fill="#d94f1e" opacity="0.18"/>
+      <path d="M11 4 C11 4, 17 9.5, 17 15 C17 19.8, 14.5 23, 11 23 C7.5 23, 5 19.8, 5 15 C5 9.5, 11 4, 11 4Z" fill="#d94f1e"/>
+      <path d="M11 10 C11 10, 14 13.5, 14 16.5 C14 18.8, 12.7 20.5, 11 20.5 C9.3 20.5, 8 18.8, 8 16.5 C8 13.5, 11 10, 11 10Z" fill="#e8a020" opacity="0.75"/>
+      <ellipse cx="11" cy="16" rx="1.5" ry="2.2" fill="white" opacity="0.55"/>
+    </svg>
+    <span class="brand-name">Lume</span><span style="width:8px;height:8px;background:#d94f1e;border-radius:50%;margin-left:2px;margin-bottom:10px;flex-shrink:0;display:inline-block;box-shadow:0 0 7px 2px rgba(217,79,30,0.28);"></span>
+    <span class="brand-tag">carica i tuoi dati.<br>scopri la tua storia.</span>
+  </div>
+  <hr class="mast-rule"><hr class="mast-sub">
+</header>
+
+<!-- DROP -->
+<div class="drop-section" id="dropSection">
+  <p class="drop-intro">Carica i tuoi dati.<br>Scopri la tua <em>storia</em>.</p>
+  <p class="drop-desc">// nessun dato lascia il browser · .xlsx · .xls · .csv</p>
+  <div class="drop-zone" id="dz">
+    <h2>Trascina il file qui</h2>
+    <p>oppure clicca per sfogliare</p>
+    <button class="btn-load" onclick="document.getElementById('fi').click()">Carica file</button>
+    <input type="file" id="fi" accept=".xlsx,.xls,.csv">
+  </div>
+</div>
+
+<!-- SHEET TABS -->
+<div class="sheet-bar" id="sheetBar"></div>
+
+<!-- OVERVIEW -->
+<div class="overview" id="overview">
+  <div class="ov-grid">
+    <div class="ov-cell"><div class="ov-n" id="oRows">—</div><div class="ov-l">Righe</div><div class="ov-s">record</div></div>
+    <div class="ov-cell"><div class="ov-n" id="oCols">—</div><div class="ov-l">Colonne</div><div class="ov-s">campi</div></div>
+    <div class="ov-cell"><div class="ov-n" id="oComp">—</div><div class="ov-l">Completezza</div><div class="ov-s">celle valide</div></div>
+    <div class="ov-cell"><div class="ov-n" id="oNum">—</div><div class="ov-l">Numeriche</div><div class="ov-s">colonne</div></div>
+    <div class="ov-cell"><div class="ov-n" id="oText">—</div><div class="ov-l">Categoriali</div><div class="ov-s">colonne</div></div>
+  </div>
+</div>
+
+<!-- MAIN TABS -->
+<div class="main-tabs" id="mainTabs">
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('viz')">① Visualizzazioni</button>
+    <button class="tab-btn" onclick="switchTab('ana')">② Analisi statistica</button>
+    <button class="tab-btn" onclick="switchTab('piv')">③ Pivot</button>
+  </div>
+
+  <!-- ════ TAB 1: VISUALIZZAZIONI ════ -->
+  <div class="tab-panel active" id="tab-viz">
+    <div class="sec-head"><span class="sec-title">Visualizzazioni</span><div class="sec-line"></div></div>
+    <div class="viz-layout">
+      <!-- Field list -->
+      <div>
+        <div class="field-list" id="vizFieldList">
+          <div class="field-list-head">Campi disponibili</div>
+          <div class="field-list-body" id="vizFields"></div>
+        </div>
+        <div style="margin-top:10px;">
+          <div class="field-list">
+            <div class="field-list-head">Tipo grafico</div>
+            <div class="field-list-body" style="display:flex;flex-direction:column;gap:4px;">
+              <button class="btn-sm active" id="ct-bar"    onclick="setVizType('bar')">▬ Barre</button>
+              <button class="btn-sm" id="ct-line"   onclick="setVizType('line')">∿ Linea</button>
+              <button class="btn-sm" id="ct-scatter" onclick="setVizType('scatter')">⊹ Scatter</button>
+              <button class="btn-sm" id="ct-pie"    onclick="setVizType('pie')">◕ Torta</button>
+              <button class="btn-sm" id="ct-hist"   onclick="setVizType('hist')">⫿ Istogramma</button>
+              <button class="btn-sm" id="ct-box"    onclick="setVizType('box')">⊡ Box plot</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Config + Chart -->
+      <div class="viz-config">
+        <div class="config-row">
+          <span class="config-lbl">Asse X</span>
+          <div class="drop-target" id="xAxis" ondragover="allowDrop(event,'xAxis')" ondrop="dropField(event,'xAxis')" ondragleave="leaveDrop('xAxis')">
+            <span style="color:var(--muted);font-family:var(--mono);font-size:9px;">trascina un campo</span>
+          </div>
+        </div>
+        <div class="config-row">
+          <span class="config-lbl">Asse Y / Misura</span>
+          <div class="drop-target" id="yAxis" ondragover="allowDrop(event,'yAxis')" ondrop="dropField(event,'yAxis')" ondragleave="leaveDrop('yAxis')">
+            <span style="color:var(--muted);font-family:var(--mono);font-size:9px;">trascina un campo numerico</span>
+          </div>
+          <select class="sm" id="measureFn">
+            <option value="sum">Somma</option>
+            <option value="mean">Media</option>
+            <option value="median">Mediana</option>
+            <option value="count">Conteggio</option>
+            <option value="min">Minimo</option>
+            <option value="max">Massimo</option>
+            <option value="std">Dev. Std</option>
+          </select>
+        </div>
+        <div class="config-row">
+          <span class="config-lbl">Raggruppa</span>
+          <div class="drop-target" id="colorBy" ondragover="allowDrop(event,'colorBy')" ondrop="dropField(event,'colorBy')" ondragleave="leaveDrop('colorBy')">
+            <span style="color:var(--muted);font-family:var(--mono);font-size:9px;">opzionale</span>
+          </div>
+          <button class="btn-sm btn-orange" onclick="renderViz()">Genera grafico →</button>
+        </div>
+
+        <!-- Filters -->
+        <div id="filterArea" style="display:none;">
+          <div class="filter-row" id="filterRow"></div>
+        </div>
+
+        <div class="chart-frame" id="vizFrame" style="display:none;">
+          <canvas id="vizChart"></canvas>
+        </div>
+
+        <!-- Stats descrittive -->
+        <div id="descStats" style="display:none;border:1.5px solid var(--rule);padding:14px;background:var(--paper);">
+          <div class="sec-head" style="margin:0 0 10px;"><span class="sec-title">Statistiche descrittive</span><div class="sec-line"></div></div>
+          <div class="result-kv" id="descKV"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ TAB 2: ANALISI ════ -->
+  <div class="tab-panel" id="tab-ana">
+    <div class="sec-head"><span class="sec-title">Analisi statistica</span><div class="sec-line"></div></div>
+    <div class="analysis-grid">
+      <div class="model-card" onclick="selectModel('kmeans')">
+        <div class="model-head">
+          <div class="model-icon">⬡</div>
+          <div class="model-name">K-Means Clustering</div>
+          <div class="model-desc">Raggruppa automaticamente le righe in K cluster basati su variabili numeriche.</div>
+        </div>
+        <span class="model-tag mt-cluster">Clustering</span>
+      </div>
+      <div class="model-card" onclick="selectModel('corr')">
+        <div class="model-head">
+          <div class="model-icon">⟷</div>
+          <div class="model-name">Correlazione di Pearson</div>
+          <div class="model-desc">Misura la relazione lineare tra due variabili numeriche. Restituisce r e p-value.</div>
+        </div>
+        <span class="model-tag mt-stat">Statistica</span>
+      </div>
+      <div class="model-card" onclick="selectModel('linreg')">
+        <div class="model-head">
+          <div class="model-icon">⟋</div>
+          <div class="model-name">Regressione Lineare</div>
+          <div class="model-desc">Stima la relazione Y = a·X + b. Calcola R², coefficienti e residui.</div>
+        </div>
+        <span class="model-tag mt-ml">Machine Learning</span>
+      </div>
+      <div class="model-card" onclick="selectModel('abtest')">
+        <div class="model-head">
+          <div class="model-icon">⁄⁄</div>
+          <div class="model-name">A/B Test (t-test)</div>
+          <div class="model-desc">Confronta due gruppi su una metrica numerica. Calcola significatività statistica.</div>
+        </div>
+        <span class="model-tag mt-stat">Statistica</span>
+      </div>
+      <div class="model-card" onclick="selectModel('churn')">
+        <div class="model-head">
+          <div class="model-icon">↩</div>
+          <div class="model-name">Churn Rate Analysis</div>
+          <div class="model-desc">Analizza il tasso di abbandono per categoria. Identifica segmenti a rischio.</div>
+        </div>
+        <span class="model-tag mt-ml">Retention</span>
+      </div>
+      <div class="model-card" onclick="selectModel('dist')">
+        <div class="model-head">
+          <div class="model-icon">∿</div>
+          <div class="model-name">Distribuzione & Normalità</div>
+          <div class="model-desc">Analizza skewness, kurtosis, test di normalità approssimato e outlier IQR.</div>
+        </div>
+        <span class="model-tag mt-stat">Statistica</span>
+      </div>
+    </div>
+
+    <!-- Analysis panel -->
+    <div class="analysis-panel" id="anaPanel">
+      <div class="ap-head">
+        <span class="ap-title" id="apTitle">—</span>
+        <span class="ap-close" onclick="closeModel()">✕ chiudi</span>
+      </div>
+      <div class="ap-body">
+        <div class="ap-config" id="apConfig"></div>
+        <div id="apResult"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ TAB 3: PIVOT ════ -->
+  <div class="tab-panel" id="tab-piv">
+    <div class="sec-head"><span class="sec-title">Tabella Pivot</span><div class="sec-line"></div></div>
+    <div class="pivot-layout">
+      <!-- Fields -->
+      <div>
+        <div class="pv-fields">
+          <div class="pv-fhead">Campi</div>
+          <div class="pv-fbody" id="pvFields"></div>
+        </div>
+      </div>
+
+      <!-- Config + Table -->
+      <div class="pv-config">
+        <div class="pv-drop-area">
+          <div class="pv-zone" id="pvRows" ondragover="allowDropPV(event,'pvRows')" ondrop="dropPV(event,'pvRows')" ondragleave="leavePV('pvRows')">
+            <div class="pv-zone-lbl">↕ Righe</div>
+            <div class="pv-zone-chips" id="pvRowChips"></div>
+          </div>
+          <div class="pv-zone" id="pvCols" ondragover="allowDropPV(event,'pvCols')" ondrop="dropPV(event,'pvCols')" ondragleave="leavePV('pvCols')">
+            <div class="pv-zone-lbl">↔ Colonne</div>
+            <div class="pv-zone-chips" id="pvColChips"></div>
+          </div>
+        </div>
+
+        <div class="pv-measure-row">
+          <span class="pv-mlbl">Valori</span>
+          <div class="pv-zone" id="pvVals" style="min-height:34px;flex:1;" ondragover="allowDropPV(event,'pvVals')" ondrop="dropPV(event,'pvVals')" ondragleave="leavePV('pvVals')">
+            <div class="pv-zone-chips" id="pvValChips"></div>
+          </div>
+          <select class="sm" id="pvMeasure" onchange="renderPivot()">
+            <option value="sum">Somma</option>
+            <option value="mean">Media</option>
+            <option value="count">Conteggio</option>
+            <option value="median">Mediana</option>
+            <option value="min">Minimo</option>
+            <option value="max">Massimo</option>
+            <option value="std">Dev. Std</option>
+          </select>
+          <button class="btn-sm btn-orange" onclick="renderPivot()">Aggiorna →</button>
+          <button class="btn-sm" onclick="exportPivot()">Export CSV</button>
+        </div>
+
+        <div id="pvTableWrap">
+          <div class="pv-empty">Trascina campi nelle zone Righe, Colonne e Valori per generare la pivot.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div><!-- /main-tabs -->
+
+</div><!-- /page -->
+
+<footer>
+  <div class="ft-brand" style="display:flex;align-items:flex-end;gap:4px;">
+    <svg width="14" height="18" viewBox="0 0 22 28" fill="none" style="margin-bottom:2px;">
+      <path d="M11 4 C11 4, 17 9.5, 17 15 C17 19.8, 14.5 23, 11 23 C7.5 23, 5 19.8, 5 15 C5 9.5, 11 4, 11 4Z" fill="#d94f1e"/>
+      <path d="M11 10 C11 10, 14 13.5, 14 16.5 C14 18.8, 12.7 20.5, 11 20.5 C9.3 20.5, 8 18.8, 8 16.5 C8 13.5, 11 10, 11 10Z" fill="#e8a020" opacity="0.75"/>
+    </svg>
+    Lume<span style="width:5px;height:5px;background:#d94f1e;border-radius:50%;display:inline-block;margin-left:1px;margin-bottom:3px;"></span>
+  </div>
+  <div class="ft-note">carica i tuoi dati · scopri la tua storia</div>
+</footer>
+
+<script>
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let wb=null, rawData=[], headers=[], types=[];
+let vizChart=null, vizType='bar';
+let currentModel=null;
+let pvRowFields=[], pvColFields=[], pvValFields=[];
+let dragField=null, dragSource=null;
+
+// ══════════════════════════════════════════
+// UPLOAD
+// ══════════════════════════════════════════
+const dz=document.getElementById('dz');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('dg');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('dg'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('dg');loadFile(e.dataTransfer.files[0]);});
+document.getElementById('fi').addEventListener('change',e=>loadFile(e.target.files[0]));
+
+function loadFile(file){
+  if(!file)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      wb=XLSX.read(e.target.result,{type:'array',cellDates:true});
+      renderSheetTabs();
+      loadSheet(wb.SheetNames[0]);
+      document.getElementById('dropSection').style.display='none';
+    }catch(e){alert('Errore nella lettura del file.');}
+  };
+  r.readAsArrayBuffer(file);
+}
+
+function renderSheetTabs(){
+  const b=document.getElementById('sheetBar');
+  b.innerHTML='';
+  wb.SheetNames.forEach(n=>{
+    const t=document.createElement('div');
+    t.className='sheet-tab';t.textContent=n;
+    t.onclick=()=>loadSheet(n);
+    b.appendChild(t);
+  });
+  b.style.display='flex';
+}
+
+function loadSheet(name){
+  document.querySelectorAll('.sheet-tab').forEach(t=>t.classList.toggle('active',t.textContent===name));
+  const ws=wb.Sheets[name];
+  const json=XLSX.utils.sheet_to_json(ws,{header:1,defval:null,raw:false});
+  if(!json.length)return;
+  headers=json[0].map((h,i)=>h!==null?String(h):'Col'+(i+1));
+  rawData=json.slice(1).filter(r=>r.some(c=>c!==null&&c!==''));
+  types=detectTypes();
+  renderOverview();
+  renderFieldLists();
+  document.getElementById('overview').style.display='block';
+  document.getElementById('mainTabs').style.display='block';
+  document.getElementById('sheetBar').style.display='flex';
+  // reset
+  pvRowFields=[];pvColFields=[];pvValFields=[];
+  renderPVChips();
+  document.getElementById('pvTableWrap').innerHTML='<div class="pv-empty">Trascina campi nelle zone Righe, Colonne e Valori.</div>';
+  clearViz();
+}
+
+// ══════════════════════════════════════════
+// TYPES & STATS
+// ══════════════════════════════════════════
+function detectTypes(){
+  return headers.map((_,ci)=>{
+    const v=rawData.map(r=>r[ci]).filter(x=>x!==null&&x!=='');
+    if(!v.length)return'empty';
+    const nc=v.filter(x=>!isNaN(parseFloat(x))&&isFinite(x)).length;
+    const dc=v.filter(x=>/^\d{1,4}[\-\/\.]\d{1,2}/.test(String(x))).length;
+    if(nc/v.length>0.8)return'number';
+    if(dc/v.length>0.6)return'date';
+    return'text';
+  });
+}
+
+function colNums(ci){
+  return rawData.map(r=>parseFloat(r[ci])).filter(v=>!isNaN(v));
+}
+
+function mean(arr){return arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:0;}
+function median(arr){const s=[...arr].sort((a,b)=>a-b);const m=Math.floor(s.length/2);return s.length%2?s[m]:(s[m-1]+s[m])/2;}
+function std(arr){const m=mean(arr);return Math.sqrt(arr.reduce((s,v)=>s+(v-m)**2,0)/arr.length);}
+function fmt(n,d=2){
+  if(n===undefined||n===null||isNaN(n))return'—';
+  if(Math.abs(n)>=1e6)return(n/1e6).toFixed(1)+'M';
+  if(Math.abs(n)>=1e3)return(n/1e3).toFixed(1)+'k';
+  return Number.isInteger(n)?n.toLocaleString('it'):n.toFixed(d);
+}
+
+function aggregate(arr,fn){
+  if(!arr.length)return null;
+  switch(fn){
+    case'sum':return arr.reduce((a,b)=>a+b,0);
+    case'mean':return mean(arr);
+    case'median':return median(arr);
+    case'count':return arr.length;
+    case'min':return Math.min(...arr);
+    case'max':return Math.max(...arr);
+    case'std':return std(arr);
+    default:return arr.reduce((a,b)=>a+b,0);
+  }
+}
+
+function renderOverview(){
+  const tot=rawData.length*headers.length;
+  const fil=rawData.reduce((s,r)=>s+r.filter(c=>c!==null&&c!=='').length,0);
+  const pct=tot>0?Math.round(fil/tot*100):0;
+  document.getElementById('oRows').textContent=rawData.length.toLocaleString('it');
+  document.getElementById('oCols').textContent=headers.length;
+  document.getElementById('oComp').textContent=pct+'%';
+  document.getElementById('oNum').textContent=types.filter(t=>t==='number').length;
+  document.getElementById('oText').textContent=types.filter(t=>t==='text').length;
+}
+
+// ══════════════════════════════════════════
+// FIELD LISTS
+// ══════════════════════════════════════════
+function renderFieldLists(){
+  // Viz fields
+  const vf=document.getElementById('vizFields');
+  vf.innerHTML='';
+  headers.forEach((h,i)=>{
+    const tp=types[i];
+    const tl=tp==='number'?'NUM':tp==='date'?'DAT':'TXT';
+    const tc=tp==='number'?'fi-num':tp==='date'?'fi-dat':'fi-txt';
+    const d=document.createElement('div');
+    d.className='field-item';
+    d.draggable=true;
+    d.dataset.field=i;
+    d.innerHTML=`<span class="fi-type ${tc}">${tl}</span>${h}`;
+    d.addEventListener('dragstart',e=>{dragField=i;dragSource='viz';d.classList.add('dragging');});
+    d.addEventListener('dragend',()=>d.classList.remove('dragging'));
+    vf.appendChild(d);
+  });
+
+  // Pivot fields
+  const pf=document.getElementById('pvFields');
+  pf.innerHTML='';
+  headers.forEach((h,i)=>{
+    const tp=types[i];
+    const tl=tp==='number'?'NUM':tp==='date'?'DAT':'TXT';
+    const tc=tp==='number'?'fi-num':tp==='date'?'fi-dat':'fi-txt';
+    const d=document.createElement('div');
+    d.className='pv-field';
+    d.draggable=true;
+    d.dataset.field=i;
+    d.innerHTML=`<span class="fi-type ${tc}">${tl}</span>${h}`;
+    d.addEventListener('dragstart',e=>{dragField=i;dragSource='pivot';});
+    pf.appendChild(d);
+  });
+
+  // Analysis selects — populate after
+  populateAnaSelects();
+}
+
+// ══════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════
+function switchTab(id){
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>{
+    const ids=['viz','ana','piv'];
+    b.classList.toggle('active',ids[i]===id);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+}
+
+// ══════════════════════════════════════════
+// TAB 1 — VISUALIZZAZIONI
+// ══════════════════════════════════════════
+let xAxisField=null, yAxisField=null, colorByField=null;
+
+function allowDrop(e,id){e.preventDefault();document.getElementById(id).classList.add('over');}
+function leaveDrop(id){document.getElementById(id).classList.remove('over');}
+
+function dropField(e,zone){
+  e.preventDefault();
+  leaveDrop(zone);
+  if(dragField===null||dragSource!=='viz')return;
+  const ci=parseInt(dragField);
+  if(zone==='xAxis')xAxisField=ci;
+  else if(zone==='yAxis')yAxisField=ci;
+  else if(zone==='colorBy')colorByField=ci;
+  renderDropTargets();
+}
+
+function renderDropTargets(){
+  renderDT('xAxis',xAxisField);
+  renderDT('yAxis',yAxisField);
+  renderDT('colorBy',colorByField);
+}
+
+function renderDT(id,ci){
+  const el=document.getElementById(id);
+  if(ci===null){
+    el.innerHTML=`<span style="color:var(--muted);font-family:var(--mono);font-size:9px;">trascina un campo</span>`;
+  } else {
+    el.innerHTML=`<span class="field-chip">${headers[ci]}<span class="chip-rm" onclick="clearField('${id}')">✕</span></span>`;
+  }
+}
+
+function clearField(id){
+  if(id==='xAxis')xAxisField=null;
+  else if(id==='yAxis')yAxisField=null;
+  else if(id==='colorBy')colorByField=null;
+  renderDropTargets();
+}
+
+function setVizType(t){
+  vizType=t;
+  document.querySelectorAll('[id^="ct-"]').forEach(b=>b.classList.remove('active'));
+  document.getElementById('ct-'+t).classList.add('active');
+}
+
+function clearViz(){
+  if(vizChart){vizChart.destroy();vizChart=null;}
+  document.getElementById('vizFrame').style.display='none';
+  document.getElementById('descStats').style.display='none';
+  document.getElementById('filterArea').style.display='none';
+  xAxisField=null;yAxisField=null;colorByField=null;
+  renderDropTargets();
+}
+
+function renderViz(){
+  if(vizChart){vizChart.destroy();vizChart=null;}
+
+  // HISTOGRAM — only needs Y
+  if(vizType==='hist'){
+    if(yAxisField===null){alert('Seleziona almeno una colonna numerica per Asse Y.');return;}
+    renderHistogram();return;
+  }
+  // BOX PLOT
+  if(vizType==='box'){
+    if(yAxisField===null){alert('Seleziona una colonna numerica per Asse Y.');return;}
+    renderBoxPlot();return;
+  }
+  // SCATTER
+  if(vizType==='scatter'){
+    if(xAxisField===null||yAxisField===null){alert('Seleziona colonne per entrambi gli assi.');return;}
+    renderScatter();return;
+  }
+  // BAR / LINE / PIE
+  if(xAxisField===null||yAxisField===null){alert('Seleziona colonne per entrambi gli assi.');return;}
+  renderBarLinePie();
+}
+
+const PALETTE=['#d94f1e','#e8a020','#2a7a4b','#1a5ea8','#8b3a8b','#16a085','#c0392b','#2980b9','#f39c12','#27ae60'];
+
+function renderBarLinePie(){
+  const fn=document.getElementById('measureFn').value;
+  const groups={};
+  rawData.forEach(r=>{
+    const xv=String(r[xAxisField]??'(vuoto)');
+    const yv=parseFloat(r[yAxisField]);
+    if(!isNaN(yv)){
+      if(!groups[xv])groups[xv]=[];
+      groups[xv].push(yv);
+    }
+  });
+  const sorted=Object.entries(groups).sort((a,b)=>b[1].length-a[1].length).slice(0,30);
+  const labels=sorted.map(([k])=>k);
+  const vals=sorted.map(([,v])=>aggregate(v,fn));
+  renderDescStats(rawData.map(r=>parseFloat(r[yAxisField])).filter(v=>!isNaN(v)));
+
+  const isPie=vizType==='pie';
+  const ctx=document.getElementById('vizChart').getContext('2d');
+  vizChart=new Chart(ctx,{
+    type:vizType==='hist'?'bar':vizType,
+    data:{labels,datasets:[{
+      label:`${document.getElementById('measureFn').options[document.getElementById('measureFn').selectedIndex].text} · ${headers[yAxisField]}`,
+      data:vals,
+      backgroundColor:isPie?PALETTE:PALETTE[0]+'22',
+      borderColor:isPie?'white':PALETTE[0],
+      borderWidth:isPie?2:1.5,
+      fill:vizType==='line',tension:0.35,
+      pointRadius:3,pointBackgroundColor:PALETTE[0],
+    }]},
+    options:chartOpts(isPie)
+  });
+  document.getElementById('vizFrame').style.display='block';
+}
+
+function renderScatter(){
+  const pts=rawData.map(r=>({x:parseFloat(r[xAxisField]),y:parseFloat(r[yAxisField])})).filter(p=>!isNaN(p.x)&&!isNaN(p.y));
+  renderDescStats(pts.map(p=>p.y));
+  const ctx=document.getElementById('vizChart').getContext('2d');
+  const colors=colorByField?rawData.map(r=>String(r[colorByField]??'')):null;
+  const uniq=colors?[...new Set(colors)]:null;
+  let datasets;
+  if(uniq&&uniq.length<=10){
+    datasets=uniq.map((g,i)=>{
+      const gpts=rawData.filter(r=>String(r[colorByField]??'')===g).map(r=>({x:parseFloat(r[xAxisField]),y:parseFloat(r[yAxisField])})).filter(p=>!isNaN(p.x)&&!isNaN(p.y));
+      return{label:g,data:gpts,backgroundColor:PALETTE[i%PALETTE.length]+'88',borderColor:PALETTE[i%PALETTE.length],pointRadius:4,pointBorderWidth:1};
+    });
+  } else {
+    datasets=[{label:'Dati',data:pts,backgroundColor:PALETTE[0]+'66',borderColor:PALETTE[0],pointRadius:3}];
+  }
+  vizChart=new Chart(ctx,{type:'scatter',data:{datasets},options:chartOpts(false,headers[xAxisField],headers[yAxisField])});
+  document.getElementById('vizFrame').style.display='block';
+}
+
+function renderHistogram(){
+  const nums=colNums(yAxisField);
+  if(!nums.length)return;
+  const mn=Math.min(...nums),mx=Math.max(...nums),bins=Math.min(20,Math.ceil(Math.sqrt(nums.length)));
+  const step=(mx-mn)/bins||1;
+  const counts=Array(bins).fill(0);
+  nums.forEach(v=>{const b=Math.min(Math.floor((v-mn)/step),bins-1);counts[b]++;});
+  const labels=counts.map((_,i)=>fmt(mn+i*step,1));
+  renderDescStats(nums);
+  const ctx=document.getElementById('vizChart').getContext('2d');
+  vizChart=new Chart(ctx,{
+    type:'bar',
+    data:{labels,datasets:[{label:'Frequenza',data:counts,backgroundColor:PALETTE[0]+'33',borderColor:PALETTE[0],borderWidth:1.5}]},
+    options:{...chartOpts(false),plugins:{...chartOpts(false).plugins,legend:{display:false}},scales:{x:{...chartOpts(false).scales.x},y:{...chartOpts(false).scales.y,title:{display:true,text:'Frequenza',font:{family:'JetBrains Mono',size:9},color:'#9a9590'}}}}
+  });
+  document.getElementById('vizFrame').style.display='block';
+}
+
+function renderBoxPlot(){
+  const nums=colNums(yAxisField).sort((a,b)=>a-b);
+  if(nums.length<4)return;
+  const q1=nums[Math.floor(nums.length*0.25)];
+  const q3=nums[Math.floor(nums.length*0.75)];
+  const iqr=q3-q1;
+  const wlo=Math.max(Math.min(...nums),q1-1.5*iqr);
+  const whi=Math.min(Math.max(...nums),q3+1.5*iqr);
+  const med=median(nums);
+  const outliers=nums.filter(v=>v<wlo||v>whi);
+  renderDescStats(nums);
+
+  // Simulate box as floating bar
+  const ctx=document.getElementById('vizChart').getContext('2d');
+  const pts=[{x:'Min',y:wlo},{x:'Q1',y:q1},{x:'Mediana',y:med},{x:'Q3',y:q3},{x:'Max',y:whi}];
+  const outs=outliers.map(v=>({x:'Outliers',y:v}));
+  vizChart=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:['Q1–Q3','Mediana','Whisker Lo','Whisker Hi',...outliers.map((_,i)=>'Out '+(i+1))],
+      datasets:[
+        {label:'Box (Q1–Q3)',data:[{x:'Box',y:q3-q1}],backgroundColor:PALETTE[0]+'44',borderColor:PALETTE[0],borderWidth:1.5},
+      ]
+    },
+    options:chartOpts(false)
+  });
+  // Simple line chart fallback for box
+  vizChart.destroy();
+  vizChart=new Chart(ctx,{
+    type:'line',
+    data:{
+      labels:['Minimo','Q1','Mediana','Q3','Massimo'],
+      datasets:[
+        {label:headers[yAxisField],data:[wlo,q1,med,q3,whi],borderColor:PALETTE[0],backgroundColor:PALETTE[0]+'22',fill:true,tension:0.1,pointRadius:6,pointBackgroundColor:PALETTE[0]},
+        ...(outliers.length?[{label:'Outlier',data:outliers.map(v=>({x:'Outliers',y:v})),type:'scatter',backgroundColor:'#e8a020',pointRadius:5,showLine:false}]:[])
+      ]
+    },
+    options:chartOpts(false)
+  });
+  document.getElementById('vizFrame').style.display='block';
+}
+
+function renderDescStats(nums){
+  if(!nums||!nums.length){document.getElementById('descStats').style.display='none';return;}
+  const s=nums.sort((a,b)=>a-b);
+  const q1=s[Math.floor(s.length*0.25)],q3=s[Math.floor(s.length*0.75)];
+  const kv={
+    'N':nums.length,'Somma':fmt(nums.reduce((a,b)=>a+b,0)),
+    'Media':fmt(mean(nums)),'Mediana':fmt(median(nums)),
+    'Dev. Std':fmt(std(nums)),'Min':fmt(Math.min(...nums)),'Max':fmt(Math.max(...nums)),
+    'Q1':fmt(q1),'Q3':fmt(q3),'IQR':fmt(q3-q1),
+    'Outlier IQR':nums.filter(v=>v<q1-1.5*(q3-q1)||v>q3+1.5*(q3-q1)).length
+  };
+  const el=document.getElementById('descKV');
+  el.innerHTML=Object.entries(kv).map(([k,v])=>`<span class="rk">${k}</span><span class="rv">${v}</span>`).join('');
+  document.getElementById('descStats').style.display='block';
+}
+
+function chartOpts(isPie,xLbl,yLbl){
+  return{
+    responsive:true,
+    plugins:{
+      legend:{display:!!isPie||false,labels:{font:{family:'JetBrains Mono',size:9},color:'#3d3a35'}},
+      tooltip:{backgroundColor:'#1a1814',titleColor:'#d94f1e',bodyColor:'#fdfcfa',
+        titleFont:{family:'JetBrains Mono',size:10},bodyFont:{family:'JetBrains Mono',size:9},
+        borderColor:'#3d3a35',borderWidth:1}
+    },
+    scales:isPie?{}:{
+      x:{ticks:{color:'#9a9590',font:{family:'JetBrains Mono',size:8},maxRotation:40},
+         grid:{color:'rgba(226,221,214,0.5)'},
+         ...(xLbl?{title:{display:true,text:xLbl,font:{family:'JetBrains Mono',size:9},color:'#9a9590'}}:{})},
+      y:{ticks:{color:'#9a9590',font:{family:'JetBrains Mono',size:8}},
+         grid:{color:'rgba(226,221,214,0.5)'},
+         ...(yLbl?{title:{display:true,text:yLbl,font:{family:'JetBrains Mono',size:9},color:'#9a9590'}}:{})}
+    }
+  };
+}
+
+// ══════════════════════════════════════════
+// TAB 2 — ANALISI
+// ══════════════════════════════════════════
+const MODELS={
+  kmeans:{name:'K-Means Clustering'},
+  corr:{name:'Correlazione di Pearson'},
+  linreg:{name:'Regressione Lineare'},
+  abtest:{name:'A/B Test (t-test)'},
+  churn:{name:'Churn Rate Analysis'},
+  dist:{name:'Distribuzione & Normalità'}
+};
+
+function populateAnaSelects(){/* called after headers load */}
+
+function numColOpts(){return headers.map((h,i)=>({h,i})).filter(({i})=>types[i]==='number');}
+function catColOpts(){return headers.map((h,i)=>({h,i})).filter(({i})=>types[i]==='text'||types[i]==='date');}
+function allColOpts(){return headers.map((h,i)=>({h,i}));}
+
+function selHTML(id,opts,lbl){
+  return`<select class="sm" id="${id}"><option value="">— scegli —</option>${opts.map(o=>`<option value="${o.i}">${o.h}</option>`).join('')}</select>`;
+}
+
+function selectModel(id){
+  document.querySelectorAll('.model-card').forEach(c=>c.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  currentModel=id;
+  const panel=document.getElementById('anaPanel');
+  panel.style.display='block';
+  document.getElementById('apTitle').textContent=MODELS[id].name;
+  buildModelConfig(id);
+  document.getElementById('apResult').innerHTML='';
+  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function closeModel(){
+  document.getElementById('anaPanel').style.display='none';
+  document.querySelectorAll('.model-card').forEach(c=>c.classList.remove('selected'));
+}
+
+function buildModelConfig(id){
+  const cfg=document.getElementById('apConfig');
+  const n=numColOpts(),c=catColOpts();
+  const configs={
+    kmeans:`
+      <div class="ap-field"><label>Variabile X</label>${selHTML('km_x',n)}</div>
+      <div class="ap-field"><label>Variabile Y</label>${selHTML('km_y',n)}</div>
+      <div class="ap-field"><label>N Cluster K</label><input type="number" id="km_k" value="3" min="2" max="10" style="width:80px;"></div>
+      <button class="btn-sm btn-orange" onclick="runKMeans()">Esegui →</button>`,
+    corr:`
+      <div class="ap-field"><label>Variabile X</label>${selHTML('co_x',n)}</div>
+      <div class="ap-field"><label>Variabile Y</label>${selHTML('co_y',n)}</div>
+      <button class="btn-sm btn-orange" onclick="runCorr()">Calcola →</button>`,
+    linreg:`
+      <div class="ap-field"><label>X (predittore)</label>${selHTML('lr_x',n)}</div>
+      <div class="ap-field"><label>Y (target)</label>${selHTML('lr_y',n)}</div>
+      <button class="btn-sm btn-orange" onclick="runLinReg()">Calcola →</button>`,
+    abtest:`
+      <div class="ap-field"><label>Gruppo (categoriale)</label>${selHTML('ab_g',c)}</div>
+      <div class="ap-field"><label>Metrica (numerica)</label>${selHTML('ab_m',n)}</div>
+      <div class="ap-field"><label>Soglia α</label><input type="number" id="ab_a" value="0.05" min="0.01" max="0.1" step="0.01" style="width:80px;"></div>
+      <button class="btn-sm btn-orange" onclick="runABTest()">Esegui →</button>`,
+    churn:`
+      <div class="ap-field"><label>Segmento (categoriale)</label>${selHTML('ch_g',c)}</div>
+      <div class="ap-field"><label>Colonna churn (0/1 o si/no)</label>${selHTML('ch_v',allColOpts())}</div>
+      <button class="btn-sm btn-orange" onclick="runChurn()">Analizza →</button>`,
+    dist:`
+      <div class="ap-field"><label>Variabile numerica</label>${selHTML('di_v',n)}</div>
+      <button class="btn-sm btn-orange" onclick="runDist()">Analizza →</button>`,
+  };
+  cfg.innerHTML=configs[id]||'';
+}
+
+/* K-MEANS */
+function runKMeans(){
+  const xi=+document.getElementById('km_x')?.value;
+  const yi=+document.getElementById('km_y')?.value;
+  const k=+document.getElementById('km_k')?.value||3;
+  if(!xi&&xi!==0||!yi&&yi!==0){alert('Seleziona entrambe le variabili.');return;}
+  const pts=rawData.map(r=>({x:parseFloat(r[xi]),y:parseFloat(r[yi])})).filter(p=>!isNaN(p.x)&&!isNaN(p.y));
+  if(pts.length<k){alert('Troppi pochi dati per '+k+' cluster.');return;}
+
+  // Init centroids randomly
+  let centroids=[];
+  const used=new Set();
+  while(centroids.length<k){const i=Math.floor(Math.random()*pts.length);if(!used.has(i)){used.add(i);centroids.push({...pts[i]});}}
+
+  let labels=new Array(pts.length).fill(0);
+  for(let iter=0;iter<50;iter++){
+    labels=pts.map(p=>{
+      let best=0,bd=Infinity;
+      centroids.forEach((c,i)=>{const d=(p.x-c.x)**2+(p.y-c.y)**2;if(d<bd){bd=d;best=i;}});
+      return best;
+    });
+    const newC=centroids.map((_,i)=>{
+      const g=pts.filter((_,j)=>labels[j]===i);
+      if(!g.length)return centroids[i];
+      return{x:mean(g.map(p=>p.x)),y:mean(g.map(p=>p.y))};
+    });
+    if(JSON.stringify(newC)===JSON.stringify(centroids))break;
+    centroids=newC;
+  }
+
+  const clusterCounts=Array(k).fill(0);
+  labels.forEach(l=>clusterCounts[l]++);
+
+  const datasets=centroids.map((_,i)=>({
+    label:'Cluster '+(i+1),
+    data:pts.filter((_,j)=>labels[j]===i).map(p=>({x:p.x,y:p.y})),
+    backgroundColor:PALETTE[i%PALETTE.length]+'77',
+    borderColor:PALETTE[i%PALETTE.length],
+    pointRadius:4,
+  }));
+  datasets.push({label:'Centroidi',data:centroids.map(c=>({x:c.x,y:c.y})),
+    backgroundColor:'#1a1814',borderColor:'#1a1814',pointRadius:8,pointStyle:'crossRot',type:'scatter'});
+
+  const res=document.getElementById('apResult');
+  res.innerHTML=`
+    <div class="result-box">
+      <div class="result-kv">
+        <span class="rk">Punti totali</span><span class="rv">${pts.length}</span>
+        <span class="rk">Cluster</span><span class="rv">${k}</span>
+        ${centroids.map((c,i)=>`<span class="rk">Cluster ${i+1}</span><span class="rv">${clusterCounts[i]} punti · centroide (${fmt(c.x,2)}, ${fmt(c.y,2)})</span>`).join('')}
+      </div>
+      <div class="result-chart"><canvas id="kmCanvas"></canvas></div>
+    </div>`;
+  new Chart(document.getElementById('kmCanvas').getContext('2d'),{type:'scatter',data:{datasets},options:{...chartOpts(false,headers[xi],headers[yi]),plugins:{...chartOpts(false).plugins,legend:{display:true,labels:{font:{family:'JetBrains Mono',size:9},color:'#3d3a35'}}}}});
+}
+
+/* PEARSON CORRELATION */
+function runCorr(){
+  const xi=+document.getElementById('co_x')?.value;
+  const yi=+document.getElementById('co_y')?.value;
+  if(!xi&&xi!==0||!yi&&yi!==0){alert('Seleziona entrambe le variabili.');return;}
+  const pairs=rawData.map(r=>({x:parseFloat(r[xi]),y:parseFloat(r[yi])})).filter(p=>!isNaN(p.x)&&!isNaN(p.y));
+  const n=pairs.length;
+  if(n<3){alert('Dati insufficienti.');return;}
+  const mx=mean(pairs.map(p=>p.x)),my=mean(pairs.map(p=>p.y));
+  const sx=std(pairs.map(p=>p.x)),sy=std(pairs.map(p=>p.y));
+  const r=pairs.reduce((s,p)=>s+(p.x-mx)*(p.y-my),0)/((n-1)*sx*sy);
+  const t=r*Math.sqrt(n-2)/Math.sqrt(1-r*r);
+  // approx p-value via t-distribution (simplified)
+  const pval=2*(1-tCDF(Math.abs(t),n-2));
+
+  const interp=Math.abs(r)>0.8?'Forte':Math.abs(r)>0.5?'Moderata':Math.abs(r)>0.2?'Debole':'Assente';
+  const dir=r>0?'positiva':'negativa';
+  const cls=Math.abs(r)>0.5?'good':Math.abs(r)>0.2?'warn':'bad';
+
+  document.getElementById('apResult').innerHTML=`
+    <div class="result-box">
+      <div class="result-kv">
+        <span class="rk">r di Pearson</span><span class="rv ${cls}">${r.toFixed(4)}</span>
+        <span class="rk">r²</span><span class="rv">${(r*r).toFixed(4)}</span>
+        <span class="rk">t-statistic</span><span class="rv">${t.toFixed(4)}</span>
+        <span class="rk">p-value (approx.)</span><span class="rv ${pval<0.05?'good':'bad'}">${pval.toFixed(4)} ${pval<0.05?'✓ significativo':'✗ non significativo'}</span>
+        <span class="rk">N osservazioni</span><span class="rv">${n}</span>
+        <span class="rk">Interpretazione</span><span class="rv">${interp} correlazione ${dir}</span>
+      </div>
+      <div class="result-chart"><canvas id="coCanvas"></canvas></div>
+    </div>`;
+  new Chart(document.getElementById('coCanvas').getContext('2d'),{
+    type:'scatter',
+    data:{datasets:[{label:'Osservazioni',data:pairs,backgroundColor:PALETTE[0]+'66',borderColor:PALETTE[0],pointRadius:3}]},
+    options:chartOpts(false,headers[xi],headers[yi])
+  });
+}
+
+/* LINEAR REGRESSION */
+function runLinReg(){
+  const xi=+document.getElementById('lr_x')?.value;
+  const yi=+document.getElementById('lr_y')?.value;
+  if(!xi&&xi!==0||!yi&&yi!==0){alert('Seleziona entrambe le variabili.');return;}
+  const pairs=rawData.map(r=>({x:parseFloat(r[xi]),y:parseFloat(r[yi])})).filter(p=>!isNaN(p.x)&&!isNaN(p.y));
+  const n=pairs.length;if(n<3){alert('Dati insufficienti.');return;}
+  const mx=mean(pairs.map(p=>p.x)),my=mean(pairs.map(p=>p.y));
+  const ssxy=pairs.reduce((s,p)=>s+(p.x-mx)*(p.y-my),0);
+  const ssxx=pairs.reduce((s,p)=>s+(p.x-mx)**2,0);
+  const b=ssxy/ssxx,a=my-b*mx;
+  const pred=pairs.map(p=>a+b*p.x);
+  const sst=pairs.reduce((s,p)=>s+(p.y-my)**2,0);
+  const sse=pairs.reduce((s,p,i)=>s+(p.y-pred[i])**2,0);
+  const r2=1-sse/sst;
+  const rmse=Math.sqrt(sse/n);
+
+  document.getElementById('apResult').innerHTML=`
+    <div class="result-box">
+      <div class="result-kv">
+        <span class="rk">Equazione</span><span class="rv">Y = ${fmt(b,4)}·X + ${fmt(a,4)}</span>
+        <span class="rk">Coefficiente (b)</span><span class="rv">${fmt(b,4)}</span>
+        <span class="rk">Intercetta (a)</span><span class="rv">${fmt(a,4)}</span>
+        <span class="rk">R²</span><span class="rv ${r2>0.7?'good':r2>0.4?'warn':'bad'}">${r2.toFixed(4)}</span>
+        <span class="rk">RMSE</span><span class="rv">${fmt(rmse,4)}</span>
+        <span class="rk">N osservazioni</span><span class="rv">${n}</span>
+      </div>
+      <div class="result-chart"><canvas id="lrCanvas"></canvas></div>
+    </div>`;
+  const mn=Math.min(...pairs.map(p=>p.x)),mx2=Math.max(...pairs.map(p=>p.x));
+  new Chart(document.getElementById('lrCanvas').getContext('2d'),{
+    type:'scatter',
+    data:{datasets:[
+      {label:'Osservazioni',data:pairs,backgroundColor:PALETTE[0]+'55',borderColor:PALETTE[0],pointRadius:3},
+      {label:'Regressione',data:[{x:mn,y:a+b*mn},{x:mx2,y:a+b*mx2}],type:'line',borderColor:PALETTE[1],borderWidth:2,pointRadius:0,fill:false,tension:0}
+    ]},
+    options:{...chartOpts(false,headers[xi],headers[yi]),plugins:{...chartOpts(false).plugins,legend:{display:true,labels:{font:{family:'JetBrains Mono',size:9},color:'#3d3a35'}}}}
+  });
+}
+
+/* A/B TEST */
+function runABTest(){
+  const gi=+document.getElementById('ab_g')?.value;
+  const mi=+document.getElementById('ab_m')?.value;
+  const alpha=parseFloat(document.getElementById('ab_a')?.value)||0.05;
+  if(!gi&&gi!==0||!mi&&mi!==0){alert('Seleziona gruppo e metrica.');return;}
+  const groups={};
+  rawData.forEach(r=>{const g=String(r[gi]??'');const v=parseFloat(r[mi]);if(!isNaN(v)&&g){if(!groups[g])groups[g]=[];groups[g].push(v);}});
+  const gKeys=Object.keys(groups).slice(0,2);
+  if(gKeys.length<2){alert('Servono almeno 2 gruppi distinti nella colonna scelta.');return;}
+  const A=groups[gKeys[0]],B=groups[gKeys[1]];
+  const mA=mean(A),mB=mean(B);
+  const sA=std(A),sB=std(B);
+  const t=Math.abs(mA-mB)/Math.sqrt(sA**2/A.length+sB**2/B.length);
+  const df=A.length+B.length-2;
+  const pval=2*(1-tCDF(t,df));
+  const sig=pval<alpha;
+
+  document.getElementById('apResult').innerHTML=`
+    <div class="result-box">
+      <div class="result-kv">
+        <span class="rk">Gruppo A (${gKeys[0]})</span><span class="rv">N=${A.length} · media=${fmt(mA,3)} · std=${fmt(sA,3)}</span>
+        <span class="rk">Gruppo B (${gKeys[1]})</span><span class="rv">N=${B.length} · media=${fmt(mB,3)} · std=${fmt(sB,3)}</span>
+        <span class="rk">Differenza media</span><span class="rv">${fmt(mA-mB,4)}</span>
+        <span class="rk">t-statistic</span><span class="rv">${t.toFixed(4)}</span>
+        <span class="rk">p-value</span><span class="rv ${sig?'good':'bad'}">${pval.toFixed(4)}</span>
+        <span class="rk">Soglia α</span><span class="rv">${alpha}</span>
+        <span class="rk">Risultato</span><span class="rv ${sig?'good':'bad'}">${sig?'✓ Differenza statisticamente significativa':'✗ Differenza NON significativa'}</span>
+        ${sig?`<span class="rk">Vincitore</span><span class="rv good">${mA>mB?gKeys[0]:gKeys[1]} (+${fmt(Math.abs(mA-mB)/Math.min(mA,mB)*100,1)}%)</span>`:''}
+      </div>
+      <div class="result-chart"><canvas id="abCanvas"></canvas></div>
+    </div>`;
+  new Chart(document.getElementById('abCanvas').getContext('2d'),{
+    type:'bar',
+    data:{labels:[gKeys[0],gKeys[1]],datasets:[
+      {label:'Media',data:[mA,mB],backgroundColor:[PALETTE[0]+'44',PALETTE[1]+'44'],borderColor:[PALETTE[0],PALETTE[1]],borderWidth:1.5}
+    ]},
+    options:{...chartOpts(false),'plugins':{...chartOpts(false).plugins,legend:{display:false}}}
+  });
+}
+
+/* CHURN */
+function runChurn(){
+  const gi=+document.getElementById('ch_g')?.value;
+  const vi=+document.getElementById('ch_v')?.value;
+  if(!gi&&gi!==0||!vi&&vi!==0){alert('Seleziona entrambe le colonne.');return;}
+  const groups={};
+  rawData.forEach(r=>{
+    const g=String(r[gi]??'(vuoto)');
+    const raw=String(r[vi]??'').toLowerCase();
+    const churned=raw==='1'||raw==='yes'||raw==='si'||raw==='true'||raw==='1.0'||raw==='churn'||raw==='churned';
+    if(!groups[g])groups[g]={total:0,churned:0};
+    groups[g].total++;
+    if(churned)groups[g].churned++;
+  });
+  const rows=Object.entries(groups).map(([g,v])=>({g,total:v.total,churned:v.churned,rate:v.churned/v.total})).sort((a,b)=>b.rate-a.rate);
+  const total=rows.reduce((s,r)=>s+r.total,0);
+  const totalChurned=rows.reduce((s,r)=>s+r.churned,0);
+  const globalRate=totalChurned/total;
+
+  document.getElementById('apResult').innerHTML=`
+    <div class="result-box">
+      <div class="result-kv">
+        <span class="rk">Churn rate globale</span><span class="rv ${globalRate>0.3?'bad':globalRate>0.15?'warn':'good'}">${(globalRate*100).toFixed(1)}%</span>
+        <span class="rk">Totale osservazioni</span><span class="rv">${total}</span>
+        <span class="rk">Totale churned</span><span class="rv">${totalChurned}</span>
+        <span class="rk">Segmento a rischio</span><span class="rv bad">${rows[0]?.g} (${(rows[0]?.rate*100).toFixed(1)}%)</span>
+        <span class="rk">Segmento migliore</span><span class="rv good">${rows[rows.length-1]?.g} (${(rows[rows.length-1]?.rate*100).toFixed(1)}%)</span>
+      </div>
+      <div class="result-chart"><canvas id="chCanvas"></canvas></div>
+    </div>`;
+  new Chart(document.getElementById('chCanvas').getContext('2d'),{
+    type:'bar',
+    data:{
+      labels:rows.map(r=>r.g),
+      datasets:[
+        {label:'Churn %',data:rows.map(r=>+(r.rate*100).toFixed(1)),backgroundColor:rows.map(r=>r.rate>0.3?PALETTE[0]+'66':r.rate>0.15?PALETTE[1]+'66':PALETTE[2]+'66'),borderColor:rows.map(r=>r.rate>0.3?PALETTE[0]:r.rate>0.15?PALETTE[1]:PALETTE[2]),borderWidth:1.5},
+      ]
+    },
+    options:{...chartOpts(false),'plugins':{...chartOpts(false).plugins,legend:{display:false}}}
+  });
+}
+
+/* DISTRIBUTION */
+function runDist(){
+  const vi=+document.getElementById('di_v')?.value;
+  if(!vi&&vi!==0){alert('Seleziona una variabile.');return;}
+  const nums=colNums(vi);
+  if(nums.length<5){alert('Dati insufficienti.');return;}
+  const m=mean(nums),s=std(nums),med=median(nums);
+  const skew=nums.reduce((a,v)=>a+((v-m)/s)**3,0)/nums.length;
+  const kurt=nums.reduce((a,v)=>a+((v-m)/s)**4,0)/nums.length-3;
+  const sorted=[...nums].sort((a,b)=>a-b);
+  const q1=sorted[Math.floor(sorted.length*0.25)],q3=sorted[Math.floor(sorted.length*0.75)],iqr=q3-q1;
+  const outliers=nums.filter(v=>v<q1-1.5*iqr||v>q3+1.5*iqr);
+  // Shapiro-Wilk approximation (simplified normality check via skew+kurt)
+  const isNormal=Math.abs(skew)<1&&Math.abs(kurt)<2;
+
+  document.getElementById('apResult').innerHTML=`
+    <div class="result-box">
+      <div class="result-kv">
+        <span class="rk">N</span><span class="rv">${nums.length}</span>
+        <span class="rk">Media</span><span class="rv">${fmt(m,4)}</span>
+        <span class="rk">Mediana</span><span class="rv">${fmt(med,4)}</span>
+        <span class="rk">Dev. Std</span><span class="rv">${fmt(s,4)}</span>
+        <span class="rk">Skewness</span><span class="rv ${Math.abs(skew)<0.5?'good':Math.abs(skew)<1?'warn':'bad'}">${skew.toFixed(4)} ${skew>0?'(coda destra)':'(coda sinistra)'}</span>
+        <span class="rk">Kurtosis (excess)</span><span class="rv ${Math.abs(kurt)<1?'good':'warn'}">${kurt.toFixed(4)} ${kurt>0?'(leptocurtica)':'(platicurtica)'}</span>
+        <span class="rk">Outlier IQR</span><span class="rv ${outliers.length>0?'warn':'good'}">${outliers.length}</span>
+        <span class="rk">Normalità (approx.)</span><span class="rv ${isNormal?'good':'warn'}">${isNormal?'✓ Probabile distribuzione normale':'⚠ Deviazione dalla normalità'}</span>
+      </div>
+      <div class="result-chart"><canvas id="diCanvas"></canvas></div>
+    </div>`;
+  // Histogram
+  const mn=Math.min(...nums),mx=Math.max(...nums);
+  const bins=Math.min(20,Math.ceil(Math.sqrt(nums.length)));
+  const step=(mx-mn)/bins||1;
+  const counts=Array(bins).fill(0);
+  nums.forEach(v=>{const b=Math.min(Math.floor((v-mn)/step),bins-1);counts[b]++;});
+  const lbls=counts.map((_,i)=>fmt(mn+i*step,1));
+  new Chart(document.getElementById('diCanvas').getContext('2d'),{
+    type:'bar',
+    data:{labels:lbls,datasets:[{label:'Frequenza',data:counts,backgroundColor:PALETTE[0]+'44',borderColor:PALETTE[0],borderWidth:1.5}]},
+    options:{...chartOpts(false),'plugins':{...chartOpts(false).plugins,legend:{display:false}}}
+  });
+}
+
+/* t-CDF approximation */
+function tCDF(t,df){
+  // Abramowitz & Stegun approximation
+  const x=df/(df+t*t);
+  let beta=0;
+  for(let i=0;i<100;i++){
+    const term=Math.exp(Math.log(x)*(df/2+i)+Math.log(1-x)*0.5);
+    beta+=term/(df/2+i+0.5);
+  }
+  return 1-0.5*Math.pow(x,df/2);
+}
+
+// ══════════════════════════════════════════
+// TAB 3 — PIVOT
+// ══════════════════════════════════════════
+function allowDropPV(e,id){e.preventDefault();document.getElementById(id).classList.add('over');}
+function leavePV(id){document.getElementById(id).classList.remove('over');}
+
+function dropPV(e,zone){
+  e.preventDefault();leavePV(zone);
+  if(dragField===null||dragSource!=='pivot')return;
+  const ci=parseInt(dragField);
+  if(zone==='pvRows'&&!pvRowFields.includes(ci))pvRowFields.push(ci);
+  else if(zone==='pvCols'&&!pvColFields.includes(ci))pvColFields.push(ci);
+  else if(zone==='pvVals'&&!pvValFields.includes(ci)&&types[ci]==='number')pvValFields.push(ci);
+  renderPVChips();
+  if(pvRowFields.length&&pvValFields.length)renderPivot();
+}
+
+function renderPVChips(){
+  renderChipSet('pvRowChips',pvRowFields,pvRowFields);
+  renderChipSet('pvColChips',pvColFields,pvColFields);
+  renderChipSet('pvValChips',pvValFields,pvValFields);
+}
+
+function renderChipSet(elId,arr,ref){
+  const el=document.getElementById(elId);
+  if(!el)return;
+  el.innerHTML=arr.map((ci,i)=>`<span class="pv-chip">${headers[ci]}<span class="pv-chip-rm" onclick="removePVField('${elId}',${i})">✕</span></span>`).join('');
+}
+
+function removePVField(elId,idx){
+  if(elId==='pvRowChips')pvRowFields.splice(idx,1);
+  else if(elId==='pvColChips')pvColFields.splice(idx,1);
+  else if(elId==='pvValChips')pvValFields.splice(idx,1);
+  renderPVChips();
+  renderPivot();
+}
+
+function renderPivot(){
+  const wrap=document.getElementById('pvTableWrap');
+  if(!pvRowFields.length||!pvValFields.length){
+    wrap.innerHTML='<div class="pv-empty">Trascina almeno un campo in Righe e uno numerico in Valori.</div>';
+    return;
+  }
+  const fn=document.getElementById('pvMeasure').value;
+  const valCi=pvValFields[0];
+  const rowKey=r=>pvRowFields.map(ci=>String(r[ci]??'(vuoto)')).join(' › ');
+  const colKey=r=>pvColFields.length?pvColFields.map(ci=>String(r[ci]??'(vuoto)')).join(' › '):'Valore';
+
+  // Build data map
+  const cellData={};const rowKeys=new Set();const colKeys=new Set();
+  rawData.forEach(r=>{
+    const rk=rowKey(r),ck=colKey(r);
+    const v=parseFloat(r[valCi]);
+    rowKeys.add(rk);colKeys.add(ck);
+    const key=rk+'|||'+ck;
+    if(!cellData[key])cellData[key]=[];
+    if(!isNaN(v))cellData[key].push(v);
+  });
+
+  const rows=[...rowKeys].sort();
+  const cols=[...colKeys].sort();
+
+  let html='<div class="pivot-table-wrap"><table class="pivot-table"><thead><tr>';
+  html+=`<th class="row-head">${pvRowFields.map(ci=>headers[ci]).join(' › ')}</th>`;
+  cols.forEach(c=>html+=`<th class="col-head">${c}</th>`);
+  html+=`<th class="col-head">Totale</th></tr></thead><tbody>`;
+
+  const grandTotals=Array(cols.length).fill(0).map(()=>[]);
+
+  rows.forEach(rk=>{
+    html+=`<tr><td class="row-lbl">${rk}</td>`;
+    let rowTotal=[];
+    cols.forEach((ck,ci)=>{
+      const key=rk+'|||'+ck;
+      const arr=cellData[key]||[];
+      const val=arr.length?aggregate(arr,fn):null;
+      if(val!==null){rowTotal.push(val);grandTotals[ci].push(val);}
+      html+=`<td class="val">${val!==null?fmt(val):'—'}</td>`;
+    });
+    const rt=rowTotal.length?aggregate(rowTotal,fn):null;
+    html+=`<td class="val" style="background:var(--cream);font-weight:600;">${rt!==null?fmt(rt):'—'}</td></tr>`;
+  });
+
+  // Grand total row
+  html+=`<tr class="grand"><td class="row-lbl">Totale</td>`;
+  let grandAll=[];
+  grandTotals.forEach(arr=>{const v=arr.length?aggregate(arr,fn):null;if(v!==null)grandAll.push(v);html+=`<td class="val">${v!==null?fmt(v):'—'}</td>`;});
+  html+=`<td class="val">${grandAll.length?fmt(aggregate(grandAll,fn)):'—'}</td></tr>`;
+  html+='</tbody></table></div>';
+  wrap.innerHTML=html;
+}
+
+function exportPivot(){
+  const table=document.querySelector('.pivot-table');
+  if(!table){alert('Genera prima una pivot.');return;}
+  let csv='';
+  table.querySelectorAll('tr').forEach(row=>{
+    const cells=[...row.querySelectorAll('th,td')].map(c=>'"'+c.textContent.trim()+'"');
+    csv+=cells.join(',')+'\n';
+  });
+  const blob=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='lume_pivot.csv';a.click();
+}
+</script>
+</body>
+</html>
