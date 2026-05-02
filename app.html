@@ -1275,7 +1275,9 @@ async function runAIAnalysis() {
       <div class="ai-error-box">
         <strong>Errore nella generazione</strong><br>
         ${err.message}<br><br>
-        <small>Verifica la combinazione ruolo/ambito o ricarica la pagina.</small>
+        <small>Riprova cliccando "Genera analisi" di nuovo. Se persiste, l'AI potrebbe aver generato un formato non valido per questa combinazione di dati.</small>
+        <br><br>
+        <button class="btn-sm btn-orange" onclick="runAIAnalysis()">↻ Riprova</button>
       </div>
     `
   }
