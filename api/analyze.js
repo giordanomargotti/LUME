@@ -35,8 +35,9 @@ export default async function handler(req, res) {
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-5',
-        max_tokens: 4000,
+        model: 'claude-sonnet-4-5-20250929',
+        max_tokens: 8000,
+        system: 'Sei un generatore di report JSON. Restituisci ESCLUSIVAMENTE JSON valido che inizia con { e finisce con }. Mai testo prima, mai testo dopo, mai backtick markdown, mai spiegazioni. Solo il JSON puro. Mantieni la risposta concisa per non superare i token disponibili.',
         messages: [{ role: 'user', content: fullPrompt }]
       })
     })
@@ -49,18 +50,100 @@ export default async function handler(req, res) {
 
     const data = await response.json()
     const text = data.content?.[0]?.text || ''
+    const stopReason = data.stop_reason || 'unknown'
 
-    let jsonText = text.trim()
-    if (jsonText.startsWith('```')) {
-      jsonText = jsonText.replace(/^```(json)?/, '').replace(/```$/, '').trim()
+    // Log per debug nei Vercel Logs
+    console.log('=== CLAUDE RESPONSE ===')
+    console.log('stop_reason:', stopReason)
+    console.log('text length:', text.length)
+    console.log('first 300:', text.slice(0, 300))
+    console.log('last 300:', text.slice(-300))
+
+    // Parsing JSON robusto - prova più strategie
+    let parsed = null
+    let parseErrors = []
+
+    // Strategia 1: JSON puro
+    try {
+      parsed = JSON.parse(text.trim())
+    } catch(e) { parseErrors.push('puro: ' + e.message) }
+
+    // Strategia 2: rimuovi backtick markdown
+    if (!parsed) {
+      try {
+        let t = text.trim()
+        if (t.startsWith('```')) t = t.replace(/^```(json)?/, '').replace(/```$/, '').trim()
+        parsed = JSON.parse(t)
+      } catch(e) { parseErrors.push('backtick: ' + e.message) }
     }
 
-    let parsed
-    try {
-      parsed = JSON.parse(jsonText)
-    } catch (e) {
-      console.error('Parse error. Raw:', text.slice(0, 500))
-      return res.status(500).json({ error: 'Risposta AI non parsabile come JSON', raw: text.slice(0, 500) })
+    // Strategia 3: estrai primo blocco { ... } bilanciato
+    if (!parsed) {
+      try {
+        const start = text.indexOf('{')
+        if (start >= 0) {
+          let depth = 0, end = -1, inStr = false, escape = false
+          for (let i = start; i < text.length; i++) {
+            const c = text[i]
+            if (escape) { escape = false; continue }
+            if (c === '\\') { escape = true; continue }
+            if (c === '"') { inStr = !inStr; continue }
+            if (inStr) continue
+            if (c === '{') depth++
+            if (c === '}') { depth--; if (depth === 0) { end = i; break } }
+          }
+          if (end > start) {
+            parsed = JSON.parse(text.slice(start, end + 1))
+          }
+        }
+      } catch(e) { parseErrors.push('extract: ' + e.message) }
+    }
+
+    // Strategia 4: JSON troncato (max_tokens) — chiudi array/oggetti aperti
+    if (!parsed) {
+      try {
+        const start = text.indexOf('{')
+        if (start >= 0) {
+          let t = text.slice(start)
+          let depth = 0, depthArr = 0, inStr = false, escape = false
+          let lastSafeComma = -1
+          for (let i = 0; i < t.length; i++) {
+            const c = t[i]
+            if (escape) { escape = false; continue }
+            if (c === '\\') { escape = true; continue }
+            if (c === '"') { inStr = !inStr; continue }
+            if (inStr) continue
+            if (c === '{') depth++
+            if (c === '}') depth--
+            if (c === '[') depthArr++
+            if (c === ']') depthArr--
+            if (c === ',' && depthArr === 0 && depth === 1) lastSafeComma = i
+          }
+          if (lastSafeComma > 0 && depth > 0) {
+            // Tronca all'ultima virgola top-level e chiudi
+            let fixed = t.slice(0, lastSafeComma)
+            // Chiudi array aperti
+            for (let k = 0; k < depthArr; k++) fixed += ']'
+            // Chiudi oggetti aperti
+            for (let k = 0; k < depth; k++) fixed += '}'
+            parsed = JSON.parse(fixed)
+            console.log('✓ Recovered truncated JSON')
+          }
+        }
+      } catch(e) { parseErrors.push('truncate-fix: ' + e.message) }
+    }
+
+    if (!parsed) {
+      console.error('=== PARSE FAILED ===')
+      console.error('Errors:', parseErrors)
+      console.error('Stop reason:', stopReason)
+      console.error('Full raw:', text)
+      return res.status(500).json({
+        error: 'Risposta AI non parsabile come JSON',
+        debug: parseErrors.join(' | '),
+        stop_reason: stopReason,
+        raw: text.slice(0, 1500)
+      })
     }
 
     return res.status(200).json({ report: parsed })
