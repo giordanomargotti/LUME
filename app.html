@@ -40,6 +40,53 @@ body::before{content:'';position:fixed;inset:0;background-image:repeating-linear
 .btn-logout{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--muted);padding:5px 10px;cursor:pointer;transition:all .15s;}
 .btn-logout:hover{border-color:var(--orange);color:var(--orange);}
 
+/* ── ONBOARDING MODAL ── */
+.onb-overlay{position:fixed;inset:0;background:rgba(26,24,20,0.65);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:1000;animation:fadeIn .3s ease;padding:20px;}
+.onb-overlay.show{display:flex;}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+.onb-card{background:white;max-width:560px;width:100%;border:1.5px solid var(--ink);position:relative;animation:slideUp .4s cubic-bezier(0.34,1.56,0.64,1);}
+.onb-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--orange);}
+
+.onb-header{padding:32px 36px 20px;border-bottom:1px solid var(--rule);}
+.onb-eyebrow{font-family:var(--mono);font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.onb-title{font-family:var(--lora);font-size:26px;font-weight:700;letter-spacing:-.02em;line-height:1.2;}
+.onb-title em{font-style:italic;color:var(--orange);}
+.onb-sub{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.05em;margin-top:6px;}
+
+.onb-body{padding:24px 36px 28px;}
+
+.onb-step{margin-bottom:24px;}
+.onb-step:last-child{margin-bottom:0;}
+
+.onb-q-label{display:flex;align-items:baseline;gap:8px;margin-bottom:14px;}
+.onb-q-num{font-family:var(--mono);font-size:9px;background:var(--orange);color:white;padding:2px 7px;letter-spacing:.1em;}
+.onb-q-text{font-family:var(--lora);font-size:14px;font-weight:600;}
+
+.onb-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.onb-opt{font-family:var(--serif);font-size:13px;padding:14px 16px;border:1.5px solid var(--rule);background:white;cursor:pointer;text-align:left;transition:all .15s;color:var(--ink2);position:relative;}
+.onb-opt:hover{border-color:var(--ink);background:var(--paper);}
+.onb-opt.selected{border-color:var(--orange);background:var(--orange-bg);color:var(--ink);}
+.onb-opt.selected::after{content:'✓';position:absolute;top:8px;right:10px;color:var(--orange);font-weight:700;font-size:14px;}
+
+.onb-opt-title{display:block;font-weight:600;font-size:13px;margin-bottom:2px;}
+.onb-opt-desc{display:block;font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.04em;line-height:1.5;}
+
+.onb-footer{padding:18px 36px;background:var(--cream);border-top:1px solid var(--rule);display:flex;justify-content:space-between;align-items:center;}
+.onb-progress{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);}
+.onb-progress strong{color:var(--orange);}
+
+.btn-onb{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;background:var(--ink);color:white;border:none;padding:11px 22px;cursor:pointer;transition:background .15s;}
+.btn-onb:hover{background:var(--orange);}
+.btn-onb:disabled{opacity:.4;cursor:not-allowed;background:var(--muted);}
+
+@media(max-width:540px){
+  .onb-options{grid-template-columns:1fr;}
+  .onb-card{margin:10px;}
+  .onb-header,.onb-body,.onb-footer{padding-left:20px;padding-right:20px;}
+}
+
 /* ── DROP ── */
 .drop-section{padding:32px 0 32px 52px;}
 .drop-intro{font-size:20px;font-weight:600;font-style:italic;line-height:1.35;margin-bottom:4px;max-width:480px;}
@@ -231,6 +278,84 @@ footer{border-top:2.5px solid var(--ink);margin-top:60px;padding:14px 36px 14px 
 </style>
 </head>
 <body>
+
+<!-- ══ ONBOARDING MODAL ══ -->
+<div class="onb-overlay" id="onbOverlay">
+  <div class="onb-card">
+    <div class="onb-header">
+      <div class="onb-eyebrow">Configurazione iniziale · Una volta sola</div>
+      <h2 class="onb-title">Diamoci un <em>contesto.</em></h2>
+      <p class="onb-sub">// queste 2 risposte personalizzano ogni analisi AI sul tuo ruolo e settore</p>
+    </div>
+
+    <div class="onb-body">
+      <!-- Q1: RUOLO -->
+      <div class="onb-step">
+        <div class="onb-q-label">
+          <span class="onb-q-num">01</span>
+          <span class="onb-q-text">Qual è il tuo ruolo principale?</span>
+        </div>
+        <div class="onb-options" id="onbRoles">
+          <button class="onb-opt" data-val="data_analyst">
+            <span class="onb-opt-title">Data Analyst</span>
+            <span class="onb-opt-desc">Analisi tecniche, metodologie statistiche</span>
+          </button>
+          <button class="onb-opt" data-val="middle_management">
+            <span class="onb-opt-title">Middle Management</span>
+            <span class="onb-opt-desc">Decisioni operative e tattiche</span>
+          </button>
+          <button class="onb-opt" data-val="team_leader">
+            <span class="onb-opt-title">Team Leader</span>
+            <span class="onb-opt-desc">Coordinamento e azioni di team</span>
+          </button>
+          <button class="onb-opt" data-val="sales_manager">
+            <span class="onb-opt-title">Sales Manager</span>
+            <span class="onb-opt-desc">Vendite, pipeline, performance</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Q2: ARGOMENTO -->
+      <div class="onb-step">
+        <div class="onb-q-label">
+          <span class="onb-q-num">02</span>
+          <span class="onb-q-text">Su cosa farai più spesso analisi?</span>
+        </div>
+        <div class="onb-options" id="onbTopics">
+          <button class="onb-opt" data-val="crm">
+            <span class="onb-opt-title">CRM / Clienti</span>
+            <span class="onb-opt-desc">Retention, churn, segmentazione</span>
+          </button>
+          <button class="onb-opt" data-val="sales">
+            <span class="onb-opt-title">Vendite</span>
+            <span class="onb-opt-desc">Pipeline, conversion, performance</span>
+          </button>
+          <button class="onb-opt" data-val="finance">
+            <span class="onb-opt-title">Finanza</span>
+            <span class="onb-opt-desc">Margini, costi, budget</span>
+          </button>
+          <button class="onb-opt" data-val="operations">
+            <span class="onb-opt-title">Operazioni</span>
+            <span class="onb-opt-desc">Produzione, logistica, processi</span>
+          </button>
+          <button class="onb-opt" data-val="marketing">
+            <span class="onb-opt-title">Marketing</span>
+            <span class="onb-opt-desc">Campagne, CAC, conversion</span>
+          </button>
+          <button class="onb-opt" data-val="other">
+            <span class="onb-opt-title">Altro</span>
+            <span class="onb-opt-desc">Analisi generica adattabile</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="onb-footer">
+      <span class="onb-progress"><strong id="onbProgress">0</strong> / 2 risposte</span>
+      <button class="btn-onb" id="btnOnbSave" disabled onclick="saveOnboarding()">Salva e prosegui →</button>
+    </div>
+  </div>
+</div>
 <div class="page">
 
 <!-- USER BADGE -->
@@ -497,26 +622,98 @@ footer{border-top:2.5px solid var(--ink);margin-top:60px;padding:14px 36px 14px 
 
 <script>
 // ══════════════════════════════════════════
-// SUPABASE AUTH
+// SUPABASE AUTH + ONBOARDING
 // ══════════════════════════════════════════
 const SUPABASE_URL = 'https://bejcehbawytcwifvuobd.supabase.co'
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJlamNlaGJhd3l0Y3dpZnZ1b2JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjUyNjMsImV4cCI6MjA5MjEwMTI2M30._OssTkFRKTuvbz-7aGDRiWGgTnK5hb6d2WerkPbkYfM'
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJlamNlaGJhd3l0Y3dpZnZ1b2JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjUyNjMsImV4cCI6MjA5MjEwMTI2M30._OssTkFRKTuvbz-7aGDRiWGgTnK5hb6d2WerkPbkYfM'   // ← stessa anon key di index.html
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
-// Auth-gate: se non loggato, torna al login
-sb.auth.getSession().then(({ data }) => {
+let currentUser = null
+let userProfile = null  // contiene ruolo + argomento
+
+// Auth-gate: controlla sessione e carica profilo
+sb.auth.getSession().then(async ({ data }) => {
   if (!data.session) {
     window.location.href = 'index.html'
-  } else {
-    document.getElementById('userEmail').textContent = data.session.user.email
-    document.getElementById('userBadge').style.display = 'flex'
+    return
+  }
+
+  currentUser = data.session.user
+  document.getElementById('userEmail').textContent = currentUser.email
+  document.getElementById('userBadge').style.display = 'flex'
+
+  // Carica profilo da Supabase
+  const { data: profile, error } = await sb
+    .from('profiles')
+    .select('ruolo, argomento, full_name')
+    .eq('id', currentUser.id)
+    .single()
+
+  if (error) {
+    console.error('Errore caricamento profilo:', error)
+    return
+  }
+
+  userProfile = profile
+
+  // Se mancano ruolo o argomento → mostra onboarding
+  if (!profile.ruolo || !profile.argomento) {
+    document.getElementById('onbOverlay').classList.add('show')
   }
 })
 
 async function doLogout() {
   await sb.auth.signOut()
   window.location.href = 'index.html'
+}
+
+// ── ONBOARDING LOGIC ─────────────────────
+let onbRole = null, onbTopic = null
+
+document.querySelectorAll('#onbRoles .onb-opt').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#onbRoles .onb-opt').forEach(b => b.classList.remove('selected'))
+    btn.classList.add('selected')
+    onbRole = btn.dataset.val
+    updateOnbProgress()
+  })
+})
+
+document.querySelectorAll('#onbTopics .onb-opt').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#onbTopics .onb-opt').forEach(b => b.classList.remove('selected'))
+    btn.classList.add('selected')
+    onbTopic = btn.dataset.val
+    updateOnbProgress()
+  })
+})
+
+function updateOnbProgress() {
+  const count = (onbRole ? 1 : 0) + (onbTopic ? 1 : 0)
+  document.getElementById('onbProgress').textContent = count
+  document.getElementById('btnOnbSave').disabled = count < 2
+}
+
+async function saveOnboarding() {
+  const btn = document.getElementById('btnOnbSave')
+  btn.disabled = true
+  btn.textContent = 'Salvataggio...'
+
+  const { error } = await sb
+    .from('profiles')
+    .update({ ruolo: onbRole, argomento: onbTopic, updated_at: new Date().toISOString() })
+    .eq('id', currentUser.id)
+
+  if (error) {
+    alert('Errore nel salvataggio: ' + error.message)
+    btn.disabled = false
+    btn.textContent = 'Salva e prosegui →'
+    return
+  }
+
+  userProfile = { ...userProfile, ruolo: onbRole, argomento: onbTopic }
+  document.getElementById('onbOverlay').classList.remove('show')
 }
 
 // ══════════════════════════════════════════
