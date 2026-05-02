@@ -279,13 +279,13 @@ footer{border-top:2.5px solid var(--ink);margin-top:60px;padding:14px 36px 14px 
 </head>
 <body>
 
-<!-- ══ ONBOARDING MODAL ══ -->
+<!-- ══ ONBOARDING / SETTINGS MODAL ══ -->
 <div class="onb-overlay" id="onbOverlay">
   <div class="onb-card">
     <div class="onb-header">
-      <div class="onb-eyebrow">Configurazione iniziale · Una volta sola</div>
-      <h2 class="onb-title">Diamoci un <em>contesto.</em></h2>
-      <p class="onb-sub">// queste 2 risposte personalizzano ogni analisi AI sul tuo ruolo e settore</p>
+      <div class="onb-eyebrow" id="onbEyebrow">Configurazione iniziale · Una volta sola</div>
+      <h2 class="onb-title" id="onbTitle">Diamoci un <em>contesto.</em></h2>
+      <p class="onb-sub" id="onbSubtitle">// queste 2 risposte personalizzano ogni analisi AI sul tuo ruolo e settore</p>
     </div>
 
     <div class="onb-body">
@@ -352,7 +352,10 @@ footer{border-top:2.5px solid var(--ink);margin-top:60px;padding:14px 36px 14px 
 
     <div class="onb-footer">
       <span class="onb-progress"><strong id="onbProgress">0</strong> / 2 risposte</span>
-      <button class="btn-onb" id="btnOnbSave" disabled onclick="saveOnboarding()">Salva e prosegui →</button>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-onb" id="btnOnbCancel" onclick="closeSettings()" style="background:white;color:var(--ink);border:1.5px solid var(--rule);display:none;">Annulla</button>
+        <button class="btn-onb" id="btnOnbSave" disabled onclick="saveOnboarding()">Salva e prosegui →</button>
+      </div>
     </div>
   </div>
 </div>
@@ -362,6 +365,7 @@ footer{border-top:2.5px solid var(--ink);margin-top:60px;padding:14px 36px 14px 
 <div class="user-badge" id="userBadge" style="display:none;">
   <span class="u-email" id="userEmail">—</span>
   <span class="u-sep">·</span>
+  <button class="btn-logout" onclick="openSettings()" title="Modifica impostazioni">⚙ Impostazioni</button>
   <button class="btn-logout" onclick="doLogout()">Esci →</button>
 </div>
 
@@ -714,6 +718,43 @@ async function saveOnboarding() {
 
   userProfile = { ...userProfile, ruolo: onbRole, argomento: onbTopic }
   document.getElementById('onbOverlay').classList.remove('show')
+  btn.textContent = 'Salva e prosegui →'
+}
+
+// ── SETTINGS (riapertura modale per modifiche) ────
+function openSettings() {
+  if (!userProfile) return
+
+  // Cambio testi → modalità settings
+  document.getElementById('onbEyebrow').textContent = 'Modifica impostazioni · Personalizzazione'
+  document.getElementById('onbTitle').innerHTML = 'Aggiorna il tuo <em>profilo.</em>'
+  document.getElementById('onbSubtitle').textContent = '// modifica ruolo e ambito di analisi'
+  document.getElementById('btnOnbSave').textContent = 'Salva modifiche →'
+  document.getElementById('btnOnbCancel').style.display = 'inline-block'
+
+  // Pre-seleziona valori attuali
+  onbRole = userProfile.ruolo
+  onbTopic = userProfile.argomento
+
+  document.querySelectorAll('#onbRoles .onb-opt').forEach(b => {
+    b.classList.toggle('selected', b.dataset.val === onbRole)
+  })
+  document.querySelectorAll('#onbTopics .onb-opt').forEach(b => {
+    b.classList.toggle('selected', b.dataset.val === onbTopic)
+  })
+
+  updateOnbProgress()
+  document.getElementById('onbOverlay').classList.add('show')
+}
+
+function closeSettings() {
+  document.getElementById('onbOverlay').classList.remove('show')
+  // Reset testi al default per eventuale riapertura
+  document.getElementById('onbEyebrow').textContent = 'Configurazione iniziale · Una volta sola'
+  document.getElementById('onbTitle').innerHTML = 'Diamoci un <em>contesto.</em>'
+  document.getElementById('onbSubtitle').textContent = '// queste 2 risposte personalizzano ogni analisi AI sul tuo ruolo e settore'
+  document.getElementById('btnOnbSave').textContent = 'Salva e prosegui →'
+  document.getElementById('btnOnbCancel').style.display = 'none'
 }
 
 // ══════════════════════════════════════════
