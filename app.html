@@ -318,6 +318,92 @@ footer{border-top:2.5px solid var(--ink);margin-top:60px;padding:14px 36px 14px 
 .ai-actions{display:flex;gap:8px;justify-content:flex-end;padding:14px 28px;background:var(--cream);border-top:1px solid var(--rule);}
 
 .ai-error{background:#fff2ec;border:1.5px solid var(--orange);padding:14px 18px;font-family:var(--mono);font-size:10px;color:var(--orange);margin-top:14px;line-height:1.6;}
+.ai-error-box{background:#fff2ec;border:1.5px solid var(--orange);padding:24px;font-family:var(--mono);font-size:11px;color:var(--orange);line-height:1.7;}
+
+/* ── Preview inferenziale (tab 1) ── */
+.infer-preview{margin-bottom:24px;}
+.infer-header{display:flex;align-items:baseline;gap:10px;margin-bottom:10px;}
+.infer-eyebrow{font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--amber);font-weight:500;}
+.infer-sub{font-family:var(--mono);font-size:9px;color:var(--muted);font-style:italic;}
+.infer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1px;background:var(--rule);border:1.5px solid var(--ink);}
+.infer-card{background:white;padding:14px;}
+.infer-card-eyebrow{font-family:var(--mono);font-size:8px;letter-spacing:.16em;text-transform:uppercase;color:var(--orange);margin-bottom:5px;}
+.infer-card-title{font-family:var(--lora);font-size:13px;font-weight:600;line-height:1.3;margin-bottom:8px;}
+.infer-card-content{font-family:var(--mono);font-size:10px;color:var(--ink2);line-height:1.7;}
+.infer-card-vars{font-style:italic;color:var(--muted);font-size:9px;margin-bottom:6px;}
+.infer-clusters-list,.infer-outlier-row{display:flex;flex-direction:column;gap:3px;}
+.infer-cluster-row{display:flex;align-items:center;gap:6px;}
+.infer-cluster-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.infer-cluster-label{font-weight:500;color:var(--ink);min-width:60px;}
+.infer-cluster-count{color:var(--muted);}
+.infer-corr-r{font-family:var(--lora);font-size:18px;color:var(--orange);}
+.infer-corr-r strong{font-weight:700;}
+.infer-corr-interp{color:var(--ink2);font-size:9px;margin-top:2px;}
+.infer-reg{margin-top:6px;font-size:9px;color:var(--ink2);}
+.infer-outlier-row{display:flex;justify-content:space-between;}
+.infer-outlier-name{color:var(--ink);}
+.infer-outlier-count{color:var(--orange);font-weight:500;}
+
+/* ── Loader AI ── */
+.ai-loading{padding:60px 20px;text-align:center;border:1.5px solid var(--rule);background:var(--paper);}
+.ai-loading-spinner{width:40px;height:40px;border:3px solid var(--rule);border-top-color:var(--orange);border-radius:50%;margin:0 auto 16px;animation:spin 0.9s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.ai-loading-text{font-family:var(--lora);font-size:14px;font-weight:600;margin-bottom:6px;}
+.ai-loading-sub{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.05em;}
+
+/* ── Report AI completo ── */
+.ai-report{font-family:var(--serif);}
+.ai-rep-header{padding:24px 0 18px;border-bottom:2.5px solid var(--ink);margin-bottom:0;}
+.ai-rep-title{font-family:var(--lora);font-size:30px;font-weight:700;letter-spacing:-.02em;line-height:1.15;margin-bottom:8px;}
+.ai-rep-meta{display:flex;flex-wrap:wrap;gap:6px;font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.04em;}
+
+.ai-rep-section{padding:22px 0;border-bottom:1px solid var(--rule);}
+.ai-rep-sec-eyebrow{font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--orange);margin-bottom:10px;font-weight:500;}
+.ai-rep-sec-title{font-family:var(--lora);font-size:18px;font-weight:600;letter-spacing:-.01em;margin-bottom:12px;}
+.ai-rep-sec-narrative{font-size:14px;line-height:1.7;color:var(--ink2);margin-bottom:14px;}
+
+.ai-exec-summary{background:var(--amber-bg);border-left:4px solid var(--amber);padding:18px 22px;margin-top:18px;}
+.ai-exec-text{font-family:var(--lora);font-size:15px;font-style:italic;line-height:1.7;color:var(--ink);}
+
+.ai-kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;background:var(--rule);border:1.5px solid var(--ink);}
+.ai-kpi-card{background:white;padding:16px;}
+.ai-kpi-label{font-family:var(--mono);font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+.ai-kpi-value{font-family:var(--lora);font-size:24px;font-weight:700;color:var(--orange);line-height:1;letter-spacing:-.03em;margin-bottom:4px;}
+.ai-kpi-delta{font-family:var(--mono);font-size:9px;font-weight:500;margin-bottom:6px;}
+.ai-trend-up{color:var(--green);}
+.ai-trend-down{color:var(--orange);}
+.ai-trend-flat{color:var(--muted);}
+.ai-kpi-comment{font-family:var(--mono);font-size:9px;color:var(--ink2);line-height:1.5;}
+
+.ai-chart-wrap{border:1.5px solid var(--ink);background:var(--paper);padding:18px;margin:14px 0;}
+.ai-chart-title{font-family:var(--lora);font-size:11px;font-style:italic;color:var(--muted);margin-bottom:12px;border-bottom:1px solid var(--rule);padding-bottom:6px;}
+.ai-chart-insight{font-family:var(--mono);font-size:10px;color:var(--orange);margin-top:10px;border-top:1px solid var(--rule);padding-top:8px;letter-spacing:.04em;}
+.ai-chart-warn{font-family:var(--mono);font-size:10px;color:var(--orange);padding:10px;background:var(--orange-bg);border:1px solid var(--orange);margin-top:8px;}
+
+.ai-findings{list-style:none;margin-top:10px;border-left:2px solid var(--orange);padding-left:14px;}
+.ai-findings li{font-family:var(--mono);font-size:11px;color:var(--ink2);line-height:1.6;margin-bottom:6px;position:relative;}
+.ai-findings li::before{content:'→';color:var(--orange);position:absolute;left:-22px;}
+
+.ai-recs-section{background:var(--paper);}
+.ai-recs{display:flex;flex-direction:column;gap:10px;}
+.ai-rec-card{border-left:4px solid var(--orange);background:white;padding:14px 18px;border-top:1px solid var(--rule);border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);}
+.ai-rec-alta{border-left-color:var(--orange);}
+.ai-rec-media{border-left-color:var(--amber);}
+.ai-rec-bassa{border-left-color:var(--muted);}
+.ai-rec-priority{font-family:var(--mono);font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:var(--orange);margin-bottom:5px;font-weight:500;}
+.ai-rec-media .ai-rec-priority{color:var(--amber);}
+.ai-rec-bassa .ai-rec-priority{color:var(--muted);}
+.ai-rec-title{font-family:var(--lora);font-size:14px;font-weight:600;margin-bottom:6px;}
+.ai-rec-action{font-size:13px;line-height:1.6;color:var(--ink2);margin-bottom:8px;}
+.ai-rec-meta{font-family:var(--mono);font-size:9px;color:var(--muted);line-height:1.7;border-top:1px solid var(--rule);padding-top:8px;}
+.ai-rec-meta strong{color:var(--ink);}
+
+.ai-dq-section{background:var(--cream);}
+.ai-dq-list{list-style:none;}
+.ai-dq-list li{font-family:var(--mono);font-size:10px;color:var(--ink2);line-height:1.6;padding:4px 0;padding-left:18px;position:relative;}
+.ai-dq-list li::before{content:'⚠';color:var(--amber);position:absolute;left:0;}
+
+.ai-rep-actions{display:flex;gap:8px;justify-content:flex-end;padding:18px 0 0;border-top:2.5px solid var(--ink);margin-top:20px;}
 
 @media(max-width:680px){
   .ai-intro{flex-direction:column;align-items:flex-start;}
@@ -354,57 +440,28 @@ footer{border-top:2.5px solid var(--ink);margin-top:60px;padding:14px 36px 14px 
           <span class="onb-q-text">Qual è il tuo ruolo principale?</span>
         </div>
         <div class="onb-options" id="onbRoles">
-          <button class="onb-opt" data-val="data_analyst">
-            <span class="onb-opt-title">Data Analyst</span>
-            <span class="onb-opt-desc">Analisi tecniche, metodologie statistiche</span>
+          <button class="onb-opt" data-val="sales_specialist">
+            <span class="onb-opt-title">Sales Specialist/Manager</span>
+            <span class="onb-opt-desc">Vendite, pipeline, performance commerciale</span>
           </button>
-          <button class="onb-opt" data-val="middle_management">
-            <span class="onb-opt-title">Middle Management</span>
-            <span class="onb-opt-desc">Decisioni operative e tattiche</span>
+          <button class="onb-opt" data-val="customer_care_specialist">
+            <span class="onb-opt-title">Customer Care Specialist/Manager</span>
+            <span class="onb-opt-desc">Assistenza, ticket, qualità servizio</span>
           </button>
-          <button class="onb-opt" data-val="team_leader">
-            <span class="onb-opt-title">Team Leader</span>
-            <span class="onb-opt-desc">Coordinamento e azioni di team</span>
-          </button>
-          <button class="onb-opt" data-val="sales_manager">
-            <span class="onb-opt-title">Sales Manager</span>
-            <span class="onb-opt-desc">Vendite, pipeline, performance</span>
+          <button class="onb-opt" data-val="hr_specialist">
+            <span class="onb-opt-title">HR Specialist/Manager</span>
+            <span class="onb-opt-desc">Risorse umane, produttività, recruiting</span>
           </button>
         </div>
       </div>
 
-      <!-- Q2: ARGOMENTO -->
-      <div class="onb-step">
+      <!-- Q2: ARGOMENTO (popolato dinamicamente in base al ruolo) -->
+      <div class="onb-step" id="onbStep2" style="display:none;">
         <div class="onb-q-label">
           <span class="onb-q-num">02</span>
           <span class="onb-q-text">Su cosa farai più spesso analisi?</span>
         </div>
-        <div class="onb-options" id="onbTopics">
-          <button class="onb-opt" data-val="crm">
-            <span class="onb-opt-title">CRM / Clienti</span>
-            <span class="onb-opt-desc">Retention, churn, segmentazione</span>
-          </button>
-          <button class="onb-opt" data-val="sales">
-            <span class="onb-opt-title">Vendite</span>
-            <span class="onb-opt-desc">Pipeline, conversion, performance</span>
-          </button>
-          <button class="onb-opt" data-val="finance">
-            <span class="onb-opt-title">Finanza</span>
-            <span class="onb-opt-desc">Margini, costi, budget</span>
-          </button>
-          <button class="onb-opt" data-val="operations">
-            <span class="onb-opt-title">Operazioni</span>
-            <span class="onb-opt-desc">Produzione, logistica, processi</span>
-          </button>
-          <button class="onb-opt" data-val="marketing">
-            <span class="onb-opt-title">Marketing</span>
-            <span class="onb-opt-desc">Campagne, CAC, conversion</span>
-          </button>
-          <button class="onb-opt" data-val="other">
-            <span class="onb-opt-title">Altro</span>
-            <span class="onb-opt-desc">Analisi generica adattabile</span>
-          </button>
-        </div>
+        <div class="onb-options" id="onbTopics"></div>
       </div>
     </div>
 
@@ -481,6 +538,9 @@ footer{border-top:2.5px solid var(--ink);margin-top:60px;padding:14px 36px 14px 
   <!-- ════ TAB 1: VISUALIZZAZIONI ════ -->
   <div class="tab-panel active" id="tab-viz">
     <div class="sec-head"><span class="sec-title">Visualizzazioni</span><div class="sec-line"></div></div>
+
+    <!-- Preview inferenziale automatica -->
+    <div class="infer-preview" id="inferPreview" style="display:none;"></div>
     <div class="viz-layout">
       <!-- Field list -->
       <div>
@@ -758,23 +818,74 @@ async function doLogout() {
 // ── ONBOARDING LOGIC ─────────────────────
 let onbRole = null, onbTopic = null
 
+// Argomenti per ruolo
+const TOPICS_BY_ROLE = {
+  'sales_specialist': [
+    { val: 'sales_reporting',       title: 'Sales Reporting',       desc: 'Performance commerciale, volumi, mix' },
+    { val: 'salesman_productivity', title: 'Salesman Productivity', desc: 'Forza vendita, top performer' },
+    { val: 'customer_profiling',    title: 'Customer Profiling',    desc: 'Segmentazione, RFM, top clienti' },
+    { val: 'sales_forecast',        title: 'Sales Forecast',        desc: 'Previsioni, trend, scenari' },
+  ],
+  'customer_care_specialist': [
+    { val: 'dashboard_kpi',           title: 'Dashboard KPI',         desc: 'Volumi, SLA, qualità servizio' },
+    { val: 'inbound_chat_mail',       title: 'Inbound Chat/Mail',     desc: 'Flussi, picchi, staffing' },
+    { val: 'troubleshooting_profiles',title: 'Troubleshooting',       desc: 'Pattern problemi, root cause' },
+  ],
+  'hr_specialist': [
+    { val: 'produttivita',  title: 'Produttività',  desc: 'Performance team, sedi, reparti' },
+    { val: 'cv_profiling',  title: 'CV Profiling',  desc: 'Pool candidati, skill, gap' },
+  ],
+}
+
+const ROLE_LABELS = {
+  'sales_specialist':         'Sales Specialist/Manager',
+  'customer_care_specialist': 'Customer Care Specialist/Manager',
+  'hr_specialist':            'HR Specialist/Manager',
+}
+const TOPIC_LABELS = {
+  'sales_reporting':         'Sales Reporting',
+  'salesman_productivity':   'Salesman Productivity',
+  'customer_profiling':      'Customer Profiling',
+  'sales_forecast':          'Sales Forecast',
+  'dashboard_kpi':           'Dashboard KPI',
+  'inbound_chat_mail':       'Inbound Chat/Mail',
+  'troubleshooting_profiles':'Troubleshooting',
+  'produttivita':            'Produttività',
+  'cv_profiling':            'CV Profiling',
+}
+
 document.querySelectorAll('#onbRoles .onb-opt').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('#onbRoles .onb-opt').forEach(b => b.classList.remove('selected'))
     btn.classList.add('selected')
     onbRole = btn.dataset.val
+    onbTopic = null  // reset topic quando cambia ruolo
+    renderTopicsForRole(onbRole)
+    document.getElementById('onbStep2').style.display = 'block'
     updateOnbProgress()
   })
 })
 
-document.querySelectorAll('#onbTopics .onb-opt').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('#onbTopics .onb-opt').forEach(b => b.classList.remove('selected'))
-    btn.classList.add('selected')
-    onbTopic = btn.dataset.val
-    updateOnbProgress()
+function renderTopicsForRole(role) {
+  const container = document.getElementById('onbTopics')
+  const topics = TOPICS_BY_ROLE[role] || []
+  container.innerHTML = topics.map(t => `
+    <button class="onb-opt" data-val="${t.val}">
+      <span class="onb-opt-title">${t.title}</span>
+      <span class="onb-opt-desc">${t.desc}</span>
+    </button>
+  `).join('')
+
+  // Riattacca event listeners
+  container.querySelectorAll('.onb-opt').forEach(btn => {
+    btn.addEventListener('click', () => {
+      container.querySelectorAll('.onb-opt').forEach(b => b.classList.remove('selected'))
+      btn.classList.add('selected')
+      onbTopic = btn.dataset.val
+      updateOnbProgress()
+    })
   })
-})
+}
 
 function updateOnbProgress() {
   const count = (onbRole ? 1 : 0) + (onbTopic ? 1 : 0)
@@ -808,23 +919,27 @@ async function saveOnboarding() {
 function openSettings() {
   if (!userProfile) return
 
-  // Cambio testi → modalità settings
   document.getElementById('onbEyebrow').textContent = 'Modifica impostazioni · Personalizzazione'
   document.getElementById('onbTitle').innerHTML = 'Aggiorna il tuo <em>profilo.</em>'
   document.getElementById('onbSubtitle').textContent = '// modifica ruolo e ambito di analisi'
   document.getElementById('btnOnbSave').textContent = 'Salva modifiche →'
   document.getElementById('btnOnbCancel').style.display = 'inline-block'
 
-  // Pre-seleziona valori attuali
   onbRole = userProfile.ruolo
   onbTopic = userProfile.argomento
 
   document.querySelectorAll('#onbRoles .onb-opt').forEach(b => {
     b.classList.toggle('selected', b.dataset.val === onbRole)
   })
-  document.querySelectorAll('#onbTopics .onb-opt').forEach(b => {
-    b.classList.toggle('selected', b.dataset.val === onbTopic)
-  })
+
+  // Renderizza topics in base al ruolo corrente
+  if (onbRole) {
+    renderTopicsForRole(onbRole)
+    document.getElementById('onbStep2').style.display = 'block'
+    document.querySelectorAll('#onbTopics .onb-opt').forEach(b => {
+      b.classList.toggle('selected', b.dataset.val === onbTopic)
+    })
+  }
 
   updateOnbProgress()
   document.getElementById('onbOverlay').classList.add('show')
@@ -902,6 +1017,15 @@ function loadSheet(name){
   renderPVChips();
   document.getElementById('pvTableWrap').innerHTML='<div class="pv-empty">Trascina campi nelle zone Righe, Colonne e Valori.</div>';
   clearViz();
+
+  // Esegui analisi inferenziale automatica in background
+  setTimeout(() => {
+    try {
+      runInferentialAnalysis();
+      renderInferentialPreview();
+      console.log('✓ Analisi inferenziale completata');
+    } catch(e) { console.warn('Analisi inferenziale fallita:', e); }
+  }, 100);
 }
 
 // ══════════════════════════════════════════
@@ -1014,35 +1138,16 @@ function switchTab(id){
   if(id === 'ai') updateAIContext();
 }
 
-// ══════════════════════════════════════════
-// TAB 4 — ANALIZZA CON AI
-// ══════════════════════════════════════════
 
-const ROLE_LABELS = {
-  'data_analyst': 'Data Analyst',
-  'middle_management': 'Middle Management',
-  'team_leader': 'Team Leader',
-  'sales_manager': 'Sales Manager',
-}
-const TOPIC_LABELS = {
-  'crm': 'CRM / Clienti',
-  'sales': 'Vendite',
-  'finance': 'Finanza',
-  'operations': 'Operazioni',
-  'marketing': 'Marketing',
-  'other': 'Generico',
-}
-
-const SCOPE_SECTIONS = [
-  { letter: 'S', code: 'S', name: 'Situazione',          desc: 'Cosa contengono i dati' },
-  { letter: 'C', code: 'C', name: 'Criticità',            desc: 'Anomalie e segnali di rischio' },
-  { letter: 'O', code: 'O', name: 'Opportunità',          desc: 'Pattern positivi da sfruttare' },
-  { letter: 'P', code: 'P', name: 'Priorità',             desc: 'Azioni concrete da fare' },
-  { letter: 'E', code: 'E', name: 'Esposizione al rischio', desc: 'Limiti e cose da non assumere' },
-]
+// ══════════════════════════════════════════
+// TAB 4 — ANALIZZA CON AI (Report SCOPE JSON)
+// ══════════════════════════════════════════
+let lastAIReport = null
+let aiCharts = []
 
 function updateAIContext() {
   const ctx = document.getElementById('aiContext')
+  if (!ctx) return
   if (!userProfile) { ctx.innerHTML = '<span class="ai-ctx-chip">profilo non caricato</span>'; return }
 
   const ruolo = ROLE_LABELS[userProfile.ruolo] || userProfile.ruolo || '—'
@@ -1050,17 +1155,19 @@ function updateAIContext() {
   const fileInfo = rawData.length > 0
     ? `${rawData.length.toLocaleString('it')} righe · ${headers.length} colonne`
     : 'nessun file caricato'
+  const inferInfo = inferentialAnalysis ? '✓ analisi automatica eseguita' : '— analisi automatica non disponibile'
 
   ctx.innerHTML = `
     <span class="ai-ctx-chip">Ruolo: ${ruolo}</span>
     <span class="ai-ctx-chip">Ambito: ${argomento}</span>
     <span class="ai-ctx-chip">Dati: ${fileInfo}</span>
+    <span class="ai-ctx-chip">${inferInfo}</span>
   `
 
-  // Disabilita bottone se manca il file
   document.getElementById('btnAiRun').disabled = rawData.length === 0
 }
 
+// ── DATA PROFILE per Claude ─────────────────
 function buildDataProfile() {
   if (!rawData.length) return ''
 
@@ -1068,8 +1175,8 @@ function buildDataProfile() {
   const filled = rawData.reduce((s,r) => s + r.filter(c => c!==null && c!=='').length, 0)
   const completeness = Math.round(filled/total*100)
 
-  let profile = `Dataset: ${rawData.length} righe × ${headers.length} colonne. Completezza: ${completeness}%.\n\n`
-  profile += `COLONNE E STATISTICHE:\n`
+  let p = `Dataset: ${rawData.length} righe × ${headers.length} colonne. Completezza: ${completeness}%.\n\n`
+  p += `COLONNE E STATISTICHE:\n`
 
   headers.forEach((h, ci) => {
     const tp = types[ci]
@@ -1077,63 +1184,34 @@ function buildDataProfile() {
     const nullCount = rawData.length - vals.length
     const nullPct = Math.round(nullCount/rawData.length*100)
 
-    profile += `\n[${h}] tipo: ${tp}, vuoti: ${nullPct}%`
+    p += `\n[${h}] tipo: ${tp}, vuoti: ${nullPct}%`
 
     if (tp === 'number') {
       const nums = vals.map(v => parseFloat(v)).filter(v => !isNaN(v)).sort((a,b) => a-b)
       if (nums.length) {
         const m = nums.reduce((a,b)=>a+b,0)/nums.length
         const med = nums[Math.floor(nums.length/2)]
-        profile += ` | min: ${nums[0].toFixed(2)}, max: ${nums[nums.length-1].toFixed(2)}, media: ${m.toFixed(2)}, mediana: ${med.toFixed(2)}`
+        p += ` | min: ${nums[0].toFixed(2)}, max: ${nums[nums.length-1].toFixed(2)}, media: ${m.toFixed(2)}, mediana: ${med.toFixed(2)}`
       }
     } else {
       const freq = {}
       vals.forEach(v => { const k = String(v); freq[k] = (freq[k]||0)+1 })
       const uniq = Object.keys(freq).length
       const top = Object.entries(freq).sort((a,b) => b[1]-a[1]).slice(0,5)
-      profile += ` | valori unici: ${uniq}, top 5: ${top.map(([k,v]) => `"${k}" (${v})`).join(', ')}`
+      p += ` | valori unici: ${uniq}, top 5: ${top.map(([k,v]) => `"${k}" (${v})`).join(', ')}`
     }
   })
 
-  // Campione di righe
-  profile += `\n\nCAMPIONE PRIME 10 RIGHE:\n`
-  profile += headers.join(' | ') + '\n'
+  p += `\n\nCAMPIONE PRIME 10 RIGHE:\n`
+  p += headers.join(' | ') + '\n'
   rawData.slice(0,10).forEach(r => {
-    profile += r.map(v => v===null?'':String(v).slice(0,30)).join(' | ') + '\n'
+    p += r.map(v => v===null?'':String(v).slice(0,30)).join(' | ') + '\n'
   })
 
-  return profile
+  return p
 }
 
-function renderAIReport() {
-  const html = `
-    <div class="ai-report" id="aiReport">
-      ${SCOPE_SECTIONS.map(s => `
-        <div class="ai-section" id="aiSec-${s.code}">
-          <div class="ai-sec-head">
-            <span class="ai-letter">${s.letter}</span>
-            <span class="ai-sec-title">${s.name}</span>
-            <span class="ai-sec-spacer"></span>
-            <span class="ai-sec-status loading" id="aiStatus-${s.code}">in attesa…</span>
-          </div>
-          <div class="ai-sec-content" id="aiContent-${s.code}">
-            <div class="ai-skeleton"></div>
-            <div class="ai-skeleton"></div>
-            <div class="ai-skeleton"></div>
-          </div>
-        </div>
-      `).join('')}
-      <div class="ai-actions">
-        <button class="btn-sm" onclick="runAIAnalysis()">↻ Rigenera</button>
-        <button class="btn-sm" onclick="exportAIReport()">📄 Esporta TXT</button>
-      </div>
-    </div>
-  `
-  document.getElementById('aiResultArea').innerHTML = html
-}
-
-let lastAIResults = {}
-
+// ── ESEGUI ANALISI ───────────────────────────
 async function runAIAnalysis() {
   if (!rawData.length) { alert('Carica prima un file Excel.'); return }
   if (!userProfile?.ruolo || !userProfile?.argomento) {
@@ -1141,99 +1219,651 @@ async function runAIAnalysis() {
     return
   }
 
-  document.getElementById('btnAiRun').disabled = true
-  document.getElementById('btnAiRun').innerHTML = 'Analisi in corso… <span class="arrow">⏳</span>'
+  const btn = document.getElementById('btnAiRun')
+  btn.disabled = true
+  btn.innerHTML = 'Analisi in corso… <span class="arrow">⏳</span>'
 
-  renderAIReport()
-  lastAIResults = {}
+  // Mostra loader
+  document.getElementById('aiResultArea').innerHTML = `
+    <div class="ai-loading">
+      <div class="ai-loading-spinner"></div>
+      <div class="ai-loading-text">Claude sta leggendo i tuoi dati e generando il report…</div>
+      <div class="ai-loading-sub">Possono volerci 20-40 secondi · Non chiudere la pagina</div>
+    </div>
+  `
 
-  const dataProfile = buildDataProfile()
-
-  // Esegue le 5 chiamate in sequenza per dare effetto progressivo
-  for (const sec of SCOPE_SECTIONS) {
-    const statusEl = document.getElementById(`aiStatus-${sec.code}`)
-    const contentEl = document.getElementById(`aiContent-${sec.code}`)
-    statusEl.textContent = 'elaborazione…'
-    statusEl.className = 'ai-sec-status loading'
-
-    try {
-      const resp = await fetch('/api/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          dataProfile,
-          ruolo: userProfile.ruolo,
-          argomento: userProfile.argomento,
-          section: sec.code,
-        })
+  try {
+    const resp = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        dataProfile: buildDataProfile(),
+        inferentialResults: inferentialAnalysis || 'Non disponibile',
+        ruolo: userProfile.ruolo,
+        argomento: userProfile.argomento,
       })
+    })
 
-      if (!resp.ok) throw new Error('HTTP ' + resp.status)
-      const data = await resp.json()
-      const text = data.result || 'Nessuna risposta.'
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}))
+      throw new Error(err.error || `HTTP ${resp.status}`)
+    }
 
-      lastAIResults[sec.code] = text
+    const { report } = await resp.json()
+    lastAIReport = report
 
-      // Format text in paragraphs
-      const formatted = text.split('\n\n').map(p => `<p>${p.replace(/\n/g,'<br>')}</p>`).join('')
-      contentEl.innerHTML = formatted
-      contentEl.classList.add('fu')
+    renderAIReport(report)
 
-      statusEl.textContent = '✓ completato'
-      statusEl.className = 'ai-sec-status done'
+    // Salva in Supabase
+    try {
+      await sb.from('analyses').insert({
+        user_id: currentUser.id,
+        file_name: wb?.SheetNames?.[0] || 'sheet',
+        file_rows: rawData.length,
+        file_cols: headers.length,
+        headers: headers,
+        data_profile: buildDataProfile().slice(0, 5000),
+        scope_s: JSON.stringify(report).slice(0, 8000),
+        ruolo: userProfile.ruolo,
+        argomento: userProfile.argomento,
+      })
+    } catch(e) { console.warn('Save failed:', e) }
 
-    } catch (err) {
-      console.error('Errore sezione', sec.code, err)
-      contentEl.innerHTML = `<div class="ai-error">⚠ Errore nella generazione: ${err.message}<br>Verifica che la API key Claude sia configurata su Vercel.</div>`
-      statusEl.textContent = '✕ errore'
-      statusEl.className = 'ai-sec-status'
-      statusEl.style.color = 'var(--orange)'
+  } catch (err) {
+    console.error('AI error:', err)
+    document.getElementById('aiResultArea').innerHTML = `
+      <div class="ai-error-box">
+        <strong>Errore nella generazione</strong><br>
+        ${err.message}<br><br>
+        <small>Verifica la combinazione ruolo/ambito o ricarica la pagina.</small>
+      </div>
+    `
+  }
+
+  btn.disabled = false
+  btn.innerHTML = 'Rigenera analisi <span class="arrow">↻</span>'
+}
+
+// ── RENDER REPORT JSON ───────────────────────
+function renderAIReport(r) {
+  // Cleanup grafici precedenti
+  aiCharts.forEach(c => c.destroy())
+  aiCharts = []
+
+  const html = `
+    <div class="ai-report" id="aiReport">
+      <!-- Header -->
+      <div class="ai-rep-header">
+        <h2 class="ai-rep-title">${r.title || 'Report Analisi'}</h2>
+        <div class="ai-rep-meta">
+          <span>${r.period_analyzed || ''}</span>
+          <span>·</span>
+          <span>${ROLE_LABELS[userProfile.ruolo]} × ${TOPIC_LABELS[userProfile.argomento]}</span>
+          <span>·</span>
+          <span>${new Date().toLocaleDateString('it-IT')}</span>
+        </div>
+      </div>
+
+      <!-- Executive Summary -->
+      ${r.executive_summary ? `
+        <div class="ai-rep-section ai-exec-summary">
+          <div class="ai-rep-sec-eyebrow">Executive Summary</div>
+          <p class="ai-exec-text">${r.executive_summary}</p>
+        </div>
+      ` : ''}
+
+      <!-- KPI Cards -->
+      ${(r.kpi_cards && r.kpi_cards.length) ? `
+        <div class="ai-rep-section">
+          <div class="ai-rep-sec-eyebrow">KPI Principali</div>
+          <div class="ai-kpi-grid">
+            ${r.kpi_cards.map(k => `
+              <div class="ai-kpi-card">
+                <div class="ai-kpi-label">${k.label}</div>
+                <div class="ai-kpi-value">${k.value}</div>
+                ${k.delta ? `<div class="ai-kpi-delta ai-trend-${k.trend||'flat'}">${k.delta}</div>` : ''}
+                <div class="ai-kpi-comment">${k.comment || ''}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      ` : ''}
+
+      <!-- Sections -->
+      ${(r.sections || []).map((s, i) => `
+        <div class="ai-rep-section">
+          <div class="ai-rep-sec-eyebrow">Sezione ${i+1}</div>
+          <h3 class="ai-rep-sec-title">${s.title}</h3>
+          <p class="ai-rep-sec-narrative">${s.narrative || ''}</p>
+          ${s.chart ? `
+            <div class="ai-chart-wrap">
+              <div class="ai-chart-title">${s.chart.title || ''}</div>
+              <canvas id="aiChart-${i}" height="200"></canvas>
+              ${s.chart.insight ? `<div class="ai-chart-insight">→ ${s.chart.insight}</div>` : ''}
+            </div>
+          ` : ''}
+          ${(s.key_findings && s.key_findings.length) ? `
+            <ul class="ai-findings">
+              ${s.key_findings.map(f => `<li>${f}</li>`).join('')}
+            </ul>
+          ` : ''}
+        </div>
+      `).join('')}
+
+      <!-- Recommendations -->
+      ${(r.recommendations && r.recommendations.length) ? `
+        <div class="ai-rep-section ai-recs-section">
+          <div class="ai-rep-sec-eyebrow">Azioni prioritarie</div>
+          <div class="ai-recs">
+            ${r.recommendations.map(rc => `
+              <div class="ai-rec-card ai-rec-${rc.priority}">
+                <div class="ai-rec-priority">Priorità ${rc.priority}</div>
+                <h4 class="ai-rec-title">${rc.title}</h4>
+                <p class="ai-rec-action">${rc.action}</p>
+                <div class="ai-rec-meta">
+                  <div><strong>Evidenza:</strong> ${rc.data_evidence}</div>
+                  <div><strong>Impatto atteso:</strong> ${rc.expected_impact}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      ` : ''}
+
+      <!-- Data Quality -->
+      ${(r.data_quality_notes && r.data_quality_notes.length) ? `
+        <div class="ai-rep-section ai-dq-section">
+          <div class="ai-rep-sec-eyebrow">Note sulla qualità dei dati</div>
+          <ul class="ai-dq-list">
+            ${r.data_quality_notes.map(n => `<li>${n}</li>`).join('')}
+          </ul>
+        </div>
+      ` : ''}
+
+      <!-- Actions -->
+      <div class="ai-rep-actions">
+        <button class="btn-sm" onclick="runAIAnalysis()">↻ Rigenera</button>
+        <button class="btn-sm" onclick="exportAIReportWord()">📄 Word</button>
+        <button class="btn-sm" onclick="exportAIReportPDF()">📕 PDF</button>
+      </div>
+    </div>
+  `
+
+  document.getElementById('aiResultArea').innerHTML = html
+
+  // Renderizza grafici dopo che il DOM è pronto
+  setTimeout(() => {
+    (r.sections || []).forEach((s, i) => {
+      if (s.chart) renderAIChart(s.chart, `aiChart-${i}`)
+    })
+  }, 100)
+}
+
+// ── RENDER GRAFICI da spec Claude ────────────
+function renderAIChart(spec, canvasId) {
+  const canvas = document.getElementById(canvasId)
+  if (!canvas) return
+
+  const xCol = headers.indexOf(spec.x_axis)
+  const yCol = headers.indexOf(spec.y_axis)
+  const gCol = spec.group_by ? headers.indexOf(spec.group_by) : -1
+
+  if (xCol === -1) {
+    canvas.parentElement.innerHTML += `<div class="ai-chart-warn">⚠ Colonna "${spec.x_axis}" non trovata nei dati</div>`
+    return
+  }
+
+  const labels = []
+  const data = []
+  const fn = spec.aggregation || 'sum'
+
+  if (spec.type === 'scatter') {
+    const pts = rawData.map(r => ({ x: parseFloat(r[xCol]), y: parseFloat(r[yCol]) }))
+                       .filter(p => !isNaN(p.x) && !isNaN(p.y))
+    drawAIChart(canvasId, 'scatter', null, pts, spec.title, spec.x_axis, spec.y_axis)
+    return
+  }
+
+  // bar/line/pie con groupBy o senza
+  const groups = {}
+  rawData.forEach(r => {
+    const k = String(r[xCol] ?? '(vuoto)')
+    const v = yCol >= 0 ? parseFloat(r[yCol]) : 1
+    if (!groups[k]) groups[k] = []
+    if (!isNaN(v)) groups[k].push(v)
+  })
+
+  Object.entries(groups).sort((a,b) => b[1].length - a[1].length).slice(0, 20).forEach(([k, vals]) => {
+    labels.push(k)
+    let val
+    switch(fn) {
+      case 'sum':    val = vals.reduce((a,b)=>a+b,0); break
+      case 'mean':   val = vals.reduce((a,b)=>a+b,0)/vals.length; break
+      case 'count':  val = vals.length; break
+      case 'median': const s = [...vals].sort((a,b)=>a-b); val = s[Math.floor(s.length/2)]; break
+      case 'min':    val = Math.min(...vals); break
+      case 'max':    val = Math.max(...vals); break
+      default:       val = vals.reduce((a,b)=>a+b,0)
+    }
+    data.push(val)
+  })
+
+  drawAIChart(canvasId, spec.type, labels, data, spec.title, spec.x_axis, spec.y_axis)
+}
+
+function drawAIChart(canvasId, type, labels, data, title, xLbl, yLbl) {
+  const ctx = document.getElementById(canvasId).getContext('2d')
+  const PALETTE = ['#d94f1e','#e8a020','#2a7a4b','#1a5ea8','#8b3a8b','#16a085','#c0392b','#2980b9','#f39c12','#27ae60']
+  const isPie = type === 'pie'
+  const isScatter = type === 'scatter'
+
+  let datasets
+  if (isScatter) {
+    datasets = [{ label: title, data, backgroundColor: PALETTE[0]+'66', borderColor: PALETTE[0], pointRadius: 3 }]
+  } else if (isPie) {
+    datasets = [{ data, backgroundColor: data.map((_,i) => PALETTE[i%PALETTE.length]), borderColor: 'white', borderWidth: 2 }]
+  } else {
+    datasets = [{
+      label: title, data,
+      backgroundColor: type === 'line' ? 'rgba(217,79,30,0.10)' : PALETTE[0]+'88',
+      borderColor: PALETTE[0], borderWidth: 1.5,
+      fill: type === 'line', tension: 0.3,
+      pointRadius: type === 'line' ? 3 : 0
+    }]
+  }
+
+  const chart = new Chart(ctx, {
+    type: isScatter ? 'scatter' : type,
+    data: isScatter ? { datasets } : { labels, datasets },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: isPie, labels: { font: { family: 'JetBrains Mono', size: 9 }, color: '#3d3a35' } },
+        tooltip: {
+          backgroundColor: '#1a1814', titleColor: '#d94f1e', bodyColor: '#fdfcfa',
+          titleFont: { family: 'JetBrains Mono', size: 10 },
+          bodyFont: { family: 'JetBrains Mono', size: 9 }
+        }
+      },
+      scales: isPie ? {} : {
+        x: { ticks: { color: '#9a9590', font: { family: 'JetBrains Mono', size: 8 }, maxRotation: 40 }, grid: { color: 'rgba(226,221,214,0.5)' } },
+        y: { ticks: { color: '#9a9590', font: { family: 'JetBrains Mono', size: 8 } }, grid: { color: 'rgba(226,221,214,0.5)' } }
+      }
+    }
+  })
+
+  aiCharts.push(chart)
+}
+
+// ── EXPORT WORD ──────────────────────────────
+async function exportAIReportWord() {
+  if (!lastAIReport) return
+  const r = lastAIReport
+
+  // Genera HTML semplice e usa Blob con MIME type docx-friendly
+  const html = `
+    <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+    <head><meta charset='utf-8'><title>${r.title}</title>
+    <style>
+      body { font-family: Georgia, serif; line-height: 1.6; color: #1a1814; margin: 40px; }
+      h1 { font-size: 28pt; color: #d94f1e; border-bottom: 3px solid #1a1814; padding-bottom: 8px; }
+      h2 { font-size: 14pt; color: #1a1814; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 30px; }
+      h3 { font-size: 13pt; color: #1a1814; margin-top: 20px; }
+      .meta { color: #9a9590; font-size: 10pt; margin-bottom: 20px; }
+      .summary { background: #fff8e8; padding: 16px; border-left: 4px solid #e8a020; margin: 20px 0; }
+      .kpi-grid { display: table; width: 100%; margin: 16px 0; }
+      .kpi { display: table-cell; padding: 12px; border: 1px solid #e2ddd6; vertical-align: top; }
+      .kpi-label { font-size: 9pt; color: #9a9590; text-transform: uppercase; }
+      .kpi-value { font-size: 18pt; color: #d94f1e; font-weight: bold; }
+      .kpi-comment { font-size: 9pt; color: #3d3a35; margin-top: 4px; }
+      .findings { margin: 10px 0; }
+      .findings li { margin: 4px 0; }
+      .rec { border-left: 4px solid #d94f1e; padding: 12px 16px; margin: 10px 0; background: #fff2ec; }
+      .rec-priority { font-size: 9pt; color: #d94f1e; text-transform: uppercase; font-weight: bold; }
+      .rec-title { font-size: 12pt; margin: 4px 0; }
+      .rec-meta { font-size: 9pt; color: #3d3a35; margin-top: 8px; }
+      .dq { background: #f5f2ed; padding: 12px; font-size: 10pt; }
+    </style></head>
+    <body>
+      <h1>${r.title}</h1>
+      <div class='meta'>${r.period_analyzed || ''} · ${ROLE_LABELS[userProfile.ruolo]} × ${TOPIC_LABELS[userProfile.argomento]} · ${new Date().toLocaleDateString('it-IT')}</div>
+
+      ${r.executive_summary ? `<div class='summary'><strong>Executive Summary</strong><p>${r.executive_summary}</p></div>` : ''}
+
+      ${(r.kpi_cards && r.kpi_cards.length) ? `
+        <h2>KPI Principali</h2>
+        <table style='width:100%;border-collapse:collapse;'><tr>
+          ${r.kpi_cards.map(k => `
+            <td class='kpi'>
+              <div class='kpi-label'>${k.label}</div>
+              <div class='kpi-value'>${k.value}</div>
+              ${k.delta ? `<div style='color:#9a9590;font-size:9pt;'>${k.delta}</div>` : ''}
+              <div class='kpi-comment'>${k.comment || ''}</div>
+            </td>
+          `).join('')}
+        </tr></table>
+      ` : ''}
+
+      ${(r.sections || []).map((s, i) => `
+        <h2>Sezione ${i+1}</h2>
+        <h3>${s.title}</h3>
+        <p>${s.narrative || ''}</p>
+        ${s.chart ? `<p style='font-style:italic;color:#9a9590;'>📊 Grafico: ${s.chart.title} — ${s.chart.insight || ''}</p>` : ''}
+        ${(s.key_findings && s.key_findings.length) ? `<ul class='findings'>${s.key_findings.map(f => `<li>${f}</li>`).join('')}</ul>` : ''}
+      `).join('')}
+
+      ${(r.recommendations && r.recommendations.length) ? `
+        <h2>Azioni Prioritarie</h2>
+        ${r.recommendations.map(rc => `
+          <div class='rec'>
+            <div class='rec-priority'>Priorità ${rc.priority}</div>
+            <div class='rec-title'><strong>${rc.title}</strong></div>
+            <p>${rc.action}</p>
+            <div class='rec-meta'><strong>Evidenza:</strong> ${rc.data_evidence}<br><strong>Impatto atteso:</strong> ${rc.expected_impact}</div>
+          </div>
+        `).join('')}
+      ` : ''}
+
+      ${(r.data_quality_notes && r.data_quality_notes.length) ? `
+        <h2>Note sulla qualità dei dati</h2>
+        <div class='dq'><ul>${r.data_quality_notes.map(n => `<li>${n}</li>`).join('')}</ul></div>
+      ` : ''}
+
+      <p style='margin-top:40px;color:#9a9590;font-size:9pt;text-align:center;'>Lume · Carica i tuoi dati. Scopri la tua storia.</p>
+    </body></html>
+  `
+
+  const blob = new Blob(['\ufeff', html], { type: 'application/msword' })
+  const a = document.createElement('a')
+  a.href = URL.createObjectURL(blob)
+  a.download = `lume-report-${new Date().toISOString().slice(0,10)}.doc`
+  a.click()
+}
+
+// ── EXPORT PDF (via window.print) ─────────────
+function exportAIReportPDF() {
+  if (!lastAIReport) return
+  // Apre in nuova finestra solo il report → utente fa "Salva come PDF"
+  const repHtml = document.getElementById('aiReport').outerHTML
+  const win = window.open('', '_blank')
+  win.document.write(`
+    <!DOCTYPE html><html><head>
+    <meta charset='utf-8'><title>Lume Report PDF</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=Source+Serif+4:wght@400;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <style>
+      body { font-family: 'Source Serif 4', Georgia, serif; padding: 30px; max-width: 900px; margin: 0 auto; color: #1a1814; }
+      .ai-rep-header h2 { font-family: 'Lora', serif; color: #d94f1e; font-size: 24pt; }
+      .ai-rep-meta { color: #9a9590; font-size: 9pt; font-family: 'JetBrains Mono', monospace; }
+      .ai-rep-section { border: 1.5px solid #1a1814; padding: 16px; margin: 14px 0; }
+      .ai-rep-sec-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8pt; color: #9a9590; letter-spacing: 0.16em; text-transform: uppercase; }
+      .ai-rep-sec-title { font-family: 'Lora', serif; font-size: 14pt; margin-top: 6px; }
+      .ai-exec-summary { background: #fff8e8; border-left: 4px solid #e8a020; }
+      .ai-exec-text { font-size: 12pt; line-height: 1.6; }
+      .ai-kpi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .ai-kpi-card { border: 1px solid #e2ddd6; padding: 10px; }
+      .ai-kpi-label { font-size: 8pt; color: #9a9590; text-transform: uppercase; }
+      .ai-kpi-value { font-family: 'Lora', serif; font-size: 18pt; color: #d94f1e; font-weight: bold; }
+      .ai-rec-card { border-left: 4px solid #d94f1e; background: #fff2ec; padding: 12px; margin: 8px 0; }
+      .ai-recs-section { background: white; }
+      .ai-rep-actions { display: none; }
+      canvas { display: none; }
+      @media print { body { padding: 0; } }
+    </style></head><body>
+    ${repHtml}
+    <p style='text-align:center;color:#9a9590;font-size:8pt;margin-top:30px;'>Lume · Carica i tuoi dati. Scopri la tua storia.</p>
+    <script>setTimeout(() => window.print(), 800)</script>
+    </body></html>
+  `)
+  win.document.close()
+}
+
+// ══════════════════════════════════════════
+// ANALISI INFERENZIALE AUTOMATICA
+// ══════════════════════════════════════════
+// Eseguita al caricamento del file, popola variable globale inferentialAnalysis
+// che viene poi passata a Claude per arricchire il report
+let inferentialAnalysis = null
+
+function runInferentialAnalysis() {
+  if (!rawData.length) return
+
+  let report = []
+
+  // 1. CLUSTERING su 2 variabili numeriche più informative
+  const numCols = headers.map((h,i) => ({h,i,std: stdNumeric(i)}))
+                          .filter(x => types[x.i]==='number' && x.std > 0)
+                          .sort((a,b) => b.std - a.std)
+                          .slice(0, 2)
+
+  if (numCols.length >= 2) {
+    const cls = doKMeansSimple(numCols[0].i, numCols[1].i, 3)
+    if (cls) {
+      report.push(`CLUSTERING (K=3 su ${numCols[0].h} × ${numCols[1].h}):`)
+      cls.forEach((c,i) => {
+        report.push(`  Cluster ${i+1}: ${c.count} record (${(c.count/rawData.length*100).toFixed(0)}%) — ${numCols[0].h} medio: ${c.cx.toFixed(1)}, ${numCols[1].h} medio: ${c.cy.toFixed(1)}`)
+      })
     }
   }
 
-  // Salva analisi su Supabase
-  try {
-    await sb.from('analyses').insert({
-      user_id: currentUser.id,
-      file_name: wb?.SheetNames?.[0] || 'sheet',
-      file_rows: rawData.length,
-      file_cols: headers.length,
-      headers: headers,
-      data_profile: dataProfile.slice(0, 5000),
-      scope_s: lastAIResults.S || null,
-      scope_c: lastAIResults.C || null,
-      scope_o: lastAIResults.O || null,
-      scope_p: lastAIResults.P || null,
-      scope_e: lastAIResults.E || null,
-      ruolo: userProfile.ruolo,
-      argomento: userProfile.argomento,
-    })
-  } catch (e) {
-    console.warn('Salvataggio analisi non riuscito:', e)
+  // 2. CORRELAZIONE più forte tra coppie numeriche
+  const allNumCols = headers.map((h,i) => ({h,i})).filter(x => types[x.i]==='number')
+  let bestCorr = { r: 0, x: null, y: null }
+  for (let i=0; i<allNumCols.length; i++) {
+    for (let j=i+1; j<allNumCols.length; j++) {
+      const r = pearson(allNumCols[i].i, allNumCols[j].i)
+      if (Math.abs(r) > Math.abs(bestCorr.r) && !isNaN(r)) {
+        bestCorr = { r, x: allNumCols[i], y: allNumCols[j] }
+      }
+    }
+  }
+  if (bestCorr.x) {
+    const interp = Math.abs(bestCorr.r) > 0.7 ? 'forte' : Math.abs(bestCorr.r) > 0.4 ? 'moderata' : 'debole'
+    const dir = bestCorr.r > 0 ? 'positiva' : 'negativa'
+    report.push(`\nCORRELAZIONE PIÙ FORTE: ${bestCorr.x.h} ↔ ${bestCorr.y.h} | r = ${bestCorr.r.toFixed(3)} (${interp} ${dir})`)
+
+    // Regressione lineare se r forte
+    if (Math.abs(bestCorr.r) > 0.4) {
+      const reg = linReg(bestCorr.x.i, bestCorr.y.i)
+      report.push(`  Regressione lineare: ${bestCorr.y.h} = ${reg.b.toFixed(3)}·${bestCorr.x.h} + ${reg.a.toFixed(2)} (R² = ${reg.r2.toFixed(3)})`)
+    }
   }
 
-  document.getElementById('btnAiRun').disabled = false
-  document.getElementById('btnAiRun').innerHTML = 'Rigenera analisi <span class="arrow">↻</span>'
+  // 3. ANOMALIE OUTLIER per colonne numeriche
+  let outlierCols = []
+  allNumCols.forEach(col => {
+    const nums = rawData.map(r => parseFloat(r[col.i])).filter(v => !isNaN(v)).sort((a,b)=>a-b)
+    if (nums.length < 4) return
+    const q1 = nums[Math.floor(nums.length*0.25)]
+    const q3 = nums[Math.floor(nums.length*0.75)]
+    const iqr = q3 - q1
+    const out = nums.filter(v => v < q1-1.5*iqr || v > q3+1.5*iqr)
+    if (out.length > 0) outlierCols.push({h: col.h, n: out.length, pct: (out.length/nums.length*100).toFixed(1)})
+  })
+  if (outlierCols.length) {
+    report.push(`\nOUTLIER RILEVATI (metodo IQR):`)
+    outlierCols.slice(0, 5).forEach(o => {
+      report.push(`  ${o.h}: ${o.n} outlier (${o.pct}%)`)
+    })
+  }
+
+  inferentialAnalysis = report.join('\n')
 }
 
-function exportAIReport() {
-  if (!Object.keys(lastAIResults).length) return
-  let txt = `LUME · Analisi SCOPE\n`
-  txt += `Data: ${new Date().toLocaleString('it-IT')}\n`
-  txt += `Ruolo: ${ROLE_LABELS[userProfile.ruolo]} · Ambito: ${TOPIC_LABELS[userProfile.argomento]}\n`
-  txt += `${'═'.repeat(60)}\n\n`
+// Render della preview inferenziale in tab Visualizzazioni
+function renderInferentialPreview() {
+  if (!inferentialAnalysis) return
+  const container = document.getElementById('inferPreview')
+  if (!container) return
 
-  SCOPE_SECTIONS.forEach(s => {
-    txt += `${s.letter} · ${s.name.toUpperCase()}\n`
-    txt += `${'-'.repeat(60)}\n`
-    txt += (lastAIResults[s.code] || '—') + '\n\n'
+  // Estrai info principali per le card
+  const numCols = headers.map((h,i) => ({h,i})).filter(x => types[x.i]==='number')
+
+  // Cluster preview
+  let clusterCard = ''
+  if (numCols.length >= 2) {
+    const sortedNum = numCols.map(c => ({...c, std: stdNumeric(c.i)})).sort((a,b)=>b.std-a.std).slice(0,2)
+    const cls = doKMeansSimple(sortedNum[0].i, sortedNum[1].i, 3)
+    if (cls) {
+      clusterCard = `
+        <div class="infer-card">
+          <div class="infer-card-eyebrow">Clustering automatico</div>
+          <div class="infer-card-title">3 gruppi naturali rilevati</div>
+          <div class="infer-card-content">
+            <div class="infer-card-vars">su ${sortedNum[0].h} × ${sortedNum[1].h}</div>
+            <div class="infer-clusters-list">
+              ${cls.map((c,i) => `
+                <div class="infer-cluster-row">
+                  <span class="infer-cluster-dot" style="background:${['#d94f1e','#1a5ea8','#2a7a4b'][i]}"></span>
+                  <span class="infer-cluster-label">Cluster ${i+1}</span>
+                  <span class="infer-cluster-count">${c.count} record (${(c.count/rawData.length*100).toFixed(0)}%)</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `
+    }
+  }
+
+  // Correlation preview
+  let corrCard = ''
+  let bestCorr = { r: 0, x: null, y: null }
+  for (let i=0; i<numCols.length; i++) {
+    for (let j=i+1; j<numCols.length; j++) {
+      const r = pearson(numCols[i].i, numCols[j].i)
+      if (Math.abs(r) > Math.abs(bestCorr.r) && !isNaN(r)) bestCorr = { r, x: numCols[i], y: numCols[j] }
+    }
+  }
+  if (bestCorr.x) {
+    const interp = Math.abs(bestCorr.r) > 0.7 ? 'forte' : Math.abs(bestCorr.r) > 0.4 ? 'moderata' : 'debole'
+    const dir = bestCorr.r > 0 ? 'positiva' : 'negativa'
+    let regressionInfo = ''
+    if (Math.abs(bestCorr.r) > 0.4) {
+      const reg = linReg(bestCorr.x.i, bestCorr.y.i)
+      regressionInfo = `<div class="infer-reg">Regressione: <strong>R² = ${reg.r2.toFixed(3)}</strong></div>`
+    }
+    corrCard = `
+      <div class="infer-card">
+        <div class="infer-card-eyebrow">Correlazione più forte</div>
+        <div class="infer-card-title">${bestCorr.x.h} ↔ ${bestCorr.y.h}</div>
+        <div class="infer-card-content">
+          <div class="infer-corr-r">r = <strong>${bestCorr.r.toFixed(3)}</strong></div>
+          <div class="infer-corr-interp">Correlazione ${interp} ${dir}</div>
+          ${regressionInfo}
+        </div>
+      </div>
+    `
+  }
+
+  // Anomalies preview
+  let anomCard = ''
+  let outlierCols = []
+  numCols.forEach(col => {
+    const nums = rawData.map(r => parseFloat(r[col.i])).filter(v => !isNaN(v)).sort((a,b)=>a-b)
+    if (nums.length < 4) return
+    const q1 = nums[Math.floor(nums.length*0.25)]
+    const q3 = nums[Math.floor(nums.length*0.75)]
+    const iqr = q3 - q1
+    const out = nums.filter(v => v < q1-1.5*iqr || v > q3+1.5*iqr)
+    if (out.length > 0) outlierCols.push({h: col.h, n: out.length, pct: (out.length/nums.length*100).toFixed(1)})
   })
+  if (outlierCols.length) {
+    anomCard = `
+      <div class="infer-card">
+        <div class="infer-card-eyebrow">Anomalie rilevate</div>
+        <div class="infer-card-title">${outlierCols.reduce((s,o)=>s+o.n,0)} outlier totali</div>
+        <div class="infer-card-content">
+          ${outlierCols.slice(0,3).map(o => `
+            <div class="infer-outlier-row">
+              <span class="infer-outlier-name">${o.h}</span>
+              <span class="infer-outlier-count">${o.n} (${o.pct}%)</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `
+  }
 
-  const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' })
-  const a = document.createElement('a')
-  a.href = URL.createObjectURL(blob)
-  a.download = `lume-analisi-${new Date().toISOString().slice(0,10)}.txt`
-  a.click()
+  if (clusterCard || corrCard || anomCard) {
+    container.innerHTML = `
+      <div class="infer-header">
+        <span class="infer-eyebrow">Analisi automatica</span>
+        <span class="infer-sub">eseguita al caricamento · usata per arricchire il report AI</span>
+      </div>
+      <div class="infer-grid">
+        ${clusterCard}${corrCard}${anomCard}
+      </div>
+    `
+    container.style.display = 'block'
+  }
+}
+
+// Helper functions
+function stdNumeric(ci) {
+  const n = rawData.map(r => parseFloat(r[ci])).filter(v => !isNaN(v))
+  if (!n.length) return 0
+  const m = n.reduce((a,b)=>a+b,0)/n.length
+  return Math.sqrt(n.reduce((s,v)=>s+(v-m)**2,0)/n.length)
+}
+
+function pearson(ci1, ci2) {
+  const pairs = rawData.map(r => ({x: parseFloat(r[ci1]), y: parseFloat(r[ci2])}))
+                       .filter(p => !isNaN(p.x) && !isNaN(p.y))
+  if (pairs.length < 3) return NaN
+  const n = pairs.length
+  const mx = pairs.reduce((s,p)=>s+p.x,0)/n
+  const my = pairs.reduce((s,p)=>s+p.y,0)/n
+  const sxy = pairs.reduce((s,p)=>s+(p.x-mx)*(p.y-my),0)
+  const sxx = Math.sqrt(pairs.reduce((s,p)=>s+(p.x-mx)**2,0))
+  const syy = Math.sqrt(pairs.reduce((s,p)=>s+(p.y-my)**2,0))
+  return sxy / (sxx * syy)
+}
+
+function linReg(ci1, ci2) {
+  const pairs = rawData.map(r => ({x: parseFloat(r[ci1]), y: parseFloat(r[ci2])}))
+                       .filter(p => !isNaN(p.x) && !isNaN(p.y))
+  const n = pairs.length
+  const mx = pairs.reduce((s,p)=>s+p.x,0)/n
+  const my = pairs.reduce((s,p)=>s+p.y,0)/n
+  const ssxy = pairs.reduce((s,p)=>s+(p.x-mx)*(p.y-my),0)
+  const ssxx = pairs.reduce((s,p)=>s+(p.x-mx)**2,0)
+  const b = ssxy/ssxx
+  const a = my - b*mx
+  const sst = pairs.reduce((s,p)=>s+(p.y-my)**2,0)
+  const sse = pairs.reduce((s,p)=>s+(p.y-(a+b*p.x))**2,0)
+  return { a, b, r2: 1-sse/sst }
+}
+
+function doKMeansSimple(ci1, ci2, k) {
+  const pts = rawData.map(r => ({x: parseFloat(r[ci1]), y: parseFloat(r[ci2])}))
+                     .filter(p => !isNaN(p.x) && !isNaN(p.y))
+  if (pts.length < k) return null
+  let centroids = []
+  const used = new Set()
+  while (centroids.length < k) {
+    const i = Math.floor(Math.random() * pts.length)
+    if (!used.has(i)) { used.add(i); centroids.push({...pts[i]}) }
+  }
+  let labels = new Array(pts.length).fill(0)
+  for (let it=0; it<30; it++) {
+    labels = pts.map(p => {
+      let best=0, bd=Infinity
+      centroids.forEach((c,i) => {
+        const d = (p.x-c.x)**2 + (p.y-c.y)**2
+        if (d<bd) { bd=d; best=i }
+      })
+      return best
+    })
+    centroids = centroids.map((_,i) => {
+      const g = pts.filter((_,j) => labels[j]===i)
+      if (!g.length) return centroids[i]
+      return { x: g.reduce((s,p)=>s+p.x,0)/g.length, y: g.reduce((s,p)=>s+p.y,0)/g.length }
+    })
+  }
+  return centroids.map((c,i) => ({
+    cx: c.x, cy: c.y,
+    count: labels.filter(l => l===i).length
+  }))
 }
 
 // ══════════════════════════════════════════
