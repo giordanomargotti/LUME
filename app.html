@@ -266,6 +266,64 @@ footer{border-top:2.5px solid var(--ink);margin-top:60px;padding:14px 36px 14px 
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .fu{animation:fadeUp .3s ease forwards;}
 
+/* ═══════════════════════════════════════════
+   TAB 4 — ANALIZZA CON AI
+═══════════════════════════════════════════ */
+.ai-intro{background:var(--paper);border:1.5px solid var(--ink);padding:24px 28px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap;}
+.ai-intro-text{flex:1;min-width:240px;}
+.ai-intro-title{font-family:var(--lora);font-size:18px;font-weight:600;margin-bottom:5px;font-style:italic;}
+.ai-intro-title em{font-style:normal;color:var(--orange);}
+.ai-intro-sub{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.06em;line-height:1.7;}
+.ai-context{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;}
+.ai-ctx-chip{font-family:var(--mono);font-size:8px;letter-spacing:.12em;text-transform:uppercase;padding:3px 8px;background:var(--amber-bg);color:var(--amber);border:1px solid #f0d795;}
+
+.btn-ai-run{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;background:var(--orange);color:white;border:none;padding:14px 26px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.btn-ai-run:hover{background:#c03e10;transform:translateY(-1px);}
+.btn-ai-run:disabled{background:var(--muted);cursor:not-allowed;transform:none;}
+.btn-ai-run .arrow{font-size:14px;}
+
+.ai-empty{text-align:center;padding:60px 20px;border:1.5px dashed var(--rule);background:var(--paper);font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.06em;line-height:1.8;}
+.ai-empty-icon{font-size:32px;margin-bottom:12px;opacity:0.4;}
+
+/* Report sections */
+.ai-report{display:flex;flex-direction:column;gap:0;border:1.5px solid var(--ink);background:white;}
+.ai-section{border-bottom:1px solid var(--rule);padding:24px 28px;position:relative;}
+.ai-section:last-child{border-bottom:none;}
+
+.ai-sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--rule);}
+.ai-letter{font-family:var(--lora);font-size:38px;font-weight:900;color:var(--orange);line-height:1;letter-spacing:-.04em;}
+.ai-sec-title{font-family:var(--lora);font-size:14px;font-weight:600;letter-spacing:.02em;text-transform:uppercase;}
+.ai-sec-spacer{flex:1;}
+.ai-sec-status{font-family:var(--mono);font-size:8px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);}
+.ai-sec-status.loading{color:var(--amber);}
+.ai-sec-status.done{color:var(--green);}
+
+.ai-sec-content{font-family:var(--serif);font-size:14px;line-height:1.7;color:var(--ink2);min-height:60px;}
+.ai-sec-content em{font-style:italic;color:var(--orange);}
+.ai-sec-content strong{color:var(--ink);font-weight:600;}
+.ai-sec-content p{margin-bottom:10px;}
+.ai-sec-content p:last-child{margin-bottom:0;}
+
+.ai-loading-bar{height:2px;background:var(--rule);overflow:hidden;margin-top:14px;display:none;}
+.ai-loading-bar.show{display:block;}
+.ai-loading-fill{height:100%;background:var(--orange);width:0%;animation:loadingPulse 1.4s ease-in-out infinite;}
+@keyframes loadingPulse{0%{width:0%;margin-left:0%}50%{width:60%;margin-left:20%}100%{width:0%;margin-left:100%}}
+
+.ai-skeleton{background:linear-gradient(90deg,var(--paper) 0%,var(--cream) 50%,var(--paper) 100%);background-size:200% 100%;animation:shimmer 1.6s infinite;height:14px;margin-bottom:10px;}
+.ai-skeleton:nth-child(1){width:90%;}
+.ai-skeleton:nth-child(2){width:80%;}
+.ai-skeleton:nth-child(3){width:65%;}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+.ai-actions{display:flex;gap:8px;justify-content:flex-end;padding:14px 28px;background:var(--cream);border-top:1px solid var(--rule);}
+
+.ai-error{background:#fff2ec;border:1.5px solid var(--orange);padding:14px 18px;font-family:var(--mono);font-size:10px;color:var(--orange);margin-top:14px;line-height:1.6;}
+
+@media(max-width:680px){
+  .ai-intro{flex-direction:column;align-items:flex-start;}
+  .btn-ai-run{width:100%;justify-content:center;}
+}
+
 @media(max-width:680px){
   .page{padding:0 16px 60px;}
   .page::before{display:none;}
@@ -417,6 +475,7 @@ footer{border-top:2.5px solid var(--ink);margin-top:60px;padding:14px 36px 14px 
     <button class="tab-btn active" onclick="switchTab('viz')">① Visualizzazioni</button>
     <button class="tab-btn" onclick="switchTab('ana')">② Analisi statistica</button>
     <button class="tab-btn" onclick="switchTab('piv')">③ Pivot</button>
+    <button class="tab-btn" onclick="switchTab('ai')">④ Analizza con AI <span style="background:var(--orange);color:white;padding:1px 5px;font-size:7px;margin-left:4px;letter-spacing:.1em;">NEW</span></button>
   </div>
 
   <!-- ════ TAB 1: VISUALIZZAZIONI ════ -->
@@ -606,6 +665,30 @@ footer{border-top:2.5px solid var(--ink);margin-top:60px;padding:14px 36px 14px 
         <div id="pvTableWrap">
           <div class="pv-empty">Trascina campi nelle zone Righe, Colonne e Valori per generare la pivot.</div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ TAB 4: ANALIZZA CON AI ════ -->
+  <div class="tab-panel" id="tab-ai">
+    <div class="sec-head"><span class="sec-title">Analisi AI · Framework SCOPE</span><div class="sec-line"></div></div>
+
+    <div class="ai-intro">
+      <div class="ai-intro-text">
+        <div class="ai-intro-title">Lascia che <em>l'AI legga i tuoi dati.</em></div>
+        <div class="ai-intro-sub">// 5 sezioni · Situazione, Criticità, Opportunità, Priorità, Esposizione rischio<br>// analisi contestualizzata sul tuo profilo · ~30 secondi totali</div>
+        <div class="ai-context" id="aiContext"></div>
+      </div>
+      <button class="btn-ai-run" id="btnAiRun" onclick="runAIAnalysis()">
+        Genera analisi <span class="arrow">→</span>
+      </button>
+    </div>
+
+    <div id="aiResultArea">
+      <div class="ai-empty">
+        <div class="ai-empty-icon">⬡</div>
+        Carica un file Excel e clicca <strong style="color:var(--orange)">Genera analisi</strong><br>
+        per ricevere un report SCOPE personalizzato sul tuo ruolo.
       </div>
     </div>
   </div>
@@ -921,11 +1004,236 @@ function renderFieldLists(){
 // ══════════════════════════════════════════
 function switchTab(id){
   document.querySelectorAll('.tab-btn').forEach((b,i)=>{
-    const ids=['viz','ana','piv'];
+    const ids=['viz','ana','piv','ai'];
     b.classList.toggle('active',ids[i]===id);
   });
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('tab-'+id).classList.add('active');
+
+  // Aggiorna context chips quando entro nel tab AI
+  if(id === 'ai') updateAIContext();
+}
+
+// ══════════════════════════════════════════
+// TAB 4 — ANALIZZA CON AI
+// ══════════════════════════════════════════
+
+const ROLE_LABELS = {
+  'data_analyst': 'Data Analyst',
+  'middle_management': 'Middle Management',
+  'team_leader': 'Team Leader',
+  'sales_manager': 'Sales Manager',
+}
+const TOPIC_LABELS = {
+  'crm': 'CRM / Clienti',
+  'sales': 'Vendite',
+  'finance': 'Finanza',
+  'operations': 'Operazioni',
+  'marketing': 'Marketing',
+  'other': 'Generico',
+}
+
+const SCOPE_SECTIONS = [
+  { letter: 'S', code: 'S', name: 'Situazione',          desc: 'Cosa contengono i dati' },
+  { letter: 'C', code: 'C', name: 'Criticità',            desc: 'Anomalie e segnali di rischio' },
+  { letter: 'O', code: 'O', name: 'Opportunità',          desc: 'Pattern positivi da sfruttare' },
+  { letter: 'P', code: 'P', name: 'Priorità',             desc: 'Azioni concrete da fare' },
+  { letter: 'E', code: 'E', name: 'Esposizione al rischio', desc: 'Limiti e cose da non assumere' },
+]
+
+function updateAIContext() {
+  const ctx = document.getElementById('aiContext')
+  if (!userProfile) { ctx.innerHTML = '<span class="ai-ctx-chip">profilo non caricato</span>'; return }
+
+  const ruolo = ROLE_LABELS[userProfile.ruolo] || userProfile.ruolo || '—'
+  const argomento = TOPIC_LABELS[userProfile.argomento] || userProfile.argomento || '—'
+  const fileInfo = rawData.length > 0
+    ? `${rawData.length.toLocaleString('it')} righe · ${headers.length} colonne`
+    : 'nessun file caricato'
+
+  ctx.innerHTML = `
+    <span class="ai-ctx-chip">Ruolo: ${ruolo}</span>
+    <span class="ai-ctx-chip">Ambito: ${argomento}</span>
+    <span class="ai-ctx-chip">Dati: ${fileInfo}</span>
+  `
+
+  // Disabilita bottone se manca il file
+  document.getElementById('btnAiRun').disabled = rawData.length === 0
+}
+
+function buildDataProfile() {
+  if (!rawData.length) return ''
+
+  const total = rawData.length * headers.length
+  const filled = rawData.reduce((s,r) => s + r.filter(c => c!==null && c!=='').length, 0)
+  const completeness = Math.round(filled/total*100)
+
+  let profile = `Dataset: ${rawData.length} righe × ${headers.length} colonne. Completezza: ${completeness}%.\n\n`
+  profile += `COLONNE E STATISTICHE:\n`
+
+  headers.forEach((h, ci) => {
+    const tp = types[ci]
+    const vals = rawData.map(r => r[ci]).filter(v => v!==null && v!=='')
+    const nullCount = rawData.length - vals.length
+    const nullPct = Math.round(nullCount/rawData.length*100)
+
+    profile += `\n[${h}] tipo: ${tp}, vuoti: ${nullPct}%`
+
+    if (tp === 'number') {
+      const nums = vals.map(v => parseFloat(v)).filter(v => !isNaN(v)).sort((a,b) => a-b)
+      if (nums.length) {
+        const m = nums.reduce((a,b)=>a+b,0)/nums.length
+        const med = nums[Math.floor(nums.length/2)]
+        profile += ` | min: ${nums[0].toFixed(2)}, max: ${nums[nums.length-1].toFixed(2)}, media: ${m.toFixed(2)}, mediana: ${med.toFixed(2)}`
+      }
+    } else {
+      const freq = {}
+      vals.forEach(v => { const k = String(v); freq[k] = (freq[k]||0)+1 })
+      const uniq = Object.keys(freq).length
+      const top = Object.entries(freq).sort((a,b) => b[1]-a[1]).slice(0,5)
+      profile += ` | valori unici: ${uniq}, top 5: ${top.map(([k,v]) => `"${k}" (${v})`).join(', ')}`
+    }
+  })
+
+  // Campione di righe
+  profile += `\n\nCAMPIONE PRIME 10 RIGHE:\n`
+  profile += headers.join(' | ') + '\n'
+  rawData.slice(0,10).forEach(r => {
+    profile += r.map(v => v===null?'':String(v).slice(0,30)).join(' | ') + '\n'
+  })
+
+  return profile
+}
+
+function renderAIReport() {
+  const html = `
+    <div class="ai-report" id="aiReport">
+      ${SCOPE_SECTIONS.map(s => `
+        <div class="ai-section" id="aiSec-${s.code}">
+          <div class="ai-sec-head">
+            <span class="ai-letter">${s.letter}</span>
+            <span class="ai-sec-title">${s.name}</span>
+            <span class="ai-sec-spacer"></span>
+            <span class="ai-sec-status loading" id="aiStatus-${s.code}">in attesa…</span>
+          </div>
+          <div class="ai-sec-content" id="aiContent-${s.code}">
+            <div class="ai-skeleton"></div>
+            <div class="ai-skeleton"></div>
+            <div class="ai-skeleton"></div>
+          </div>
+        </div>
+      `).join('')}
+      <div class="ai-actions">
+        <button class="btn-sm" onclick="runAIAnalysis()">↻ Rigenera</button>
+        <button class="btn-sm" onclick="exportAIReport()">📄 Esporta TXT</button>
+      </div>
+    </div>
+  `
+  document.getElementById('aiResultArea').innerHTML = html
+}
+
+let lastAIResults = {}
+
+async function runAIAnalysis() {
+  if (!rawData.length) { alert('Carica prima un file Excel.'); return }
+  if (!userProfile?.ruolo || !userProfile?.argomento) {
+    alert('Completa prima l\'onboarding (impostazioni → ruolo + ambito).')
+    return
+  }
+
+  document.getElementById('btnAiRun').disabled = true
+  document.getElementById('btnAiRun').innerHTML = 'Analisi in corso… <span class="arrow">⏳</span>'
+
+  renderAIReport()
+  lastAIResults = {}
+
+  const dataProfile = buildDataProfile()
+
+  // Esegue le 5 chiamate in sequenza per dare effetto progressivo
+  for (const sec of SCOPE_SECTIONS) {
+    const statusEl = document.getElementById(`aiStatus-${sec.code}`)
+    const contentEl = document.getElementById(`aiContent-${sec.code}`)
+    statusEl.textContent = 'elaborazione…'
+    statusEl.className = 'ai-sec-status loading'
+
+    try {
+      const resp = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          dataProfile,
+          ruolo: userProfile.ruolo,
+          argomento: userProfile.argomento,
+          section: sec.code,
+        })
+      })
+
+      if (!resp.ok) throw new Error('HTTP ' + resp.status)
+      const data = await resp.json()
+      const text = data.result || 'Nessuna risposta.'
+
+      lastAIResults[sec.code] = text
+
+      // Format text in paragraphs
+      const formatted = text.split('\n\n').map(p => `<p>${p.replace(/\n/g,'<br>')}</p>`).join('')
+      contentEl.innerHTML = formatted
+      contentEl.classList.add('fu')
+
+      statusEl.textContent = '✓ completato'
+      statusEl.className = 'ai-sec-status done'
+
+    } catch (err) {
+      console.error('Errore sezione', sec.code, err)
+      contentEl.innerHTML = `<div class="ai-error">⚠ Errore nella generazione: ${err.message}<br>Verifica che la API key Claude sia configurata su Vercel.</div>`
+      statusEl.textContent = '✕ errore'
+      statusEl.className = 'ai-sec-status'
+      statusEl.style.color = 'var(--orange)'
+    }
+  }
+
+  // Salva analisi su Supabase
+  try {
+    await sb.from('analyses').insert({
+      user_id: currentUser.id,
+      file_name: wb?.SheetNames?.[0] || 'sheet',
+      file_rows: rawData.length,
+      file_cols: headers.length,
+      headers: headers,
+      data_profile: dataProfile.slice(0, 5000),
+      scope_s: lastAIResults.S || null,
+      scope_c: lastAIResults.C || null,
+      scope_o: lastAIResults.O || null,
+      scope_p: lastAIResults.P || null,
+      scope_e: lastAIResults.E || null,
+      ruolo: userProfile.ruolo,
+      argomento: userProfile.argomento,
+    })
+  } catch (e) {
+    console.warn('Salvataggio analisi non riuscito:', e)
+  }
+
+  document.getElementById('btnAiRun').disabled = false
+  document.getElementById('btnAiRun').innerHTML = 'Rigenera analisi <span class="arrow">↻</span>'
+}
+
+function exportAIReport() {
+  if (!Object.keys(lastAIResults).length) return
+  let txt = `LUME · Analisi SCOPE\n`
+  txt += `Data: ${new Date().toLocaleString('it-IT')}\n`
+  txt += `Ruolo: ${ROLE_LABELS[userProfile.ruolo]} · Ambito: ${TOPIC_LABELS[userProfile.argomento]}\n`
+  txt += `${'═'.repeat(60)}\n\n`
+
+  SCOPE_SECTIONS.forEach(s => {
+    txt += `${s.letter} · ${s.name.toUpperCase()}\n`
+    txt += `${'-'.repeat(60)}\n`
+    txt += (lastAIResults[s.code] || '—') + '\n\n'
+  })
+
+  const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' })
+  const a = document.createElement('a')
+  a.href = URL.createObjectURL(blob)
+  a.download = `lume-analisi-${new Date().toISOString().slice(0,10)}.txt`
+  a.click()
 }
 
 // ══════════════════════════════════════════
