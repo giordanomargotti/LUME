@@ -1245,7 +1245,6 @@ async function runAIAnalysis() {
     })
 
     if (!resp.ok) {
-    if (!resp.ok) {
       const errData = await resp.json().catch(() => ({}))
       console.error('=== API ERROR DETAIL ===')
       console.error('Status:', resp.status)
