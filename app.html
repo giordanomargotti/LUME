@@ -1245,8 +1245,15 @@ async function runAIAnalysis() {
     })
 
     if (!resp.ok) {
-      const err = await resp.json().catch(() => ({}))
-      throw new Error(err.error || `HTTP ${resp.status}`)
+    if (!resp.ok) {
+      const errData = await resp.json().catch(() => ({}))
+      console.error('=== API ERROR DETAIL ===')
+      console.error('Status:', resp.status)
+      console.error('Error:', errData.error)
+      console.error('Debug:', errData.debug)
+      console.error('Stop reason:', errData.stop_reason)
+      console.error('Raw response from Claude:', errData.raw)
+      throw new Error(errData.error || `HTTP ${resp.status}`)
     }
 
     const { report } = await resp.json()
