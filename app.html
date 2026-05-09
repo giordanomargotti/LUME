@@ -320,87 +320,6 @@ footer{border-top:2.5px solid var(--ink);margin-top:60px;padding:14px 36px 14px 
 .ai-error{background:#fff2ec;border:1.5px solid var(--orange);padding:14px 18px;font-family:var(--mono);font-size:10px;color:var(--orange);margin-top:14px;line-height:1.6;}
 .ai-error-box{background:#fff2ec;border:1.5px solid var(--orange);padding:24px;font-family:var(--mono);font-size:11px;color:var(--orange);line-height:1.7;}
 
-/* ── FASE 1 · WELCOME BOX (riassunto narrativo AI) ── */
-.welcome-box{
-  margin: 18px 0 24px 0;
-  padding: 0;
-  border: 1.5px solid var(--ink);
-  background: white;
-  position: relative;
-  overflow: hidden;
-}
-.welcome-box::before{
-  content: '';
-  position: absolute;
-  top: 0; left: 0; bottom: 0;
-  width: 4px;
-  background: linear-gradient(to bottom, var(--orange) 0%, var(--amber) 100%);
-}
-.welcome-content{
-  padding: 16px 22px 18px 26px;
-}
-.welcome-eyebrow{
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--orange);
-  font-weight: 500;
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.welcome-spinner{
-  width: 10px; height: 10px;
-  border: 1.5px solid var(--rule);
-  border-top-color: var(--orange);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  display: inline-block;
-}
-.welcome-narrative{
-  font-family: var(--lora);
-  font-size: 16px;
-  font-weight: 400;
-  font-style: italic;
-  line-height: 1.5;
-  color: var(--ink);
-  letter-spacing: -0.005em;
-  margin: 0;
-}
-.welcome-alerts{
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 14px;
-  margin-top: 12px;
-  padding-top: 10px;
-  border-top: 1px solid var(--rule);
-}
-.welcome-alert{
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--mono);
-  font-size: 10.5px;
-  line-height: 1.5;
-  letter-spacing: 0.01em;
-}
-.welcome-alert-icon{
-  font-size: 13px;
-  line-height: 1;
-  flex-shrink: 0;
-}
-.welcome-alert-warning{ color: var(--orange); }
-.welcome-alert-warning .welcome-alert-icon{ color: var(--orange); }
-.welcome-alert-insight{ color: var(--amber); }
-.welcome-alert-insight .welcome-alert-icon{ color: var(--amber); }
-.welcome-alert-info{ color: var(--ink2); }
-.welcome-alert-info .welcome-alert-icon{ color: var(--green); }
-.welcome-alert-text{
-  color: var(--ink2);
-}
-
 /* ── Preview inferenziale (tab 1) ── */
 .infer-preview{margin-bottom:24px;}
 .infer-header{display:flex;align-items:baseline;gap:10px;margin-bottom:10px;}
@@ -606,9 +525,6 @@ footer{border-top:2.5px solid var(--ink);margin-top:60px;padding:14px 36px 14px 
     <div class="ov-cell"><div class="ov-n" id="oText">—</div><div class="ov-l">Categoriali</div><div class="ov-s">colonne</div></div>
   </div>
 </div>
-
-<!-- FASE 1 — WELCOME BOX (riassunto narrativo AI) -->
-<div class="welcome-box" id="welcomeBox" style="display:none;"></div>
 
 <!-- MAIN TABS -->
 <div class="main-tabs" id="mainTabs">
@@ -856,7 +772,7 @@ footer{border-top:2.5px solid var(--ink);margin-top:60px;padding:14px 36px 14px 
 // SUPABASE AUTH + ONBOARDING
 // ══════════════════════════════════════════
 const SUPABASE_URL = 'https://bejcehbawytcwifvuobd.supabase.co'
-const SUPABASE_ANON_KEY = 'TUA-ANON-KEY'   // ← stessa anon key di index.html
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJlamNlaGJhd3l0Y3dpZnZ1b2JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjUyNjMsImV4cCI6MjA5MjEwMTI2M30._OssTkFRKTuvbz-7aGDRiWGgTnK5hb6d2WerkPbkYfM'   // ← stessa anon key di index.html
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
@@ -1003,7 +919,6 @@ async function saveOnboarding() {
 function openSettings() {
   if (!userProfile) return
 
-  // Reset modale a stato pulito
   document.getElementById('onbEyebrow').textContent = 'Modifica impostazioni · Personalizzazione'
   document.getElementById('onbTitle').innerHTML = 'Aggiorna il tuo <em>profilo.</em>'
   document.getElementById('onbSubtitle').textContent = '// modifica ruolo e ambito di analisi'
@@ -1013,7 +928,6 @@ function openSettings() {
   onbRole = userProfile.ruolo
   onbTopic = userProfile.argomento
 
-  // Pre-seleziona ruolo
   document.querySelectorAll('#onbRoles .onb-opt').forEach(b => {
     b.classList.toggle('selected', b.dataset.val === onbRole)
   })
@@ -1022,14 +936,9 @@ function openSettings() {
   if (onbRole) {
     renderTopicsForRole(onbRole)
     document.getElementById('onbStep2').style.display = 'block'
-    // Pre-seleziona topic dopo il render
-    setTimeout(() => {
-      document.querySelectorAll('#onbTopics .onb-opt').forEach(b => {
-        b.classList.toggle('selected', b.dataset.val === onbTopic)
-      })
-    }, 0)
-  } else {
-    document.getElementById('onbStep2').style.display = 'none'
+    document.querySelectorAll('#onbTopics .onb-opt').forEach(b => {
+      b.classList.toggle('selected', b.dataset.val === onbTopic)
+    })
   }
 
   updateOnbProgress()
@@ -1038,14 +947,12 @@ function openSettings() {
 
 function closeSettings() {
   document.getElementById('onbOverlay').classList.remove('show')
-  // Reset stato per eventuale riapertura
-  setTimeout(() => {
-    document.getElementById('onbEyebrow').textContent = 'Configurazione iniziale · Una volta sola'
-    document.getElementById('onbTitle').innerHTML = 'Diamoci un <em>contesto.</em>'
-    document.getElementById('onbSubtitle').textContent = '// queste 2 risposte personalizzano ogni analisi AI sul tuo ruolo e settore'
-    document.getElementById('btnOnbSave').textContent = 'Salva e prosegui →'
-    document.getElementById('btnOnbCancel').style.display = 'none'
-  }, 300)
+  // Reset testi al default per eventuale riapertura
+  document.getElementById('onbEyebrow').textContent = 'Configurazione iniziale · Una volta sola'
+  document.getElementById('onbTitle').innerHTML = 'Diamoci un <em>contesto.</em>'
+  document.getElementById('onbSubtitle').textContent = '// queste 2 risposte personalizzano ogni analisi AI sul tuo ruolo e settore'
+  document.getElementById('btnOnbSave').textContent = 'Salva e prosegui →'
+  document.getElementById('btnOnbCancel').style.display = 'none'
 }
 
 // ══════════════════════════════════════════
@@ -1117,109 +1024,8 @@ function loadSheet(name){
       runInferentialAnalysis();
       renderInferentialPreview();
       console.log('✓ Analisi inferenziale completata');
-
-      // FASE 1 — Il Benvenuto: chiamata AI per riassunto narrativo
-      generateWelcomeSummary();
     } catch(e) { console.warn('Analisi inferenziale fallita:', e); }
   }, 100);
-}
-
-// ══════════════════════════════════════════
-// FASE 1 — IL BENVENUTO
-// Riassunto narrativo AI subito dopo caricamento file
-// ══════════════════════════════════════════
-async function generateWelcomeSummary() {
-  // Mostra subito il box con stato "loading"
-  showWelcomeBox({ loading: true })
-
-  try {
-    const resp = await fetch('/api/summary', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        dataProfile: buildDataProfile(),
-        inferentialResults: inferentialAnalysis || 'Non disponibile',
-        ruolo: userProfile?.ruolo || null,
-        argomento: userProfile?.argomento || null,
-      })
-    })
-
-    if (!resp.ok) throw new Error('HTTP ' + resp.status)
-    const { summary } = await resp.json()
-
-    showWelcomeBox({ summary })
-    console.log('✓ Riassunto narrativo generato')
-
-  } catch (err) {
-    console.warn('Riassunto AI fallito, mostro fallback statico:', err)
-    showWelcomeBox({ fallback: true })
-  }
-}
-
-function showWelcomeBox(opts) {
-  const container = document.getElementById('welcomeBox')
-  if (!container) return
-
-  if (opts.loading) {
-    container.innerHTML = `
-      <div class="welcome-content">
-        <div class="welcome-eyebrow">
-          <span class="welcome-spinner"></span>
-          Lettura in corso · Lume sta leggendo i tuoi dati
-        </div>
-      </div>
-    `
-    container.style.display = 'block'
-    return
-  }
-
-  if (opts.fallback) {
-    // Fallback statico: usa info di base senza AI
-    const periodo = detectPeriodFromData()
-    const periodInfo = periodo ? `, periodo ${periodo}` : ''
-    container.innerHTML = `
-      <div class="welcome-content">
-        <div class="welcome-eyebrow">File caricato</div>
-        <p class="welcome-narrative">
-          Hai caricato ${rawData.length.toLocaleString('it')} righe su ${headers.length} colonne${periodInfo}.
-          I dati sono pronti per essere analizzati.
-        </p>
-      </div>
-    `
-    container.style.display = 'block'
-    return
-  }
-
-  if (opts.summary) {
-    const s = opts.summary
-    container.innerHTML = `
-      <div class="welcome-content">
-        <div class="welcome-eyebrow">Lume ha letto i tuoi dati</div>
-        <p class="welcome-narrative">${s.narrative || ''}</p>
-        ${(s.alerts && s.alerts.length) ? `
-          <div class="welcome-alerts">
-            ${s.alerts.map(a => `
-              <div class="welcome-alert welcome-alert-${a.type || 'info'}">
-                <span class="welcome-alert-icon">${a.icon || '•'}</span>
-                <span class="welcome-alert-text">${a.text}</span>
-              </div>
-            `).join('')}
-          </div>
-        ` : ''}
-      </div>
-    `
-    container.style.display = 'block'
-  }
-}
-
-// Helper: prova a dedurre il periodo dal dataset
-function detectPeriodFromData() {
-  const dateCol = headers.findIndex((h, i) => types[i] === 'date')
-  if (dateCol === -1) return null
-  const dates = rawData.map(r => new Date(r[dateCol])).filter(d => !isNaN(d)).sort((a,b) => a-b)
-  if (dates.length < 2) return null
-  const opts = { month: 'short', year: '2-digit' }
-  return dates[0].toLocaleDateString('it-IT', opts) + ' - ' + dates[dates.length-1].toLocaleDateString('it-IT', opts)
 }
 
 // ══════════════════════════════════════════
