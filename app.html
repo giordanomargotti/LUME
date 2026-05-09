@@ -125,6 +125,254 @@ body::before{content:'';position:fixed;inset:0;background-image:repeating-linear
 .tab-panel{display:none;padding-top:24px;}
 .tab-panel.active{display:block;}
 
+/* ══════════════════════════════════════════════
+   FASE 2 · IL PALCOSCENICO
+   Hero AI button + 3 cards esplorazione
+══════════════════════════════════════════════ */
+.stage{
+  margin: 8px 0 32px 0;
+}
+
+/* Hero AI button */
+.stage-hero{
+  border: 2px solid var(--ink);
+  background: var(--paper);
+  padding: 28px 32px 24px 32px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.stage-hero::before{
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--orange) 0%, var(--amber) 100%);
+}
+.stage-hero-eyebrow{
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--orange);
+  font-weight: 500;
+  margin-bottom: 14px;
+}
+.stage-hero-btn{
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--ink);
+  color: white;
+  border: none;
+  padding: 18px 36px;
+  font-family: var(--lora);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: all .2s;
+  position: relative;
+}
+.stage-hero-btn::after{
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border: 2px solid transparent;
+  transition: border-color .2s;
+  pointer-events: none;
+}
+.stage-hero-btn:hover{
+  background: var(--orange);
+  transform: translateY(-1px);
+}
+.stage-hero-btn:hover::after{
+  border-color: var(--orange);
+  inset: -6px;
+}
+.hero-btn-arrow{
+  font-size: 26px;
+  transition: transform .2s;
+}
+.stage-hero-btn:hover .hero-btn-arrow{
+  transform: translateX(4px);
+}
+.stage-hero-sub{
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  margin-top: 14px;
+  font-style: italic;
+}
+
+/* Divisore narrativo */
+.stage-divider{
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 24px 0 18px 0;
+}
+.stage-divider-line{
+  flex: 1;
+  height: 1px;
+  background: var(--rule);
+}
+.stage-divider-text{
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* 3 Cards esplorazione */
+.stage-cards{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+.stage-card{
+  border: 1.5px solid var(--ink);
+  background: white;
+  padding: 22px 22px 20px 22px;
+  cursor: pointer;
+  text-align: left;
+  position: relative;
+  transition: all .15s;
+  font-family: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 140px;
+}
+.stage-card:hover{
+  background: var(--cream);
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+.stage-card.active{
+  background: var(--ink);
+  color: white;
+  border-color: var(--ink);
+}
+.stage-card.active .stage-card-desc{
+  color: rgba(255,255,255,0.7);
+}
+.stage-card.active .stage-card-arrow{
+  color: var(--orange);
+}
+.stage-card-icon{
+  font-family: var(--lora);
+  font-size: 28px;
+  margin-bottom: 6px;
+  line-height: 1;
+}
+.stage-card-title{
+  font-family: var(--lora);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+.stage-card-desc{
+  font-family: var(--mono);
+  font-size: 9.5px;
+  line-height: 1.5;
+  color: var(--ink2);
+  letter-spacing: 0.02em;
+  flex: 1;
+}
+.stage-card-arrow{
+  font-family: var(--lora);
+  font-size: 20px;
+  color: var(--orange);
+  align-self: flex-end;
+  margin-top: 4px;
+  transition: transform .2s;
+}
+.stage-card:hover .stage-card-arrow{
+  transform: translateX(4px);
+}
+
+/* Pannello con back button */
+.stage-panel{
+  margin-top: 14px;
+  border-top: 2px solid var(--ink);
+  padding-top: 0;
+}
+.stage-panel-back{
+  padding: 10px 0 4px 0;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 4px;
+}
+.stage-back-btn{
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px 4px 0;
+  transition: color .15s;
+}
+.stage-back-btn:hover{
+  color: var(--orange);
+}
+
+/* Layout collassato quando c'è il pannello aperto */
+.stage.compact .stage-hero{
+  padding: 14px 20px 12px 20px;
+}
+.stage.compact .stage-hero-btn{
+  font-size: 16px;
+  padding: 12px 24px;
+}
+.stage.compact .stage-hero-eyebrow,
+.stage.compact .stage-hero-sub{
+  display: none;
+}
+.stage.compact .stage-divider{
+  margin: 12px 0 10px 0;
+}
+.stage.compact .stage-cards{
+  gap: 8px;
+}
+.stage.compact .stage-card{
+  padding: 12px 14px;
+  min-height: auto;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+}
+.stage.compact .stage-card-icon{
+  font-size: 18px;
+  margin: 0;
+}
+.stage.compact .stage-card-title{
+  font-size: 12px;
+  flex: 1;
+}
+.stage.compact .stage-card-desc,
+.stage.compact .stage-card-arrow{
+  display: none;
+}
+
+/* Mobile responsive */
+@media(max-width: 720px){
+  .stage-cards{
+    grid-template-columns: 1fr;
+  }
+  .stage-hero-btn{
+    font-size: 18px;
+    padding: 14px 24px;
+  }
+}
+
 /* ── SEC HEAD ── */
 .sec-head{display:flex;align-items:baseline;gap:10px;margin:0 0 14px;border-bottom:1px solid var(--rule);padding-bottom:5px;}
 .sec-title{font-family:var(--lora);font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;}
@@ -405,6 +653,539 @@ footer{border-top:2.5px solid var(--ink);margin-top:60px;padding:14px 36px 14px 
 
 .ai-rep-actions{display:flex;gap:8px;justify-content:flex-end;padding:18px 0 0;border-top:2.5px solid var(--ink);margin-top:20px;}
 
+/* Stato vuoto tab AI con hint custom sections (Fase 4) */
+.ai-empty-divider{
+  height: 1px;
+  background: var(--rule);
+  margin: 18px auto 14px;
+  width: 80%;
+}
+.ai-empty-custom-text{
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink2);
+  letter-spacing: 0.04em;
+  line-height: 1.7;
+  margin-bottom: 10px;
+}
+.ai-empty-custom-text strong{
+  color: var(--orange);
+  font-family: var(--lora);
+  font-size: 14px;
+}
+.ai-empty-custom-actions{
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+/* ════════════════════════════════════════════════
+   FASE 3 · IL COMPOSITORE
+   - Bottoni "+ Aggiungi al report"
+   - Modale aggiunta
+   - Lista sezioni custom
+   - Render custom sections nel report
+════════════════════════════════════════════════ */
+
+/* Bottone "+ Aggiungi al report" sotto i tool */
+.add-to-report-row{
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--rule);
+  display: flex;
+  justify-content: flex-end;
+}
+.add-to-report-btn{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  border: 1.5px solid var(--orange);
+  color: var(--orange);
+  padding: 8px 16px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all .15s;
+}
+.add-to-report-btn:hover{
+  background: var(--orange);
+  color: white;
+  transform: translateY(-1px);
+}
+.atr-icon{
+  font-family: var(--lora);
+  font-size: 16px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+/* Badge "N analisi aggiunte" nello stage hero */
+.cs-badge{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--amber-bg);
+  border: 1.5px solid var(--amber);
+  padding: 6px 14px;
+  margin-bottom: 14px;
+  cursor: pointer;
+  font-family: var(--mono);
+  transition: all .15s;
+}
+.cs-badge:hover{
+  background: var(--amber);
+  color: white;
+}
+.cs-badge:hover .cs-badge-count,
+.cs-badge:hover .cs-badge-label,
+.cs-badge:hover .cs-badge-arrow{
+  color: white;
+}
+.cs-badge-count{
+  font-family: var(--lora);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--amber);
+  line-height: 1;
+}
+.cs-badge-label{
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink2);
+  font-weight: 500;
+}
+.cs-badge-arrow{
+  font-size: 12px;
+  color: var(--amber);
+  margin-left: 4px;
+}
+
+/* Modale: Aggiungi al report */
+.cs-modal-overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 24, 20, 0.6);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+.cs-modal-overlay.show{
+  display: flex;
+  animation: fadeUp 0.2s ease;
+}
+.cs-modal{
+  background: white;
+  border: 2px solid var(--ink);
+  max-width: 540px;
+  width: 100%;
+  padding: 28px 32px;
+  position: relative;
+}
+.cs-modal::before{
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--orange) 0%, var(--amber) 100%);
+}
+.cs-modal-eyebrow{
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.cs-modal-type{
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: white;
+  background: var(--orange);
+  padding: 2px 6px;
+  font-weight: 500;
+}
+.cs-modal-eyebrow-text{
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  font-style: italic;
+}
+.cs-modal-title{
+  font-family: var(--lora);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 6px 0 18px;
+}
+.cs-modal-title em{ font-style: italic; color: var(--orange); }
+.cs-modal-field{ margin-bottom: 14px; }
+.cs-modal-label{
+  display: block;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink2);
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+.cs-modal-input,
+.cs-modal-textarea{
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid var(--rule);
+  font-family: var(--serif);
+  font-size: 14px;
+  background: var(--paper);
+  color: var(--ink);
+  transition: border-color .15s;
+  resize: vertical;
+}
+.cs-modal-input:focus,
+.cs-modal-textarea:focus{
+  outline: none;
+  border-color: var(--orange);
+  background: white;
+}
+.cs-modal-hint{
+  font-family: var(--mono);
+  font-size: 8.5px;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  margin-top: 4px;
+  font-style: italic;
+}
+.cs-modal-actions{
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1px solid var(--rule);
+}
+.cs-modal-cancel,
+.cs-modal-confirm{
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 10px 18px;
+  cursor: pointer;
+  border: 1.5px solid;
+  font-weight: 500;
+  transition: all .15s;
+}
+.cs-modal-cancel{
+  background: white;
+  color: var(--muted);
+  border-color: var(--rule);
+}
+.cs-modal-cancel:hover{
+  border-color: var(--ink);
+  color: var(--ink);
+}
+.cs-modal-confirm{
+  background: var(--orange);
+  color: white;
+  border-color: var(--orange);
+}
+.cs-modal-confirm:hover{
+  background: #c03e10;
+  border-color: #c03e10;
+}
+.cs-modal-confirm:disabled{
+  background: var(--muted);
+  border-color: var(--muted);
+  cursor: not-allowed;
+}
+
+/* Modale: Lista sezioni custom */
+.cs-list-overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 24, 20, 0.6);
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  z-index: 999;
+  padding: 60px 20px 20px;
+  overflow-y: auto;
+}
+.cs-list-overlay.show{ display: flex; animation: fadeUp 0.2s ease; }
+.cs-list-modal{
+  background: white;
+  border: 2px solid var(--ink);
+  max-width: 640px;
+  width: 100%;
+  padding: 24px 28px;
+  position: relative;
+}
+.cs-list-modal::before{
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--orange) 0%, var(--amber) 100%);
+}
+.cs-list-head{
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1.5px solid var(--ink);
+}
+.cs-list-eyebrow{
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--orange);
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+.cs-list-title{
+  font-family: var(--lora);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.cs-list-title em{ font-style: italic; color: var(--orange); }
+.cs-list-close{
+  background: none;
+  border: 1px solid var(--rule);
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--muted);
+  transition: all .15s;
+}
+.cs-list-close:hover{
+  border-color: var(--orange);
+  color: var(--orange);
+}
+.cs-list-content{
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+.cs-list-empty{
+  text-align: center;
+  padding: 30px 20px;
+  font-family: var(--lora);
+  font-size: 14px;
+  font-style: italic;
+  color: var(--muted);
+  border: 1px dashed var(--rule);
+}
+.cs-list-empty-sub{
+  display: block;
+  margin-top: 8px;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-style: normal;
+  letter-spacing: 0.04em;
+  line-height: 1.6;
+}
+.cs-list-item{
+  display: grid;
+  grid-template-columns: 36px 1fr 28px;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  transition: border-color .15s;
+}
+.cs-list-item:hover{ border-color: var(--orange); }
+.cs-list-item-num{
+  font-family: var(--lora);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--orange);
+  line-height: 1;
+}
+.cs-list-item-type{
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 3px;
+}
+.cs-list-item-title{
+  font-family: var(--lora);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  line-height: 1.3;
+}
+.cs-list-item-notes{
+  font-family: var(--serif);
+  font-size: 11px;
+  font-style: italic;
+  color: var(--ink2);
+  margin-top: 4px;
+  line-height: 1.5;
+}
+.cs-list-item-remove{
+  background: none;
+  border: 1px solid var(--rule);
+  width: 24px;
+  height: 24px;
+  font-size: 14px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .15s;
+  line-height: 1;
+}
+.cs-list-item-remove:hover{
+  border-color: var(--orange);
+  color: var(--orange);
+}
+
+/* Custom sections nel report */
+.ai-rep-custom-divider{
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 28px 0 18px;
+  padding: 0;
+}
+.ai-rep-custom-divider-line{
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, var(--orange) 50%, transparent 100%);
+}
+.ai-rep-custom-divider-text{
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--orange);
+  font-weight: 500;
+}
+.ai-rep-custom{
+  border-left: 4px solid var(--amber);
+  padding-left: 16px !important;
+  background: rgba(232, 160, 32, 0.04);
+}
+.ai-rep-custom-eyebrow{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.ai-rep-custom-remove{
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: none;
+  border: 1px solid var(--rule);
+  color: var(--muted);
+  padding: 3px 8px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.ai-rep-custom-remove:hover{
+  border-color: var(--orange);
+  color: var(--orange);
+}
+.ai-rep-custom-notes{
+  background: var(--cream);
+  border-left: 3px solid var(--muted);
+  padding: 10px 14px;
+  margin: 12px 0;
+}
+.ai-rep-custom-notes-eyebrow{
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+.ai-rep-custom-notes p{
+  font-family: var(--serif);
+  font-size: 12px;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--ink2);
+}
+.ai-rep-custom-comment{
+  font-style: normal !important;
+  border-left: 3px solid var(--amber);
+  padding-left: 12px;
+  margin-top: 12px !important;
+}
+.ai-rep-custom-no-comment{
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--muted);
+  font-style: italic;
+  margin-top: 12px;
+  letter-spacing: 0.04em;
+}
+
+/* Pivot preview nel report */
+.ai-rep-pivot-preview{
+  border: 1px solid var(--rule);
+  background: white;
+  padding: 8px;
+  margin: 10px 0;
+  overflow-x: auto;
+  max-height: 280px;
+  overflow-y: auto;
+}
+.cs-pivot-table{
+  border-collapse: collapse;
+  width: 100%;
+  font-family: var(--mono);
+  font-size: 10px;
+}
+.cs-pivot-table th,
+.cs-pivot-table td{
+  padding: 4px 8px;
+  border: 1px solid var(--rule);
+  text-align: left;
+  white-space: nowrap;
+}
+.cs-pivot-table th{
+  background: var(--cream);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* Analysis preview nel report */
+.ai-rep-analysis-preview{
+  background: var(--cream);
+  border: 1px solid var(--rule);
+  padding: 12px 14px;
+  margin: 10px 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+.ai-rep-analysis-preview pre{
+  font-family: var(--mono);
+  font-size: 10px;
+  line-height: 1.5;
+  color: var(--ink2);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 @media(max-width:680px){
   .ai-intro{flex-direction:column;align-items:flex-start;}
   .btn-ai-run{width:100%;justify-content:center;}
@@ -528,12 +1309,66 @@ footer{border-top:2.5px solid var(--ink);margin-top:60px;padding:14px 36px 14px 
 
 <!-- MAIN TABS -->
 <div class="main-tabs" id="mainTabs">
-  <div class="tab-nav">
-    <button class="tab-btn active" onclick="switchTab('viz')">① Visualizzazioni</button>
-    <button class="tab-btn" onclick="switchTab('ana')">② Analisi statistica</button>
-    <button class="tab-btn" onclick="switchTab('piv')">③ Pivot</button>
-    <button class="tab-btn" onclick="switchTab('ai')">④ Analizza con AI <span style="background:var(--orange);color:white;padding:1px 5px;font-size:7px;margin-left:4px;letter-spacing:.1em;">NEW</span></button>
+
+  <!-- ═══════════ FASE 2 · IL PALCOSCENICO ═══════════
+       Hero AI button + 3 cards esplorazione
+  ════════════════════════════════════════════════════ -->
+  <div class="stage" id="stage">
+
+    <!-- Hero: bottone AI protagonista -->
+    <div class="stage-hero">
+      <!-- Badge "N analisi aggiunte" (Fase 3) -->
+      <button class="cs-badge" id="csBadge" onclick="openCustomSectionsList()" style="display:none;">
+        <span class="cs-badge-count">0</span>
+        <span class="cs-badge-label">analisi aggiunte</span>
+        <span class="cs-badge-arrow">→</span>
+      </button>
+
+      <div class="stage-hero-eyebrow">// Pronto a leggere i tuoi dati</div>
+      <button class="stage-hero-btn" onclick="switchTab('ai'); runAIAnalysis();">
+        <span class="hero-btn-label">Genera Report AI</span>
+        <span class="hero-btn-arrow">→</span>
+      </button>
+      <div class="stage-hero-sub">// 1 click · ~30 secondi · report editoriale completo</div>
+    </div>
+
+    <!-- Divisore narrativo -->
+    <div class="stage-divider">
+      <span class="stage-divider-line"></span>
+      <span class="stage-divider-text">oppure esplora manualmente</span>
+      <span class="stage-divider-line"></span>
+    </div>
+
+    <!-- 3 Card esplorazione (funzionano come tab visivi) -->
+    <div class="stage-cards">
+      <button class="stage-card" data-tab="viz" onclick="switchTab('viz')">
+        <div class="stage-card-icon">📊</div>
+        <div class="stage-card-title">Crea un grafico</div>
+        <div class="stage-card-desc">Drag &amp; drop di campi · 6 tipi di grafico interattivi</div>
+        <div class="stage-card-arrow">→</div>
+      </button>
+
+      <button class="stage-card" data-tab="piv" onclick="switchTab('piv')">
+        <div class="stage-card-icon">▦</div>
+        <div class="stage-card-title">Costruisci una pivot</div>
+        <div class="stage-card-desc">Trascina righe, colonne, valori · come Excel</div>
+        <div class="stage-card-arrow">→</div>
+      </button>
+
+      <button class="stage-card" data-tab="ana" onclick="switchTab('ana')">
+        <div class="stage-card-icon">ƒx</div>
+        <div class="stage-card-title">Esegui un'analisi</div>
+        <div class="stage-card-desc">Cluster, correlazioni, regressioni, A/B test, churn</div>
+        <div class="stage-card-arrow">→</div>
+      </button>
+    </div>
   </div>
+
+  <!-- ════════ Pannello tab attivo (sotto le card) ════════ -->
+  <div class="stage-panel" id="stagePanel" style="display:none;">
+    <div class="stage-panel-back">
+      <button class="stage-back-btn" onclick="closeTabPanel()">← Torna al menu</button>
+    </div>
 
   <!-- ════ TAB 1: VISUALIZZAZIONI ════ -->
   <div class="tab-panel active" id="tab-viz">
@@ -601,6 +1436,14 @@ footer{border-top:2.5px solid var(--ink);margin-top:60px;padding:14px 36px 14px 
 
         <div class="chart-frame" id="vizFrame" style="display:none;">
           <canvas id="vizChart"></canvas>
+        </div>
+
+        <!-- + Aggiungi al report (Fase 3) -->
+        <div class="add-to-report-row" id="vizAddRow" style="display:none;">
+          <button class="add-to-report-btn" onclick="addVizToReport()">
+            <span class="atr-icon">+</span>
+            <span class="atr-label">Aggiungi al report</span>
+          </button>
         </div>
 
         <!-- Stats descrittive -->
@@ -675,6 +1518,14 @@ footer{border-top:2.5px solid var(--ink);margin-top:60px;padding:14px 36px 14px 
       <div class="ap-body">
         <div class="ap-config" id="apConfig"></div>
         <div id="apResult"></div>
+
+        <!-- + Aggiungi al report (Fase 3) -->
+        <div class="add-to-report-row" id="anaAddRow" style="display:none;">
+          <button class="add-to-report-btn" onclick="addAnalysisToReport()">
+            <span class="atr-icon">+</span>
+            <span class="atr-label">Aggiungi al report</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -725,6 +1576,14 @@ footer{border-top:2.5px solid var(--ink);margin-top:60px;padding:14px 36px 14px 
         <div id="pvTableWrap">
           <div class="pv-empty">Trascina campi nelle zone Righe, Colonne e Valori per generare la pivot.</div>
         </div>
+
+        <!-- + Aggiungi al report (Fase 3) -->
+        <div class="add-to-report-row" id="pvAddRow" style="display:none;">
+          <button class="add-to-report-btn" onclick="addPivotToReport()">
+            <span class="atr-icon">+</span>
+            <span class="atr-label">Aggiungi al report</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -749,10 +1608,70 @@ footer{border-top:2.5px solid var(--ink);margin-top:60px;padding:14px 36px 14px 
         <div class="ai-empty-icon">⬡</div>
         Carica un file Excel e clicca <strong style="color:var(--orange)">Genera analisi</strong><br>
         per ricevere un report SCOPE personalizzato sul tuo ruolo.
+
+        <!-- Edge case Fase 4: solo custom sections, no AI -->
+        <div class="ai-empty-custom-hint" id="aiEmptyCustomHint" style="display:none;">
+          <div class="ai-empty-divider"></div>
+          <p class="ai-empty-custom-text">
+            Hai <strong id="aiEmptyCustomCount">0</strong> analisi aggiunte manualmente.<br>
+            Puoi esportarle anche senza generare il report AI.
+          </p>
+          <div class="ai-empty-custom-actions">
+            <button class="btn-sm" onclick="exportAIReportWord()">📄 Word</button>
+            <button class="btn-sm" onclick="exportAIReportPDF()">📕 PDF</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
+
+  </div><!-- /stage-panel -->
 </div><!-- /main-tabs -->
+
+<!-- ═══════════════════════════════════════════════
+     FASE 3 · IL COMPOSITORE — Modali e overlay
+═══════════════════════════════════════════════ -->
+
+<!-- Modale: Aggiungi al report -->
+<div class="cs-modal-overlay" id="csModalOverlay">
+  <div class="cs-modal">
+    <div class="cs-modal-eyebrow">
+      <span class="cs-modal-type" id="csModalType">analisi</span>
+      <span class="cs-modal-eyebrow-text">// Aggiungi questa analisi al tuo report</span>
+    </div>
+    <h3 class="cs-modal-title">Dai un <em>titolo</em> a questa sezione.</h3>
+
+    <div class="cs-modal-field">
+      <label class="cs-modal-label">Titolo *</label>
+      <input type="text" id="csModalTitle" class="cs-modal-input" placeholder="es. Margine medio per regione" maxlength="120">
+    </div>
+
+    <div class="cs-modal-field">
+      <label class="cs-modal-label">Note tue (opzionale)</label>
+      <textarea id="csModalNotes" class="cs-modal-textarea" rows="3" placeholder="Cosa vuoi che venga sottolineato? Cosa hai notato che vuoi commentato dall'AI?" maxlength="500"></textarea>
+      <div class="cs-modal-hint">// queste note guidano il commento AI · max 500 caratteri</div>
+    </div>
+
+    <div class="cs-modal-actions">
+      <button class="cs-modal-cancel" onclick="closeAddToReportModal()">Annulla</button>
+      <button class="cs-modal-confirm" id="csModalConfirm" onclick="confirmAddToReport()">Aggiungi al report</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modale: Lista sezioni custom -->
+<div class="cs-list-overlay" id="csListOverlay">
+  <div class="cs-list-modal">
+    <div class="cs-list-head">
+      <div>
+        <div class="cs-list-eyebrow">// Le tue analisi nel report</div>
+        <h3 class="cs-list-title">Co-autore del <em>report.</em></h3>
+      </div>
+      <button class="cs-list-close" onclick="closeCustomSectionsList()">✕</button>
+    </div>
+    <div class="cs-list-content" id="csListContent"></div>
+  </div>
+</div>
 
 </div><!-- /page -->
 
@@ -1124,18 +2043,49 @@ function renderFieldLists(){
 }
 
 // ══════════════════════════════════════════
-// TABS
+// TABS — Fase 2: integrato con Palcoscenico
 // ══════════════════════════════════════════
 function switchTab(id){
-  document.querySelectorAll('.tab-btn').forEach((b,i)=>{
-    const ids=['viz','ana','piv','ai'];
-    b.classList.toggle('active',ids[i]===id);
-  });
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  document.getElementById('tab-'+id).classList.add('active');
+  // Marca card attiva (solo per i 3 tool, non per AI)
+  document.querySelectorAll('.stage-card').forEach(c => {
+    c.classList.toggle('active', c.dataset.tab === id)
+  })
+
+  // Compatta lo stage e mostra il pannello
+  const stage = document.getElementById('stage')
+  const panel = document.getElementById('stagePanel')
+  if (stage && panel) {
+    stage.classList.add('compact')
+    panel.style.display = 'block'
+  }
+
+  // Mostra il tab-panel corretto
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'))
+  const target = document.getElementById('tab-'+id)
+  if (target) target.classList.add('active')
+
+  // Scroll fluido verso il pannello
+  setTimeout(() => {
+    panel?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, 100)
 
   // Aggiorna context chips quando entro nel tab AI
-  if(id === 'ai') updateAIContext();
+  if(id === 'ai') updateAIContext()
+}
+
+function closeTabPanel(){
+  // Riporta lo stage allo stato espanso
+  const stage = document.getElementById('stage')
+  const panel = document.getElementById('stagePanel')
+  if (stage) stage.classList.remove('compact')
+  if (panel) panel.style.display = 'none'
+  document.querySelectorAll('.stage-card').forEach(c => c.classList.remove('active'))
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'))
+
+  // Scroll allo stage
+  setTimeout(() => {
+    stage?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, 100)
 }
 
 
@@ -1144,6 +2094,283 @@ function switchTab(id){
 // ══════════════════════════════════════════
 let lastAIReport = null
 let aiCharts = []
+
+// ══════════════════════════════════════════
+// FASE 3 · IL COMPOSITORE
+// Sezioni custom aggiunte dall'utente al report
+// ══════════════════════════════════════════
+let customSections = []  // array di { id, title, notes, type, snapshot, comment, createdAt }
+
+function addCustomSection(section) {
+  section.id = 'cs_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7)
+  section.createdAt = new Date().toISOString()
+  customSections.push(section)
+  renderCustomSectionsBadge()
+  // Se il report AI è già visibile, ridisegnalo per includere la nuova sezione
+  if (lastAIReport) renderAIReport(lastAIReport)
+}
+
+function removeCustomSection(id) {
+  customSections = customSections.filter(s => s.id !== id)
+  renderCustomSectionsBadge()
+  if (lastAIReport) renderAIReport(lastAIReport)
+  renderCustomSectionsList()
+}
+
+function renderCustomSectionsBadge() {
+  const badge = document.getElementById('csBadge')
+  if (!badge) return
+  if (customSections.length === 0) {
+    badge.style.display = 'none'
+  } else {
+    badge.style.display = 'inline-flex'
+    badge.querySelector('.cs-badge-count').textContent = customSections.length
+    badge.querySelector('.cs-badge-label').textContent =
+      customSections.length === 1 ? 'analisi aggiunta' : 'analisi aggiunte'
+  }
+
+  // Aggiorna anche l'hint dell'edge case "solo custom" nel tab AI
+  const hint = document.getElementById('aiEmptyCustomHint')
+  const count = document.getElementById('aiEmptyCustomCount')
+  if (hint && count) {
+    if (customSections.length > 0 && !lastAIReport) {
+      hint.style.display = 'block'
+      count.textContent = customSections.length
+    } else {
+      hint.style.display = 'none'
+    }
+  }
+}
+
+function openCustomSectionsList() {
+  document.getElementById('csListOverlay').classList.add('show')
+  renderCustomSectionsList()
+}
+
+function closeCustomSectionsList() {
+  document.getElementById('csListOverlay').classList.remove('show')
+}
+
+function renderCustomSectionsList() {
+  const container = document.getElementById('csListContent')
+  if (!container) return
+  if (customSections.length === 0) {
+    container.innerHTML = `
+      <div class="cs-list-empty">
+        Nessuna analisi aggiunta ancora.<br>
+        <span class="cs-list-empty-sub">Quando lavori in Visualizzazioni, Pivot o Analisi puoi aggiungere ciò che hai prodotto qui, e finirà nel report finale.</span>
+      </div>
+    `
+    return
+  }
+  container.innerHTML = customSections.map((s, i) => `
+    <div class="cs-list-item">
+      <div class="cs-list-item-num">${String(i+1).padStart(2,'0')}</div>
+      <div class="cs-list-item-body">
+        <div class="cs-list-item-type">${s.type}</div>
+        <div class="cs-list-item-title">${s.title}</div>
+        ${s.notes ? `<div class="cs-list-item-notes">${s.notes}</div>` : ''}
+      </div>
+      <button class="cs-list-item-remove" onclick="if(confirm('Rimuovere questa analisi?')) removeCustomSection('${s.id}')" title="Rimuovi">×</button>
+    </div>
+  `).join('')
+}
+
+// ─── MODALE AGGIUNGI SEZIONE ──────────────
+let pendingSectionData = null  // dati raccolti dal tool, in attesa di titolo+note
+
+function openAddToReportModal(sectionData) {
+  pendingSectionData = sectionData
+  document.getElementById('csModalTitle').value = ''
+  document.getElementById('csModalNotes').value = ''
+  document.getElementById('csModalType').textContent = sectionData.type
+  document.getElementById('csModalOverlay').classList.add('show')
+  setTimeout(() => document.getElementById('csModalTitle').focus(), 100)
+}
+
+function closeAddToReportModal() {
+  document.getElementById('csModalOverlay').classList.remove('show')
+  pendingSectionData = null
+}
+
+async function confirmAddToReport() {
+  const title = document.getElementById('csModalTitle').value.trim()
+  if (!title) {
+    alert('Dai un titolo a questa analisi.')
+    return
+  }
+  const notes = document.getElementById('csModalNotes').value.trim()
+
+  if (!pendingSectionData) return
+
+  const section = {
+    title: title,
+    notes: notes,
+    type: pendingSectionData.type,
+    snapshot: pendingSectionData.snapshot,
+  }
+
+  // Mostra stato loading nel bottone
+  const confirmBtn = document.getElementById('csModalConfirm')
+  confirmBtn.disabled = true
+  confirmBtn.textContent = 'Genero commento AI…'
+
+  try {
+    section.comment = await generateAIComment(section)
+  } catch(err) {
+    console.warn('Commento AI fallito, salvo senza:', err)
+    section.comment = null
+  }
+
+  addCustomSection(section)
+  closeAddToReportModal()
+
+  confirmBtn.disabled = false
+  confirmBtn.textContent = 'Aggiungi al report'
+}
+
+async function generateAIComment(section) {
+  // Costruisce snapshot leggibile per Claude
+  const snapshotText = JSON.stringify(section.snapshot, null, 2).slice(0, 2000)
+
+  const resp = await fetch('/api/comment', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      type: section.type,
+      title: section.title,
+      notes: section.notes || '',
+      snapshot: snapshotText,
+      ruolo: userProfile?.ruolo || null,
+      argomento: userProfile?.argomento || null,
+    })
+  })
+  if (!resp.ok) throw new Error('HTTP ' + resp.status)
+  const { comment } = await resp.json()
+  return comment
+}
+
+// Helper per renderizzare HTML di una pivot custom nel report
+function renderCustomPivotHTML(snapshot) {
+  if (!snapshot.tableRows || !snapshot.tableRows.length) return ''
+  const rows = snapshot.tableRows.slice(0, 30)
+  return `<table class="cs-pivot-table">
+    ${rows.map((r, i) => `
+      <tr>${r.map(c => i === 0 ? `<th>${c}</th>` : `<td>${c}</td>`).join('')}</tr>
+    `).join('')}
+  </table>`
+}
+
+// ─── CATTURA DATI DAI TOOL E APRE MODALE ───
+function addVizToReport() {
+  if (!vizChart) { alert('Crea prima un grafico.'); return }
+
+  // Cattura immagine canvas come base64
+  const canvas = document.getElementById('vizChart')
+  const imageDataURL = canvas.toDataURL('image/png')
+
+  // Estrai info chart per snapshot leggibile
+  const xLabel = xAxisField !== null ? headers[xAxisField] : '—'
+  const yLabel = yAxisField !== null ? headers[yAxisField] : '—'
+  const colorLabel = colorByField !== null ? headers[colorByField] : null
+
+  // Dati sintetici per Claude (non l'intero dataset)
+  const data = vizChart.data
+  const summary = {
+    chartType: vizType,
+    xAxis: xLabel,
+    yAxis: yLabel,
+    colorBy: colorLabel,
+    aggregation: typeof currentAgg !== 'undefined' ? currentAgg : 'unknown',
+    labels: data.labels?.slice(0, 30) || null,
+    datasets: data.datasets?.map(d => ({
+      label: d.label,
+      data: Array.isArray(d.data)
+        ? d.data.slice(0, 30).map(v => typeof v === 'object' ? v : Number(v))
+        : null
+    })) || null
+  }
+
+  openAddToReportModal({
+    type: 'Grafico · ' + vizType,
+    snapshot: {
+      kind: 'chart',
+      summary: summary,
+      image: imageDataURL,  // per export Word/PDF futuro
+    }
+  })
+}
+
+function addPivotToReport() {
+  const wrap = document.getElementById('pvTableWrap')
+  const table = wrap.querySelector('table')
+  if (!table) { alert('Costruisci prima una pivot.'); return }
+
+  // Estrai dati dalla tabella per snapshot
+  const rows = []
+  table.querySelectorAll('tr').forEach(tr => {
+    const cells = []
+    tr.querySelectorAll('th,td').forEach(c => cells.push(c.textContent.trim()))
+    rows.push(cells)
+  })
+
+  openAddToReportModal({
+    type: 'Pivot',
+    snapshot: {
+      kind: 'pivot',
+      tableRows: rows.slice(0, 50),  // limita per snapshot AI
+      rowFields: pvRowFields.map(i => headers[i]),
+      colFields: pvColFields.map(i => headers[i]),
+      valFields: pvValFields.map(v => ({ field: headers[v.field], agg: v.agg })),
+    }
+  })
+}
+
+function addAnalysisToReport() {
+  // Cattura titolo dell'analisi corrente
+  const apTitle = document.getElementById('apTitle').textContent.trim()
+  const apResult = document.getElementById('apResult')
+  if (!apTitle || apTitle === '—' || !apResult.innerHTML) {
+    alert('Esegui prima un\'analisi e visualizza i risultati.')
+    return
+  }
+
+  // Estrai testo leggibile dei risultati
+  const resultText = apResult.innerText.slice(0, 3000)
+
+  openAddToReportModal({
+    type: 'Analisi statistica · ' + apTitle,
+    snapshot: {
+      kind: 'analysis',
+      analysisName: apTitle,
+      resultText: resultText,
+    }
+  })
+}
+
+// ─── VISIBILITÀ DEL BOTTONE "+ AGGIUNGI" ────
+// Mostra/nascondi i bottoni in base allo stato dei tool
+function updateAddButtonsVisibility() {
+  const vizBtn = document.getElementById('vizAddRow')
+  if (vizBtn) vizBtn.style.display = vizChart ? 'block' : 'none'
+
+  const pvBtn = document.getElementById('pvAddRow')
+  if (pvBtn) {
+    const hasPivot = document.querySelector('#pvTableWrap table') !== null
+    pvBtn.style.display = hasPivot ? 'block' : 'none'
+  }
+
+  const anaBtn = document.getElementById('anaAddRow')
+  if (anaBtn) {
+    const hasResult = document.getElementById('apResult')?.innerHTML?.trim().length > 0
+    const panel = document.getElementById('anaPanel')
+    const panelVisible = panel && (panel.style.display === 'block' || panel.classList.contains('show'))
+    anaBtn.style.display = (hasResult && panelVisible) ? 'block' : 'none'
+  }
+}
+// Aggiorno la visibilità ogni 800ms (semplice ma efficace)
+setInterval(updateAddButtonsVisibility, 800)
+
 
 function updateAIContext() {
   const ctx = document.getElementById('aiContext')
@@ -1388,6 +2615,48 @@ function renderAIReport(r) {
         </div>
       ` : ''}
 
+      <!-- ════ FASE 3 · Le tue analisi (sezioni custom) ════ -->
+      ${(customSections && customSections.length) ? `
+        <div class="ai-rep-custom-divider">
+          <span class="ai-rep-custom-divider-line"></span>
+          <span class="ai-rep-custom-divider-text">Le tue analisi</span>
+          <span class="ai-rep-custom-divider-line"></span>
+        </div>
+        ${customSections.map((s, i) => `
+          <div class="ai-rep-section ai-rep-custom" id="custom-${s.id}">
+            <div class="ai-rep-sec-eyebrow ai-rep-custom-eyebrow">
+              <span>Aggiunta ${String(i+1).padStart(2,'0')} · ${s.type}</span>
+              <button class="ai-rep-custom-remove" onclick="if(confirm('Rimuovere questa sezione?')) removeCustomSection('${s.id}')">× rimuovi</button>
+            </div>
+            <h3 class="ai-rep-sec-title">${s.title}</h3>
+            ${s.snapshot?.image ? `
+              <div class="ai-chart-wrap">
+                <img src="${s.snapshot.image}" alt="${s.title}" style="width:100%;height:auto;display:block;">
+              </div>
+            ` : s.snapshot?.kind === 'pivot' ? `
+              <div class="ai-rep-pivot-preview">
+                ${renderCustomPivotHTML(s.snapshot)}
+              </div>
+            ` : s.snapshot?.kind === 'analysis' ? `
+              <div class="ai-rep-analysis-preview">
+                <pre>${(s.snapshot.resultText || '').slice(0, 800)}</pre>
+              </div>
+            ` : ''}
+            ${s.notes ? `
+              <div class="ai-rep-custom-notes">
+                <div class="ai-rep-custom-notes-eyebrow">Le tue note</div>
+                <p>${s.notes}</p>
+              </div>
+            ` : ''}
+            ${s.comment ? `
+              <p class="ai-rep-sec-narrative ai-rep-custom-comment">${s.comment}</p>
+            ` : `
+              <p class="ai-rep-custom-no-comment">// Commento AI non disponibile per questa sezione</p>
+            `}
+          </div>
+        `).join('')}
+      ` : ''}
+
       <!-- Actions -->
       <div class="ai-rep-actions">
         <button class="btn-sm" onclick="runAIAnalysis()">↻ Rigenera</button>
@@ -1504,14 +2773,53 @@ function drawAIChart(canvasId, type, labels, data, title, xLbl, yLbl) {
 }
 
 // ── EXPORT WORD ──────────────────────────────
-async function exportAIReportWord() {
-  if (!lastAIReport) return
-  const r = lastAIReport
+// ──────────────────────────────────────────────
+// FASE 4 · IL DOCUMENTO
+// Export Word/PDF unificato: report AI + custom sections
+// ──────────────────────────────────────────────
 
-  // Genera HTML semplice e usa Blob con MIME type docx-friendly
+// Helper: cattura tutti i canvas dei grafici AI come immagini base64
+function captureAIChartImages() {
+  const images = {}
+  if (!lastAIReport || !lastAIReport.sections) return images
+  lastAIReport.sections.forEach((s, i) => {
+    if (s.chart) {
+      const canvas = document.getElementById('aiChart-' + i)
+      if (canvas) {
+        try {
+          images[i] = canvas.toDataURL('image/png')
+        } catch(e) { console.warn('Cattura chart ' + i + ' fallita', e) }
+      }
+    }
+  })
+  return images
+}
+
+// Helper: garantisce che ci sia almeno qualcosa da esportare
+function canExport() {
+  return lastAIReport || (customSections && customSections.length > 0)
+}
+
+async function exportAIReportWord() {
+  if (!canExport()) {
+    alert('Genera prima il report AI o aggiungi almeno un\'analisi.')
+    return
+  }
+
+  const r = lastAIReport
+  const aiImages = r ? captureAIChartImages() : {}
+  const today = new Date().toLocaleDateString('it-IT')
+  const ruoloLabel = userProfile?.ruolo ? (ROLE_LABELS[userProfile.ruolo] || userProfile.ruolo) : ''
+  const topicLabel = userProfile?.argomento ? (TOPIC_LABELS[userProfile.argomento] || userProfile.argomento) : ''
+  const profileLine = (ruoloLabel && topicLabel) ? `${ruoloLabel} × ${topicLabel} · ` : ''
+
+  // Determina il titolo del documento
+  const docTitle = r?.title || 'Lume · Le tue analisi'
+  const docPeriod = r?.period_analyzed || ''
+
   const html = `
     <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-    <head><meta charset='utf-8'><title>${r.title}</title>
+    <head><meta charset='utf-8'><title>${docTitle}</title>
     <style>
       body { font-family: Georgia, serif; line-height: 1.6; color: #1a1814; margin: 40px; }
       h1 { font-size: 28pt; color: #d94f1e; border-bottom: 3px solid #1a1814; padding-bottom: 8px; }
@@ -1531,50 +2839,104 @@ async function exportAIReportWord() {
       .rec-title { font-size: 12pt; margin: 4px 0; }
       .rec-meta { font-size: 9pt; color: #3d3a35; margin-top: 8px; }
       .dq { background: #f5f2ed; padding: 12px; font-size: 10pt; }
+      .chart-img { max-width: 600px; width: 100%; height: auto; margin: 12px 0; border: 1px solid #e2ddd6; }
+      .chart-caption { font-size: 9pt; color: #9a9590; font-style: italic; margin-top: 4px; }
+      .custom-divider { margin: 40px 0 20px; padding-top: 20px; border-top: 3px double #d94f1e; }
+      .custom-divider h2 { color: #d94f1e; margin-top: 0; }
+      .custom-section { border-left: 4px solid #e8a020; padding: 12px 16px; margin: 16px 0; background: rgba(232,160,32,0.05); }
+      .custom-type { font-size: 9pt; color: #9a9590; text-transform: uppercase; letter-spacing: 0.12em; }
+      .custom-notes { background: #f5f2ed; padding: 10px 14px; border-left: 3px solid #9a9590; margin: 10px 0; font-style: italic; font-size: 11pt; }
+      .custom-notes-eyebrow { font-size: 8pt; text-transform: uppercase; color: #9a9590; letter-spacing: 0.1em; margin-bottom: 4px; font-style: normal; }
+      .custom-comment { border-left: 3px solid #e8a020; padding-left: 12px; margin-top: 12px; font-size: 11pt; }
+      .pivot-mini { border-collapse: collapse; font-size: 9pt; margin: 10px 0; }
+      .pivot-mini th, .pivot-mini td { padding: 4px 8px; border: 1px solid #e2ddd6; }
+      .pivot-mini th { background: #f5f2ed; font-weight: 600; }
+      .analysis-text { background: #f5f2ed; padding: 10px 14px; font-family: monospace; font-size: 9pt; white-space: pre-wrap; max-height: 300px; overflow: hidden; }
     </style></head>
     <body>
-      <h1>${r.title}</h1>
-      <div class='meta'>${r.period_analyzed || ''} · ${ROLE_LABELS[userProfile.ruolo]} × ${TOPIC_LABELS[userProfile.argomento]} · ${new Date().toLocaleDateString('it-IT')}</div>
+      <h1>${docTitle}</h1>
+      <div class='meta'>${docPeriod ? docPeriod + ' · ' : ''}${profileLine}${today}</div>
 
-      ${r.executive_summary ? `<div class='summary'><strong>Executive Summary</strong><p>${r.executive_summary}</p></div>` : ''}
+      ${r ? `
+        ${r.executive_summary ? `<div class='summary'><strong>Executive Summary</strong><p>${r.executive_summary}</p></div>` : ''}
 
-      ${(r.kpi_cards && r.kpi_cards.length) ? `
-        <h2>KPI Principali</h2>
-        <table style='width:100%;border-collapse:collapse;'><tr>
-          ${r.kpi_cards.map(k => `
-            <td class='kpi'>
-              <div class='kpi-label'>${k.label}</div>
-              <div class='kpi-value'>${k.value}</div>
-              ${k.delta ? `<div style='color:#9a9590;font-size:9pt;'>${k.delta}</div>` : ''}
-              <div class='kpi-comment'>${k.comment || ''}</div>
-            </td>
+        ${(r.kpi_cards && r.kpi_cards.length) ? `
+          <h2>KPI Principali</h2>
+          <table style='width:100%;border-collapse:collapse;'><tr>
+            ${r.kpi_cards.map(k => `
+              <td class='kpi'>
+                <div class='kpi-label'>${k.label}</div>
+                <div class='kpi-value'>${k.value}</div>
+                ${k.delta ? `<div style='color:#9a9590;font-size:9pt;'>${k.delta}</div>` : ''}
+                <div class='kpi-comment'>${k.comment || ''}</div>
+              </td>
+            `).join('')}
+          </tr></table>
+        ` : ''}
+
+        ${(r.sections || []).map((s, i) => `
+          <h2>Sezione ${i+1}</h2>
+          <h3>${s.title}</h3>
+          <p>${s.narrative || ''}</p>
+          ${aiImages[i] ? `
+            <img class='chart-img' src='${aiImages[i]}' alt='${s.chart?.title || ''}' />
+            ${s.chart?.insight ? `<div class='chart-caption'>→ ${s.chart.insight}</div>` : ''}
+          ` : (s.chart ? `<p style='font-style:italic;color:#9a9590;'>📊 Grafico: ${s.chart.title} — ${s.chart.insight || ''}</p>` : '')}
+          ${(s.key_findings && s.key_findings.length) ? `<ul class='findings'>${s.key_findings.map(f => `<li>${f}</li>`).join('')}</ul>` : ''}
+        `).join('')}
+
+        ${(r.recommendations && r.recommendations.length) ? `
+          <h2>Azioni Prioritarie</h2>
+          ${r.recommendations.map(rc => `
+            <div class='rec'>
+              <div class='rec-priority'>Priorità ${rc.priority}</div>
+              <div class='rec-title'><strong>${rc.title}</strong></div>
+              <p>${rc.action}</p>
+              <div class='rec-meta'><strong>Evidenza:</strong> ${rc.data_evidence}<br><strong>Impatto atteso:</strong> ${rc.expected_impact}</div>
+            </div>
           `).join('')}
-        </tr></table>
-      ` : ''}
+        ` : ''}
 
-      ${(r.sections || []).map((s, i) => `
-        <h2>Sezione ${i+1}</h2>
-        <h3>${s.title}</h3>
-        <p>${s.narrative || ''}</p>
-        ${s.chart ? `<p style='font-style:italic;color:#9a9590;'>📊 Grafico: ${s.chart.title} — ${s.chart.insight || ''}</p>` : ''}
-        ${(s.key_findings && s.key_findings.length) ? `<ul class='findings'>${s.key_findings.map(f => `<li>${f}</li>`).join('')}</ul>` : ''}
-      `).join('')}
+        ${(r.data_quality_notes && r.data_quality_notes.length) ? `
+          <h2>Note sulla qualità dei dati</h2>
+          <div class='dq'><ul>${r.data_quality_notes.map(n => `<li>${n}</li>`).join('')}</ul></div>
+        ` : ''}
+      ` : `
+        <p style='font-size:12pt;color:#3d3a35;font-style:italic;margin-top:20px;'>
+          Questo documento contiene le analisi che hai aggiunto manualmente, senza il report AI generato automaticamente.
+        </p>
+      `}
 
-      ${(r.recommendations && r.recommendations.length) ? `
-        <h2>Azioni Prioritarie</h2>
-        ${r.recommendations.map(rc => `
-          <div class='rec'>
-            <div class='rec-priority'>Priorità ${rc.priority}</div>
-            <div class='rec-title'><strong>${rc.title}</strong></div>
-            <p>${rc.action}</p>
-            <div class='rec-meta'><strong>Evidenza:</strong> ${rc.data_evidence}<br><strong>Impatto atteso:</strong> ${rc.expected_impact}</div>
+      ${(customSections && customSections.length) ? `
+        <div class='custom-divider'>
+          <h2>Le tue analisi</h2>
+        </div>
+        ${customSections.map((s, i) => `
+          <div class='custom-section'>
+            <div class='custom-type'>Aggiunta ${String(i+1).padStart(2,'0')} · ${s.type}</div>
+            <h3>${s.title}</h3>
+            ${s.snapshot?.image ? `<img class='chart-img' src='${s.snapshot.image}' alt='${s.title}' />` : ''}
+            ${s.snapshot?.kind === 'pivot' && s.snapshot.tableRows ? `
+              <table class='pivot-mini'>
+                ${s.snapshot.tableRows.slice(0, 30).map((row, ri) => `
+                  <tr>${row.map(cell => ri === 0 ? `<th>${cell}</th>` : `<td>${cell}</td>`).join('')}</tr>
+                `).join('')}
+              </table>
+            ` : ''}
+            ${s.snapshot?.kind === 'analysis' && s.snapshot.resultText ? `
+              <div class='analysis-text'>${(s.snapshot.resultText || '').slice(0, 1500)}</div>
+            ` : ''}
+            ${s.notes ? `
+              <div class='custom-notes'>
+                <div class='custom-notes-eyebrow'>Le tue note</div>
+                ${s.notes}
+              </div>
+            ` : ''}
+            ${s.comment ? `
+              <div class='custom-comment'>${s.comment}</div>
+            ` : ''}
           </div>
         `).join('')}
-      ` : ''}
-
-      ${(r.data_quality_notes && r.data_quality_notes.length) ? `
-        <h2>Note sulla qualità dei dati</h2>
-        <div class='dq'><ul>${r.data_quality_notes.map(n => `<li>${n}</li>`).join('')}</ul></div>
       ` : ''}
 
       <p style='margin-top:40px;color:#9a9590;font-size:9pt;text-align:center;'>Lume · Carica i tuoi dati. Scopri la tua storia.</p>
@@ -1590,39 +2952,148 @@ async function exportAIReportWord() {
 
 // ── EXPORT PDF (via window.print) ─────────────
 function exportAIReportPDF() {
-  if (!lastAIReport) return
-  // Apre in nuova finestra solo il report → utente fa "Salva come PDF"
-  const repHtml = document.getElementById('aiReport').outerHTML
+  if (!canExport()) {
+    alert('Genera prima il report AI o aggiungi almeno un\'analisi.')
+    return
+  }
+
+  // Cattura tutti i canvas come immagini PRIMA di clonare l'HTML
+  // (altrimenti la nuova finestra non ha accesso ai canvas dell'originale)
+  const reportNode = document.getElementById('aiReport')
+  let repHtml = ''
+
+  if (reportNode) {
+    // Clono il nodo e sostituisco i canvas con immagini base64
+    const cloned = reportNode.cloneNode(true)
+    const canvases = reportNode.querySelectorAll('canvas')
+    const clonedCanvases = cloned.querySelectorAll('canvas')
+
+    canvases.forEach((origCanvas, idx) => {
+      try {
+        const dataURL = origCanvas.toDataURL('image/png')
+        const img = document.createElement('img')
+        img.src = dataURL
+        img.style.cssText = 'width: 100%; height: auto; max-width: 700px; display: block; margin: 8px auto; border: 1px solid #e2ddd6;'
+        if (clonedCanvases[idx]) {
+          clonedCanvases[idx].replaceWith(img)
+        }
+      } catch(e) {
+        console.warn('Cattura canvas fallita:', e)
+      }
+    })
+
+    repHtml = cloned.outerHTML
+  } else {
+    // Edge case: nessun report AI ma ci sono custom sections — costruisco markup minimale
+    repHtml = buildCustomOnlyHTML()
+  }
+
+  const today = new Date().toLocaleDateString('it-IT')
+  const ruoloLabel = userProfile?.ruolo ? (ROLE_LABELS[userProfile.ruolo] || userProfile.ruolo) : ''
+  const topicLabel = userProfile?.argomento ? (TOPIC_LABELS[userProfile.argomento] || userProfile.argomento) : ''
+
   const win = window.open('', '_blank')
+  if (!win) {
+    alert('Il browser ha bloccato la nuova finestra. Abilita i popup per esportare in PDF.')
+    return
+  }
   win.document.write(`
     <!DOCTYPE html><html><head>
     <meta charset='utf-8'><title>Lume Report PDF</title>
     <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=Source+Serif+4:wght@400;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
     <style>
       body { font-family: 'Source Serif 4', Georgia, serif; padding: 30px; max-width: 900px; margin: 0 auto; color: #1a1814; }
-      .ai-rep-header h2 { font-family: 'Lora', serif; color: #d94f1e; font-size: 24pt; }
+      .doc-header { border-bottom: 3px solid #1a1814; padding-bottom: 12px; margin-bottom: 20px; }
+      .doc-meta { color: #9a9590; font-size: 9pt; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.06em; }
+      .ai-rep-header h2 { font-family: 'Lora', serif; color: #d94f1e; font-size: 24pt; margin: 0; }
       .ai-rep-meta { color: #9a9590; font-size: 9pt; font-family: 'JetBrains Mono', monospace; }
-      .ai-rep-section { border: 1.5px solid #1a1814; padding: 16px; margin: 14px 0; }
+      .ai-rep-section { border-left: 1.5px solid #1a1814; padding: 14px 16px; margin: 12px 0; background: white; page-break-inside: avoid; }
       .ai-rep-sec-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 8pt; color: #9a9590; letter-spacing: 0.16em; text-transform: uppercase; }
-      .ai-rep-sec-title { font-family: 'Lora', serif; font-size: 14pt; margin-top: 6px; }
+      .ai-rep-sec-title { font-family: 'Lora', serif; font-size: 14pt; margin-top: 6px; margin-bottom: 8px; }
       .ai-exec-summary { background: #fff8e8; border-left: 4px solid #e8a020; }
-      .ai-exec-text { font-size: 12pt; line-height: 1.6; }
-      .ai-kpi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-      .ai-kpi-card { border: 1px solid #e2ddd6; padding: 10px; }
-      .ai-kpi-label { font-size: 8pt; color: #9a9590; text-transform: uppercase; }
+      .ai-exec-text { font-size: 12pt; line-height: 1.6; font-style: italic; }
+      .ai-kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 6px; }
+      .ai-kpi-card { border: 1px solid #e2ddd6; padding: 10px; background: white; }
+      .ai-kpi-label { font-size: 8pt; color: #9a9590; text-transform: uppercase; letter-spacing: 0.14em; }
       .ai-kpi-value { font-family: 'Lora', serif; font-size: 18pt; color: #d94f1e; font-weight: bold; }
-      .ai-rec-card { border-left: 4px solid #d94f1e; background: #fff2ec; padding: 12px; margin: 8px 0; }
+      .ai-kpi-comment { font-size: 9pt; color: #3d3a35; margin-top: 4px; }
+      .ai-rec-card { border-left: 4px solid #d94f1e; background: #fff2ec; padding: 12px; margin: 8px 0; page-break-inside: avoid; }
+      .ai-rec-priority { font-family: 'JetBrains Mono', monospace; font-size: 8pt; color: #d94f1e; text-transform: uppercase; letter-spacing: 0.14em; font-weight: 500; }
+      .ai-rec-title { font-family: 'Lora', serif; font-size: 12pt; margin: 4px 0; font-weight: 600; }
       .ai-recs-section { background: white; }
-      .ai-rep-actions { display: none; }
-      canvas { display: none; }
-      @media print { body { padding: 0; } }
+      .ai-rep-actions { display: none !important; }
+      .add-to-report-row, .add-to-report-btn { display: none !important; }
+      .ai-rep-custom-remove { display: none !important; }
+      .ai-rep-custom-divider { margin: 30px 0 15px; padding-top: 15px; border-top: 3px double #d94f1e; }
+      .ai-rep-custom-divider-text { font-family: 'JetBrains Mono', monospace; font-size: 10pt; color: #d94f1e; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 500; }
+      .ai-rep-custom { border-left: 4px solid #e8a020 !important; background: rgba(232,160,32,0.05); padding: 12px 16px !important; }
+      .ai-rep-custom-comment { border-left: 3px solid #e8a020; padding-left: 12px; margin-top: 12px; font-size: 11pt; }
+      .ai-rep-custom-notes { background: #f5f2ed; padding: 10px 14px; border-left: 3px solid #9a9590; margin: 10px 0; font-style: italic; font-size: 10pt; }
+      .ai-rep-custom-notes-eyebrow { font-size: 8pt; text-transform: uppercase; color: #9a9590; letter-spacing: 0.1em; margin-bottom: 4px; font-style: normal; }
+      .ai-chart-wrap { margin: 10px 0; padding: 8px; border: 1px solid #e2ddd6; background: #fdfcfa; }
+      .ai-chart-title { font-family: 'Lora', serif; font-size: 10pt; font-style: italic; color: #9a9590; margin-bottom: 6px; }
+      .ai-chart-insight { font-family: 'JetBrains Mono', monospace; font-size: 9pt; color: #d94f1e; margin-top: 6px; padding-top: 6px; border-top: 1px solid #e2ddd6; }
+      .ai-findings { margin-top: 8px; padding-left: 16px; border-left: 2px solid #d94f1e; }
+      .ai-findings li { font-family: 'JetBrains Mono', monospace; font-size: 10pt; line-height: 1.5; margin-bottom: 4px; list-style: none; padding-left: 8px; position: relative; }
+      .ai-findings li::before { content: '→'; position: absolute; left: -8px; color: #d94f1e; }
+      .ai-rep-pivot-preview { margin: 10px 0; }
+      .cs-pivot-table { border-collapse: collapse; font-size: 9pt; width: 100%; }
+      .cs-pivot-table th, .cs-pivot-table td { padding: 4px 8px; border: 1px solid #e2ddd6; }
+      .cs-pivot-table th { background: #f5f2ed; font-weight: 600; }
+      img { max-width: 100% !important; height: auto !important; }
+      canvas { display: none !important; }
+      @media print {
+        body { padding: 10mm; max-width: none; }
+        .ai-rep-section, .ai-rec-card { page-break-inside: avoid; }
+      }
     </style></head><body>
+    <div class='doc-header'>
+      <div class='doc-meta'>${today}${ruoloLabel ? ' · ' + ruoloLabel : ''}${topicLabel ? ' × ' + topicLabel : ''}</div>
+    </div>
     ${repHtml}
-    <p style='text-align:center;color:#9a9590;font-size:8pt;margin-top:30px;'>Lume · Carica i tuoi dati. Scopri la tua storia.</p>
-    <scr` + `ipt>setTimeout(() => window.print(), 800)</scr` + `ipt>
+    <p style='text-align:center;color:#9a9590;font-size:8pt;margin-top:30px;border-top:1px solid #e2ddd6;padding-top:14px;'>Lume · Carica i tuoi dati. Scopri la tua storia.</p>
+    <scr` + `ipt>setTimeout(() => window.print(), 1200)</scr` + `ipt>
     </body></html>
   `)
   win.document.close()
+}
+
+// Helper: costruisce HTML quando ci sono solo custom sections (no report AI)
+function buildCustomOnlyHTML() {
+  if (!customSections || !customSections.length) return ''
+
+  return `
+    <div class='ai-report'>
+      <div class='ai-rep-header'>
+        <h2>Le tue analisi</h2>
+        <div class='ai-rep-meta'>${customSections.length} ${customSections.length === 1 ? 'analisi' : 'analisi'} aggiunte</div>
+      </div>
+      <p style='font-size:11pt;color:#3d3a35;font-style:italic;margin:14px 0 20px;'>
+        Questo documento contiene solo le analisi che hai aggiunto manualmente.
+      </p>
+      ${customSections.map((s, i) => `
+        <div class='ai-rep-section ai-rep-custom'>
+          <div class='ai-rep-sec-eyebrow'>Aggiunta ${String(i+1).padStart(2,'0')} · ${s.type}</div>
+          <h3 class='ai-rep-sec-title'>${s.title}</h3>
+          ${s.snapshot?.image ? `<div class='ai-chart-wrap'><img src='${s.snapshot.image}' style='width:100%;height:auto;' /></div>` : ''}
+          ${s.snapshot?.kind === 'pivot' && s.snapshot.tableRows ? `
+            <div class='ai-rep-pivot-preview'>
+              <table class='cs-pivot-table'>
+                ${s.snapshot.tableRows.slice(0, 30).map((row, ri) => `
+                  <tr>${row.map(cell => ri === 0 ? `<th>${cell}</th>` : `<td>${cell}</td>`).join('')}</tr>
+                `).join('')}
+              </table>
+            </div>
+          ` : ''}
+          ${s.snapshot?.kind === 'analysis' && s.snapshot.resultText ? `
+            <pre style='background:#f5f2ed;padding:10px;font-family:monospace;font-size:9pt;white-space:pre-wrap;max-height:300px;overflow:hidden;'>${(s.snapshot.resultText || '').slice(0, 1500)}</pre>
+          ` : ''}
+          ${s.notes ? `<div class='ai-rep-custom-notes'><div class='ai-rep-custom-notes-eyebrow'>Le tue note</div>${s.notes}</div>` : ''}
+          ${s.comment ? `<p class='ai-rep-custom-comment'>${s.comment}</p>` : ''}
+        </div>
+      `).join('')}
+    </div>
+  `
 }
 
 // ══════════════════════════════════════════
