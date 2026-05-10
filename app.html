@@ -623,9 +623,12 @@ footer{border-top:2.5px solid var(--ink);margin-top:60px;padding:14px 36px 14px 
 .ai-trend-flat{color:var(--muted);}
 .ai-kpi-comment{font-family:var(--mono);font-size:9px;color:var(--ink2);line-height:1.5;}
 
-.ai-chart-wrap{border:1.5px solid var(--ink);background:var(--paper);padding:18px;margin:14px 0;}
-.ai-chart-title{font-family:var(--lora);font-size:11px;font-style:italic;color:var(--muted);margin-bottom:12px;border-bottom:1px solid var(--rule);padding-bottom:6px;}
-.ai-chart-insight{font-family:var(--mono);font-size:10px;color:var(--orange);margin-top:10px;border-top:1px solid var(--rule);padding-top:8px;letter-spacing:.04em;}
+.ai-chart-wrap{border:1.5px solid var(--ink);background:white;padding:20px 22px;margin:18px 0;}
+.ai-chart-headline{font-family:var(--lora);font-size:17px;font-weight:700;letter-spacing:-0.01em;line-height:1.25;color:var(--ink);margin-bottom:4px;}
+.ai-chart-subtitle{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:0.04em;font-style:italic;margin-bottom:14px;line-height:1.5;}
+.ai-chart-footer{margin-top:14px;padding-top:10px;border-top:1px solid var(--rule);}
+.ai-chart-insight{font-family:var(--mono);font-size:11px;color:var(--orange);letter-spacing:0.02em;font-weight:500;line-height:1.5;}
+.ai-chart-logic{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:0.04em;font-style:italic;margin-top:5px;}
 .ai-chart-warn{font-family:var(--mono);font-size:10px;color:var(--orange);padding:10px;background:var(--orange-bg);border:1px solid var(--orange);margin-top:8px;}
 
 .ai-findings{list-style:none;margin-top:10px;border-left:2px solid var(--orange);padding-left:14px;}
@@ -2572,9 +2575,13 @@ function renderAIReport(r) {
           <p class="ai-rep-sec-narrative">${s.narrative || ''}</p>
           ${s.chart ? `
             <div class="ai-chart-wrap">
-              <div class="ai-chart-title">${s.chart.title || ''}</div>
+              <div class="ai-chart-headline">${s.chart.title || ''}</div>
+              ${s.chart.subtitle ? `<div class="ai-chart-subtitle">${s.chart.subtitle}</div>` : ''}
               <canvas id="aiChart-${i}" height="200"></canvas>
-              ${s.chart.insight ? `<div class="ai-chart-insight">→ ${s.chart.insight}</div>` : ''}
+              <div class="ai-chart-footer">
+                ${s.chart.insight ? `<div class="ai-chart-insight">→ ${s.chart.insight}</div>` : ''}
+                ${s.chart.logic ? `<div class="ai-chart-logic">// Scelta grafico: ${s.chart.logic}</div>` : ''}
+              </div>
             </div>
           ` : ''}
           ${(s.key_findings && s.key_findings.length) ? `
@@ -2677,12 +2684,89 @@ function renderAIReport(r) {
 }
 
 // ── RENDER GRAFICI da spec Claude ────────────
+// ══════════════════════════════════════════════════════
+// FASE 5 / Intervento A · GRAFICI POTENZIATI
+// Supporta: bar, horizontal_bar, grouped_bar, stacked_bar,
+//           line, area, dual_axis, pie, donut, scatter,
+//           heatmap, treemap
+// Con data labels, formattazione valori, palette Lume
+// ══════════════════════════════════════════════════════
+
+const LUME_PALETTE = [
+  '#d94f1e', // orange
+  '#1a5ea8', // blue
+  '#e8a020', // amber
+  '#2a7a4b', // green
+  '#8b3a8b', // purple
+  '#c0392b', // red
+  '#16a085', // teal
+  '#7f8c8d', // gray
+  '#f39c12', // light orange
+  '#34495e', // dark blue
+]
+
+// Formatta un valore in base al value_format dichiarato dal prompt
+function formatChartValue(val, format) {
+  if (val == null || isNaN(val)) return ''
+  const n = Number(val)
+
+  switch (format) {
+    case 'currency_eur': {
+      if (Math.abs(n) >= 1e6) return '€' + (n/1e6).toFixed(2).replace('.', ',') + 'M'
+      if (Math.abs(n) >= 1e3) return '€' + (n/1e3).toFixed(1).replace('.', ',') + 'k'
+      return '€' + n.toFixed(0)
+    }
+    case 'percentage': {
+      const sign = n > 0 ? '+' : ''
+      return sign + n.toFixed(1).replace('.', ',') + '%'
+    }
+    case 'integer':
+      return Math.round(n).toLocaleString('it-IT')
+    case 'decimal':
+      return n.toFixed(2).replace('.', ',')
+    case 'number':
+    default: {
+      if (Math.abs(n) >= 1e6) return (n/1e6).toFixed(2).replace('.', ',') + 'M'
+      if (Math.abs(n) >= 1e3) return (n/1e3).toFixed(1).replace('.', ',') + 'k'
+      return n.toLocaleString('it-IT', { maximumFractionDigits: 1 })
+    }
+  }
+}
+
+// Aggrega valori secondo l'aggregation function
+function aggregate(values, fn) {
+  if (!values || !values.length) return 0
+  switch (fn) {
+    case 'sum':    return values.reduce((a,b) => a+b, 0)
+    case 'mean':   return values.reduce((a,b) => a+b, 0) / values.length
+    case 'count':  return values.length
+    case 'median': { const s = [...values].sort((a,b) => a-b); return s[Math.floor(s.length/2)] }
+    case 'min':    return Math.min(...values)
+    case 'max':    return Math.max(...values)
+    default:       return values.reduce((a,b) => a+b, 0)
+  }
+}
+
+// Ordina un array di [label, value] secondo spec
+function sortChartData(arr, sort) {
+  switch (sort) {
+    case 'value_desc': return arr.sort((a,b) => b[1] - a[1])
+    case 'value_asc':  return arr.sort((a,b) => a[1] - b[1])
+    case 'label_asc':  return arr.sort((a,b) => String(a[0]).localeCompare(String(b[0])))
+    case 'label_desc': return arr.sort((a,b) => String(b[0]).localeCompare(String(a[0])))
+    case 'none':
+    default:           return arr
+  }
+}
+
 function renderAIChart(spec, canvasId) {
   const canvas = document.getElementById(canvasId)
   if (!canvas) return
 
   const xCol = headers.indexOf(spec.x_axis)
-  const yCol = headers.indexOf(spec.y_axis)
+  // y_axis può essere stringa o array (per dual_axis, grouped_bar, stacked_bar)
+  const yAxes = Array.isArray(spec.y_axis) ? spec.y_axis : [spec.y_axis]
+  const yCols = yAxes.map(y => headers.indexOf(y))
   const gCol = spec.group_by ? headers.indexOf(spec.group_by) : -1
 
   if (xCol === -1) {
@@ -2690,83 +2774,316 @@ function renderAIChart(spec, canvasId) {
     return
   }
 
-  const labels = []
-  const data = []
   const fn = spec.aggregation || 'sum'
+  const sort = spec.sort || 'value_desc'
+  const limit = Math.min(spec.limit || 12, 20)
+  const valFmt = spec.value_format || 'number'
 
+  // ── SCATTER ──
   if (spec.type === 'scatter') {
-    const pts = rawData.map(r => ({ x: parseFloat(r[xCol]), y: parseFloat(r[yCol]) }))
-                       .filter(p => !isNaN(p.x) && !isNaN(p.y))
-    drawAIChart(canvasId, 'scatter', null, pts, spec.title, spec.x_axis, spec.y_axis)
+    const pts = rawData.map(r => ({
+      x: parseFloat(r[xCol]),
+      y: yCols[0] >= 0 ? parseFloat(r[yCols[0]]) : 0
+    })).filter(p => !isNaN(p.x) && !isNaN(p.y))
+    drawAIChart({
+      canvasId, type: 'scatter',
+      datasets: [{ label: spec.title, data: pts }],
+      spec, valFmt
+    })
     return
   }
 
-  // bar/line/pie con groupBy o senza
+  // ── HEATMAP (bar segmentate per group_by) ──
+  // Visualizziamo come grouped_bar perché Chart.js base non ha heatmap nativo
+  if (spec.type === 'heatmap' && gCol >= 0) {
+    spec.type = 'grouped_bar'  // fallback elegante
+  }
+
+  // ── DUAL AXIS, GROUPED BAR, STACKED BAR (multi-y) ──
+  if (spec.type === 'dual_axis' || spec.type === 'grouped_bar' || spec.type === 'stacked_bar') {
+    if (yCols.length < 2) {
+      // Fallback a bar normale se mancano le y
+      spec.type = 'bar'
+    } else {
+      // Aggrega per ogni y_axis
+      const groups = {}
+      rawData.forEach(r => {
+        const k = String(r[xCol] ?? '(vuoto)')
+        if (!groups[k]) groups[k] = yCols.map(() => [])
+        yCols.forEach((yc, i) => {
+          if (yc >= 0) {
+            const v = parseFloat(r[yc])
+            if (!isNaN(v)) groups[k][i].push(v)
+          }
+        })
+      })
+
+      let entries = Object.entries(groups).map(([k, arrs]) => [
+        k, arrs.map(vals => aggregate(vals, fn))
+      ])
+      entries = sortChartData(entries.map(e => [e[0], e[1][0]]), sort)
+        .map(e => [e[0], groups[e[0]].map(vals => aggregate(vals, fn))])
+        .slice(0, limit)
+
+      const labels = entries.map(e => e[0])
+      const datasets = yAxes.map((yLabel, i) => ({
+        label: yLabel,
+        data: entries.map(e => e[1][i]),
+        backgroundColor: LUME_PALETTE[i % LUME_PALETTE.length] + (spec.type === 'stacked_bar' ? 'cc' : 'aa'),
+        borderColor: LUME_PALETTE[i % LUME_PALETTE.length],
+        borderWidth: 1.2,
+        yAxisID: spec.type === 'dual_axis' ? (i === 0 ? 'y' : 'y1') : 'y'
+      }))
+
+      drawAIChart({
+        canvasId,
+        type: spec.type === 'dual_axis' ? 'bar' : 'bar',
+        chartType: spec.type,
+        labels, datasets, spec, valFmt
+      })
+      return
+    }
+  }
+
+  // ── BAR / HORIZONTAL_BAR / LINE / AREA / PIE / DONUT (single-y) ──
+  // Aggregazione semplice
   const groups = {}
   rawData.forEach(r => {
     const k = String(r[xCol] ?? '(vuoto)')
-    const v = yCol >= 0 ? parseFloat(r[yCol]) : 1
+    const v = yCols[0] >= 0 ? parseFloat(r[yCols[0]]) : 1
     if (!groups[k]) groups[k] = []
     if (!isNaN(v)) groups[k].push(v)
   })
 
-  Object.entries(groups).sort((a,b) => b[1].length - a[1].length).slice(0, 20).forEach(([k, vals]) => {
-    labels.push(k)
-    let val
-    switch(fn) {
-      case 'sum':    val = vals.reduce((a,b)=>a+b,0); break
-      case 'mean':   val = vals.reduce((a,b)=>a+b,0)/vals.length; break
-      case 'count':  val = vals.length; break
-      case 'median': const s = [...vals].sort((a,b)=>a-b); val = s[Math.floor(s.length/2)]; break
-      case 'min':    val = Math.min(...vals); break
-      case 'max':    val = Math.max(...vals); break
-      default:       val = vals.reduce((a,b)=>a+b,0)
-    }
-    data.push(val)
-  })
+  let entries = Object.entries(groups).map(([k, vals]) => [k, aggregate(vals, fn)])
+  entries = sortChartData(entries, sort).slice(0, limit)
 
-  drawAIChart(canvasId, spec.type, labels, data, spec.title, spec.x_axis, spec.y_axis)
+  const labels = entries.map(e => e[0])
+  const data = entries.map(e => e[1])
+
+  drawAIChart({
+    canvasId,
+    type: spec.type,
+    chartType: spec.type,
+    labels,
+    datasets: [{
+      label: spec.title || '',
+      data,
+    }],
+    spec,
+    valFmt
+  })
 }
 
-function drawAIChart(canvasId, type, labels, data, title, xLbl, yLbl) {
+function drawAIChart(opts) {
+  const { canvasId, chartType, labels, datasets, spec, valFmt } = opts
   const ctx = document.getElementById(canvasId).getContext('2d')
-  const PALETTE = ['#d94f1e','#e8a020','#2a7a4b','#1a5ea8','#8b3a8b','#16a085','#c0392b','#2980b9','#f39c12','#27ae60']
-  const isPie = type === 'pie'
-  const isScatter = type === 'scatter'
 
-  let datasets
-  if (isScatter) {
-    datasets = [{ label: title, data, backgroundColor: PALETTE[0]+'66', borderColor: PALETTE[0], pointRadius: 3 }]
-  } else if (isPie) {
-    datasets = [{ data, backgroundColor: data.map((_,i) => PALETTE[i%PALETTE.length]), borderColor: 'white', borderWidth: 2 }]
-  } else {
-    datasets = [{
-      label: title, data,
-      backgroundColor: type === 'line' ? 'rgba(217,79,30,0.10)' : PALETTE[0]+'88',
-      borderColor: PALETTE[0], borderWidth: 1.5,
-      fill: type === 'line', tension: 0.3,
-      pointRadius: type === 'line' ? 3 : 0
-    }]
+  // Determina tipo Chart.js e configurazioni
+  let chartJsType = 'bar'
+  let indexAxis = 'x'
+  let isPieDonut = false
+  let isStacked = false
+  let fillArea = false
+  let isDualAxis = chartType === 'dual_axis'
+
+  switch (chartType) {
+    case 'horizontal_bar':
+      chartJsType = 'bar'; indexAxis = 'y'; break
+    case 'grouped_bar':
+      chartJsType = 'bar'; break
+    case 'stacked_bar':
+      chartJsType = 'bar'; isStacked = true; break
+    case 'line':
+      chartJsType = 'line'; break
+    case 'area':
+      chartJsType = 'line'; fillArea = true; break
+    case 'pie':
+      chartJsType = 'pie'; isPieDonut = true; break
+    case 'donut':
+      chartJsType = 'doughnut'; isPieDonut = true; break
+    case 'scatter':
+      chartJsType = 'scatter'; break
+    case 'treemap':
+      chartJsType = 'bar'; indexAxis = 'y'; break  // fallback
+    case 'dual_axis':
+    case 'bar':
+    default:
+      chartJsType = 'bar'
   }
 
-  const chart = new Chart(ctx, {
-    type: isScatter ? 'scatter' : type,
-    data: isScatter ? { datasets } : { labels, datasets },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: isPie, labels: { font: { family: 'JetBrains Mono', size: 9 }, color: '#3d3a35' } },
-        tooltip: {
-          backgroundColor: '#1a1814', titleColor: '#d94f1e', bodyColor: '#fdfcfa',
-          titleFont: { family: 'JetBrains Mono', size: 10 },
-          bodyFont: { family: 'JetBrains Mono', size: 9 }
+  // Color datasets se mono-dataset
+  if (datasets.length === 1 && !isPieDonut && chartType !== 'scatter') {
+    datasets[0].backgroundColor = chartType === 'line' || chartType === 'area'
+      ? 'rgba(217, 79, 30, 0.15)'
+      : LUME_PALETTE[0] + 'cc'
+    datasets[0].borderColor = LUME_PALETTE[0]
+    datasets[0].borderWidth = 1.5
+    datasets[0].fill = fillArea
+    datasets[0].tension = 0.3
+    datasets[0].pointRadius = (chartType === 'line' || chartType === 'area') ? 3 : 0
+    datasets[0].pointBackgroundColor = LUME_PALETTE[0]
+  }
+
+  // Pie/Donut: colori variati per slice
+  if (isPieDonut) {
+    datasets[0].backgroundColor = datasets[0].data.map((_, i) => LUME_PALETTE[i % LUME_PALETTE.length])
+    datasets[0].borderColor = 'white'
+    datasets[0].borderWidth = 2
+  }
+
+  // Scatter: punti
+  if (chartType === 'scatter') {
+    datasets[0].backgroundColor = LUME_PALETTE[0] + '88'
+    datasets[0].borderColor = LUME_PALETTE[0]
+    datasets[0].pointRadius = 4
+    datasets[0].pointHoverRadius = 6
+  }
+
+  // Configura assi
+  const scales = {}
+  if (!isPieDonut) {
+    const ticksFont = { family: 'JetBrains Mono', size: 9 }
+    const tickColor = '#9a9590'
+    const gridColor = 'rgba(226,221,214,0.4)'
+
+    if (chartType === 'scatter') {
+      scales.x = {
+        type: 'linear', position: 'bottom',
+        title: { display: !!spec.x_axis, text: spec.x_axis, font: { family: 'Source Serif 4', size: 10, style: 'italic' }, color: tickColor },
+        ticks: { color: tickColor, font: ticksFont, callback: v => formatChartValue(v, valFmt) },
+        grid: { color: gridColor }
+      }
+      scales.y = {
+        title: { display: !!datasets[0].label, text: datasets[0].label, font: { family: 'Source Serif 4', size: 10, style: 'italic' }, color: tickColor },
+        ticks: { color: tickColor, font: ticksFont, callback: v => formatChartValue(v, valFmt) },
+        grid: { color: gridColor }
+      }
+    } else {
+      // Asse delle categorie
+      const catAxis = indexAxis === 'y' ? 'y' : 'x'
+      const valAxis = indexAxis === 'y' ? 'x' : 'y'
+
+      scales[catAxis] = {
+        ticks: { color: tickColor, font: ticksFont, maxRotation: indexAxis === 'y' ? 0 : 35, minRotation: 0 },
+        grid: { color: gridColor, display: indexAxis !== 'y' }
+      }
+      scales[valAxis] = {
+        beginAtZero: true,
+        stacked: isStacked,
+        ticks: {
+          color: tickColor,
+          font: ticksFont,
+          callback: v => formatChartValue(v, valFmt)
+        },
+        grid: { color: gridColor }
+      }
+
+      // Stacked
+      if (isStacked) {
+        scales[catAxis].stacked = true
+      }
+
+      // Dual axis: aggiungi y1
+      if (isDualAxis) {
+        scales.y1 = {
+          beginAtZero: true,
+          position: 'right',
+          ticks: {
+            color: tickColor,
+            font: ticksFont,
+            callback: v => {
+              // Se la seconda metrica è una percentuale, formattala
+              const fmt2 = (datasets[1] && datasets[1].label && datasets[1].label.toLowerCase().includes('%')) ? 'percentage' : 'number'
+              return formatChartValue(v, fmt2)
+            }
+          },
+          grid: { drawOnChartArea: false }
         }
-      },
-      scales: isPie ? {} : {
-        x: { ticks: { color: '#9a9590', font: { family: 'JetBrains Mono', size: 8 }, maxRotation: 40 }, grid: { color: 'rgba(226,221,214,0.5)' } },
-        y: { ticks: { color: '#9a9590', font: { family: 'JetBrains Mono', size: 8 } }, grid: { color: 'rgba(226,221,214,0.5)' } }
       }
     }
+  }
+
+  // Plugin custom: data labels sui valori (semplice)
+  const dataLabelsPlugin = {
+    id: 'lumeDataLabels',
+    afterDatasetsDraw(chart) {
+      // Solo per bar e horizontal_bar mono-dataset (non stacked, non grouped multi)
+      if (isPieDonut || chartType === 'scatter' || chartType === 'line' || chartType === 'area') return
+      if (chartType === 'stacked_bar' || chartType === 'grouped_bar' || isDualAxis) return
+
+      const { ctx } = chart
+      ctx.save()
+      ctx.font = '600 10px "JetBrains Mono", monospace'
+      ctx.fillStyle = '#1a1814'
+
+      chart.data.datasets.forEach((dataset, i) => {
+        const meta = chart.getDatasetMeta(i)
+        meta.data.forEach((bar, idx) => {
+          const value = dataset.data[idx]
+          const formatted = formatChartValue(value, valFmt)
+          const { x, y } = bar.getCenterPoint()
+
+          if (indexAxis === 'y') {
+            // Horizontal bar: label a destra della barra
+            ctx.textAlign = 'left'
+            ctx.textBaseline = 'middle'
+            ctx.fillText(formatted, bar.x + 6, y)
+          } else {
+            // Vertical bar: label sopra la barra
+            ctx.textAlign = 'center'
+            ctx.textBaseline = 'bottom'
+            ctx.fillText(formatted, x, bar.y - 4)
+          }
+        })
+      })
+      ctx.restore()
+    }
+  }
+
+  const showLegend = isPieDonut || datasets.length > 1
+
+  const chart = new Chart(ctx, {
+    type: chartJsType,
+    data: chartType === 'scatter' ? { datasets } : { labels, datasets },
+    options: {
+      indexAxis,
+      responsive: true,
+      maintainAspectRatio: true,
+      layout: { padding: { top: indexAxis === 'x' ? 20 : 8, right: indexAxis === 'y' ? 60 : 12 } },
+      plugins: {
+        legend: {
+          display: showLegend,
+          position: 'bottom',
+          labels: {
+            font: { family: 'JetBrains Mono', size: 10 },
+            color: '#3d3a35',
+            usePointStyle: true,
+            padding: 12,
+            boxWidth: 8
+          }
+        },
+        tooltip: {
+          backgroundColor: '#1a1814',
+          titleColor: '#d94f1e',
+          bodyColor: '#fdfcfa',
+          titleFont: { family: 'JetBrains Mono', size: 10, weight: '600' },
+          bodyFont: { family: 'JetBrains Mono', size: 10 },
+          padding: 10,
+          cornerRadius: 0,
+          callbacks: {
+            label: (ctx) => {
+              const lbl = ctx.dataset.label || ''
+              const val = ctx.parsed.y !== undefined ? ctx.parsed.y : (ctx.parsed.x !== undefined ? ctx.parsed.x : ctx.parsed)
+              const useFmt = (lbl.toLowerCase().includes('%')) ? 'percentage' : valFmt
+              return `${lbl}: ${formatChartValue(val, useFmt)}`
+            }
+          }
+        }
+      },
+      scales
+    },
+    plugins: [dataLabelsPlugin]
   })
 
   aiCharts.push(chart)
