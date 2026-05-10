@@ -208,13 +208,18 @@ Schema obbligatorio:
       "title": "string",
       "narrative": "string 100-180 parole con numeri reali",
       "chart": {
-        "type": "bar | line | pie | scatter",
+        "type": "bar | horizontal_bar | grouped_bar | stacked_bar | line | area | dual_axis | pie | donut | scatter | heatmap | treemap",
         "x_axis": "nome esatto colonna",
-        "y_axis": "nome esatto colonna numerica",
-        "aggregation": "sum | mean | count | median",
-        "group_by": "nome colonna o null",
-        "title": "string",
-        "insight": "string 1 frase"
+        "y_axis": "nome esatto colonna numerica (o array di colonne per dual_axis/grouped_bar/stacked_bar)",
+        "aggregation": "sum | mean | count | median | min | max",
+        "group_by": "nome colonna categoriale o null",
+        "value_format": "currency_eur | percentage | number | integer | decimal",
+        "sort": "value_desc | value_asc | label_asc | none",
+        "limit": "numero massimo di categorie da mostrare (default 12, max 20)",
+        "title": "string — DEVE contenere il numero più importante che il grafico mostra",
+        "subtitle": "string 6-12 parole — contestualizza cosa il grafico rivela",
+        "insight": "string 1 frase con il take-away principale del grafico",
+        "logic": "string 1 frase — perché hai scelto questo tipo di grafico"
       },
       "key_findings": ["string", "string"]
     }
@@ -244,14 +249,46 @@ REGOLE NUMERI:
 - Percentuali con segno (+12,3% / -5,1%)
 - Numeri grandi abbreviati: €1,72M, €847k
 
-REGOLE GRAFICI:
-- Massimo 1 grafico per sezione
-- Usa SOLO colonne effettivamente esistenti
-- Tipo grafico appropriato:
-  · bar → confronti tra categorie
-  · line → trend temporali
-  · pie → distribuzioni con max 6 categorie
+REGOLE GRAFICI (CRITICHE):
+
+🎯 SCELTA DEL TIPO — usa il grafico PIÙ INFORMATIVO, non quello più scontato:
+  · bar → confronto valori tra 5-12 categorie distinte
+  · horizontal_bar → confronto con etichette lunghe (>15 caratteri) o molte categorie (>8)
+  · grouped_bar → confronto valori tra categorie SU PIÙ DIMENSIONI (es. fatturato per regione × prodotto)
+  · stacked_bar → composizione percentuale o totali con breakdown
+  · line → trend temporali continui (richiede asse X temporale)
+  · area → trend con accento su volumi cumulati
+  · dual_axis → due metriche con scale diverse (es. volumi + percentuali)
+  · pie → distribuzione con max 5 categorie e differenze marcate
+  · donut → come pie ma con totale al centro
   · scatter → correlazioni tra 2 variabili numeriche
+  · heatmap → matrice 2D di valori (es. categoria × periodo)
+  · treemap → composizione gerarchica con valori molto disomogenei
+
+🎯 TITOLO DEL GRAFICO:
+  Il "title" DEVE contenere il numero o fatto chiave che il grafico mostra.
+  ❌ MALE: "Fatturato per regione"
+  ✅ BENE: "Il Nord-Ovest concentra €654K, il 38% del totale"
+  ❌ MALE: "Distribuzione clienti"
+  ✅ BENE: "Il 23% dei clienti genera l'80% del fatturato"
+
+🎯 SUBTITLE: contestualizza cosa il grafico rivela in 6-12 parole. Es: "Concentrazione geografica con gap di 3,3x verso il Sud"
+
+🎯 INSIGHT: il take-away principale che l'utente deve cogliere guardando il grafico
+
+🎯 LOGIC: spiega in 1 frase PERCHÉ quel tipo di grafico è il migliore. Es: "horizontal_bar per evidenziare il gap tra performer e ranking chiaro" — questo costringe a pensare alla scelta.
+
+🎯 VALUE_FORMAT: specifica sempre il formato dei valori (currency_eur, percentage, integer, decimal, number) — l'app userà questo per formattare assi e tooltip.
+
+🎯 SORT: ordina i dati per leggibilità (di solito "value_desc" per categorie, "label_asc" per temporali).
+
+🎯 LIMIT: max 20 categorie. Se ne hai di più, raggruppa il resto in "Altro" e dichiaralo nel narrative.
+
+🎯 ALTRE REGOLE:
+- Massimo 1 grafico per sezione
+- Usa SOLO colonne effettivamente esistenti nel dataset
+- Per grouped_bar/stacked_bar/dual_axis: y_axis può essere un array di nomi colonna
+- Per heatmap: x_axis e group_by sono entrambi categoriali, y_axis è numerico aggregato
 
 REGOLE CONTENUTO:
 - Ogni numero citato deve essere verificabile dai dati forniti
@@ -288,22 +325,62 @@ Il report deve dare risposte alle 5 domande chiave del Sales Manager:
     context: `PROFILO UTENTE: Sales Specialist/Manager. Il report deve essere usabile sia operativamente sia condivisibile con la direzione.
 
 DATI ATTESI: transazioni di vendita con dimensioni come venditore, regione, prodotto, cliente, importo, sconto, margine, data.`,
-    example: `Esempio parziale di output (per calibrare lo stile):
+    example: `Esempio parziale di output (per calibrare lo stile e l'uso dei nuovi campi grafico):
 
 {
   "title": "Sales Reporting · Performance Commerciale",
-  "executive_summary": "Le vendite del periodo Gen 2024-Apr 2025 hanno totalizzato €1,72M su 850 transazioni con un win rate del 83,5%. Il Nord-Ovest concentra il 38% del fatturato grazie a 3 venditori top performer, mentre il Sud sottoperforma con ticket medio (€1.850) inferiore del 35% alla media nazionale...",
+  "period_analyzed": "Gen 2024 - Apr 2025",
+  "executive_summary": "Le vendite del periodo Gen 2024-Apr 2025 hanno totalizzato €1,72M su 850 transazioni con un win rate del 83,5%. Il Nord-Ovest concentra il 38% del fatturato grazie a 3 venditori top performer, mentre il Sud sottoperforma con ticket medio (€1.850) inferiore del 35% alla media nazionale. Il segmento Enterprise mostra cicli di chiusura di 67 giorni medi ma valore per deal triplo rispetto a PMI...",
   "sections": [
     {
-      "title": "Performance per regione",
-      "narrative": "Il Nord-Ovest concentra €654k (38% del totale) grazie a 3 venditori top performer. Il Sud sottoperforma con €198k nonostante 2 venditori attivi — il ticket medio (€1.850) è il più basso suggerendo problemi di mix prodotto più che di volume...",
-      "chart": { "type": "bar", "x_axis": "Regione", "y_axis": "Importo Netto", "aggregation": "sum", "group_by": null, "title": "Fatturato per regione", "insight": "Concentrazione Nord-Ovest con gap di 3,3x verso il Sud" },
+      "title": "Concentrazione geografica del fatturato",
+      "narrative": "Il Nord-Ovest concentra €654k (38% del totale) grazie a 3 venditori top performer. Il Sud sottoperforma con €198k nonostante 2 venditori attivi — il ticket medio (€1.850) è il più basso suggerendo problemi di mix prodotto più che di volume. L'analisi cluster mostra che il 60% dei deal Nord-Ovest sono nel cluster ad alto valore (€4.200 medio) mentre il Sud è polarizzato sul cluster low-value...",
+      "chart": {
+        "type": "horizontal_bar",
+        "x_axis": "Importo Netto",
+        "y_axis": "Regione",
+        "aggregation": "sum",
+        "group_by": null,
+        "value_format": "currency_eur",
+        "sort": "value_desc",
+        "limit": 10,
+        "title": "Il Nord-Ovest concentra €654K, 3,3x il Sud",
+        "subtitle": "Fatturato per regione · gap geografico marcato",
+        "insight": "Concentrazione di fatturato nel Nord-Ovest con gap di 3,3x verso le regioni meridionali",
+        "logic": "horizontal_bar perché evidenzia il ranking e permette etichette regionali leggibili"
+      },
       "key_findings": ["Nord-Ovest genera 3,3x il Sud con stesso numero venditori", "Ticket medio Sud (€1.850) suggerisce mix prodotto inefficiente"]
+    },
+    {
+      "title": "Mix prodotto vs marginalità",
+      "narrative": "Il Software Pro è la categoria con miglior bilanciamento volumi/margine: 28% del fatturato (€482k) con marginalità 58%. L'Hardware penalizza il mix con marginalità del solo 18% nonostante rappresenti il 5,9% dei volumi. Il Software Enterprise concentra deal di alto valore (€18k medio) ma cicli più lunghi...",
+      "chart": {
+        "type": "dual_axis",
+        "x_axis": "Categoria",
+        "y_axis": ["Importo Netto", "Margine %"],
+        "aggregation": "sum",
+        "group_by": null,
+        "value_format": "currency_eur",
+        "sort": "value_desc",
+        "limit": 8,
+        "title": "Hardware: 5,9% volumi ma margine al 18%",
+        "subtitle": "Volumi e marginalità per categoria di prodotto",
+        "insight": "L'Hardware deteriora il margine medio nonostante volumi marginali",
+        "logic": "dual_axis per confrontare due metriche con scale diverse (€ assoluti vs % marginalità)"
+      },
+      "key_findings": ["Hardware abbassa margine complessivo dal 58% al 56%", "Software Pro è la sweet-spot del portfolio"]
     }
   ],
   "recommendations": [
-    { "priority": "alta", "title": "Riallineare mix prodotto Sud", "action": "Affiancare ai venditori Sud un sales coach per 4 settimane focalizzato sul cross-sell di prodotti a maggior valore.", "data_evidence": "Sud vende 78% Software Base e 0% Enterprise vs media nazionale 45/15%", "expected_impact": "Aumento ticket medio Sud da €1.850 a €2.400 in 3 mesi" }
-  ]
+    {
+      "priority": "alta",
+      "title": "Riallineare mix prodotto Sud",
+      "action": "Affiancare ai 2 venditori Sud (Marini, Greco) un sales coach per 4 settimane focalizzato sul cross-sell di Software Pro ed Enterprise, oggi quasi assenti nel loro mix.",
+      "data_evidence": "Sud vende 78% Software Base e 0% Enterprise vs media nazionale 45/15%",
+      "expected_impact": "Aumento ticket medio Sud da €1.850 a €2.400 in 3 mesi"
+    }
+  ],
+  "data_quality_notes": ["30 righe (3,5%) hanno colonna Margine vuota — escluse dall'analisi di marginalità", "17 righe con sconto >40% sono outlier — analizzate separatamente"]
 }`
   },
 
@@ -325,18 +402,56 @@ ATTENZIONE: se mancano colonne identificative dei venditori, segnalalo in data_q
 
 {
   "title": "Salesman Productivity · Analisi Forza Vendita",
+  "period_analyzed": "Gen 2024 - Apr 2025",
   "executive_summary": "Su 10 venditori attivi, 3 generano il 47% del fatturato totale (€812k). La distribuzione è polarizzata con CV del 38%. Un venditore mostra volumi simili ai top (87 deal) ma fatturato dimezzato (€132k) per mix prodotto polarizzato su entry level...",
   "sections": [
     {
-      "title": "Distribuzione output per venditore",
+      "title": "Ranking performer per fatturato",
       "narrative": "Il top performer guida con €245k (14% del totale) e ticket medio €2.840, il 53% sopra la media. La fascia centrale (5 venditori) gestisce il 38% del fatturato. Due venditori mostrano gap del -45% rispetto alla media nonostante volumi paragonabili — l'analisi indica un mix prodotto sbilanciato su entry level...",
-      "chart": { "type": "bar", "x_axis": "Venditore", "y_axis": "Importo Netto", "aggregation": "sum", "group_by": null, "title": "Fatturato per venditore", "insight": "Top 3 venditori generano il 47% del fatturato" },
+      "chart": {
+        "type": "horizontal_bar",
+        "x_axis": "Importo Netto",
+        "y_axis": "Venditore",
+        "aggregation": "sum",
+        "group_by": null,
+        "value_format": "currency_eur",
+        "sort": "value_desc",
+        "limit": 12,
+        "title": "Top 3 venditori generano il 47% del fatturato totale",
+        "subtitle": "Ranking individuale · concentrazione marcata sui top performer",
+        "insight": "Distribuzione polarizzata: 30% del team genera quasi metà del business",
+        "logic": "horizontal_bar perché evidenzia il ranking e i nomi dei venditori restano leggibili"
+      },
       "key_findings": ["Top 3 venditori (30% headcount) producono 47% fatturato", "Un venditore ha volumi top ma ticket medio del 51% inferiore"]
+    },
+    {
+      "title": "Volumi vs ticket medio · individuare i talenti nascosti",
+      "narrative": "Confrontando numero deal e ticket medio emerge una dispersione significativa. Tre profili: top performer (alti volumi, alto ticket), workhorse (alti volumi, ticket medio), specialisti (pochi deal ma ticket elevato). Due venditori del cluster workhorse potrebbero essere riallineati per spostarsi nel cluster top con lavoro su mix prodotto...",
+      "chart": {
+        "type": "scatter",
+        "x_axis": "Numero Deal",
+        "y_axis": "Ticket Medio",
+        "aggregation": "mean",
+        "group_by": null,
+        "value_format": "currency_eur",
+        "title": "Performance per venditore: 3 cluster naturali",
+        "subtitle": "Ogni punto = un venditore · alto a destra = top performer",
+        "insight": "Cluster workhorse (alto volume, basso ticket) ha potenziale di crescita non sfruttato",
+        "logic": "scatter perché l'incrocio tra due metriche numeriche rivela cluster comportamentali"
+      },
+      "key_findings": ["3 cluster naturali identificati nel team", "Cluster workhorse: 2 venditori con potenziale di upsell"]
     }
   ],
   "recommendations": [
-    { "priority": "alta", "title": "Cross-sell coaching mirato", "action": "Programma di affiancamento di 6 settimane tra venditore sotto-performante e top performer sul ciclo di vendita prodotti a maggior valore.", "data_evidence": "Il venditore vende 76% prodotti entry vs 42% del top performer", "expected_impact": "Allineamento ticket medio a €2.000 entro Q3" }
-  ]
+    {
+      "priority": "alta",
+      "title": "Cross-sell coaching mirato",
+      "action": "Programma di affiancamento di 6 settimane tra venditori workhorse e top performer sul ciclo di vendita prodotti a maggior valore.",
+      "data_evidence": "I workhorse vendono 76% prodotti entry vs 42% del top performer",
+      "expected_impact": "Allineamento ticket medio a €2.000 entro Q3"
+    }
+  ],
+  "data_quality_notes": ["Tutti i venditori attivi presenti nel dataset"]
 }`
   },
 
@@ -358,18 +473,56 @@ Calcola implicitamente metriche RFM (Recency, Frequency, Monetary) se la struttu
 
 {
   "title": "Customer Profiling · Segmentazione Base Clienti",
+  "period_analyzed": "Gen 2024 - Apr 2025",
   "executive_summary": "I 320 clienti si distribuiscono in 3 cluster naturali: Big Spender Enterprise (15%, scontrino €4.200), PMI ricorrenti (52%, €1.400 alta frequenza), Spot Startup (33%, €890 bassa frequenza). L'80% del fatturato proviene dal 23% dei clienti — Pareto stretto che richiede focus su account management top...",
   "sections": [
     {
-      "title": "Segmenti naturali nella base clienti",
-      "narrative": "L'analisi cluster ha identificato 3 segmenti distinti per comportamento d'acquisto. Il segmento 'Big Spender Enterprise' genera il 41% del fatturato con scontrino medio €4.200 ma frequenza bassa (2,1 acquisti/anno). Le 'PMI ricorrenti' sono il cuore del business con frequenza elevata (5,8 acquisti/anno)...",
-      "chart": { "type": "scatter", "x_axis": "Frequenza acquisti", "y_axis": "Importo medio", "aggregation": "mean", "group_by": "Tipo Cliente", "title": "Segmentazione clienti per frequenza e valore", "insight": "3 cluster con comportamenti d'acquisto nettamente distinti" },
+      "title": "Segmenti naturali · matrice frequenza × valore",
+      "narrative": "L'analisi cluster ha identificato 3 segmenti distinti per comportamento d'acquisto. Il segmento Big Spender Enterprise genera il 41% del fatturato con scontrino medio €4.200 ma frequenza bassa (2,1 acquisti/anno). Le PMI ricorrenti sono il cuore del business con frequenza elevata (5,8 acquisti/anno) e scontrino €1.400. Le Spot Startup completano la base con basso valore e bassa frequenza...",
+      "chart": {
+        "type": "scatter",
+        "x_axis": "Frequenza Acquisti",
+        "y_axis": "Importo Medio",
+        "aggregation": "mean",
+        "group_by": "Tipo Cliente",
+        "value_format": "currency_eur",
+        "title": "3 cluster di clienti distinti per comportamento",
+        "subtitle": "Ogni punto = un cliente · alto a destra = ad alto valore",
+        "insight": "I cluster non si sovrappongono: strategie commerciali ben differenziabili",
+        "logic": "scatter perché rivela cluster naturali nell'incrocio tra le 2 metriche RFM principali"
+      },
       "key_findings": ["Big Spender = 15% clienti ma 41% fatturato", "PMI ricorrenti hanno frequenza 2,8x rispetto agli Enterprise"]
+    },
+    {
+      "title": "Pareto del fatturato cliente",
+      "narrative": "L'analisi della concentrazione mostra che il 23% dei clienti (75 su 320) genera l'80% del fatturato. Il top 5% (16 clienti) da solo vale il 38%. Concentrazione di rischio elevata: la perdita di anche solo 5 clienti top impatterebbe il fatturato del 12%...",
+      "chart": {
+        "type": "bar",
+        "x_axis": "Decile Cliente",
+        "y_axis": "Fatturato Cumulato",
+        "aggregation": "sum",
+        "group_by": null,
+        "value_format": "currency_eur",
+        "sort": "label_asc",
+        "limit": 10,
+        "title": "Top 10% clienti = €1,1M, il 64% del totale",
+        "subtitle": "Pareto stretto · concentrazione di rischio elevata",
+        "insight": "Top decile genera valore 6x rispetto al decile mediano",
+        "logic": "bar verticali ordinati per decile mostrano l'effetto cumulativo della concentrazione"
+      },
+      "key_findings": ["80/20 stretto: 23% clienti = 80% fatturato", "Top 5% pesa 38% del business"]
     }
   ],
   "recommendations": [
-    { "priority": "alta", "title": "Account management dedicato Top 50", "action": "Identificare i top 50 clienti per fatturato e assegnare un account manager dedicato con touchpoint mensile.", "data_evidence": "Top 50 generano €1,1M (64% fatturato totale)", "expected_impact": "Riduzione churn rate top 50 sotto 5% annuo" }
-  ]
+    {
+      "priority": "alta",
+      "title": "Account management dedicato Top 50",
+      "action": "Identificare i top 50 clienti per fatturato e assegnare un account manager dedicato con touchpoint mensile e revisione trimestrale.",
+      "data_evidence": "Top 50 generano €1,1M (64% fatturato totale)",
+      "expected_impact": "Riduzione churn rate top 50 sotto 5% annuo"
+    }
+  ],
+  "data_quality_notes": ["12 clienti senza data acquisto chiara — esclusi dall'analisi RFM"]
 }`
   },
 
@@ -391,18 +544,58 @@ Usa la regressione lineare già calcolata per estrapolare il trend. Identifica s
 
 {
   "title": "Sales Forecast · Proiezione Performance",
+  "period_analyzed": "Gen 2024 - Apr 2025 (16 mesi)",
   "executive_summary": "La regressione su 16 mesi indica un trend di crescita del +3,2% mese su mese (R²=0,68). Estrapolando con questo modello, il prossimo trimestre dovrebbe attestarsi tra €420k (scenario prudente, -10%) e €510k (scenario ottimistico, +10%). Il modello cattura bene il trend ma non eventuali shock esterni o stagionalità inferiori ai 4 mesi...",
   "sections": [
     {
-      "title": "Trend storico e proiezione",
+      "title": "Trend storico mensile e proiezione",
       "narrative": "Il fatturato mensile è cresciuto da €78k (inizio periodo) a €112k (fine periodo) con regressione lineare di pendenza positiva. La R² di 0,68 indica un fit discreto ma con variabilità mese su mese del 18%. Q4 storicamente più forte (+22% vs media), suggerendo stagionalità da considerare nel forecast Q4 prossimo...",
-      "chart": { "type": "line", "x_axis": "Data", "y_axis": "Importo Netto", "aggregation": "sum", "group_by": null, "title": "Trend mensile fatturato", "insight": "Crescita lineare con stagionalità Q4" },
+      "chart": {
+        "type": "area",
+        "x_axis": "Mese",
+        "y_axis": "Importo Netto",
+        "aggregation": "sum",
+        "group_by": null,
+        "value_format": "currency_eur",
+        "sort": "label_asc",
+        "limit": 20,
+        "title": "Crescita +3,2% mensile · €78k → €112k in 16 mesi",
+        "subtitle": "Trend lineare con stagionalità Q4 marcata",
+        "insight": "Modello di regressione affidabile (R²=0,68) per orizzonti di 3-6 mesi",
+        "logic": "area perché evidenzia il trend di volume cumulato e l'andamento progressivo"
+      },
       "key_findings": ["Trend +3,2% mensile (R²=0,68)", "Stagionalità Q4 con +22% vs media"]
+    },
+    {
+      "title": "Variabilità per categoria · stabilità del forecast",
+      "narrative": "Le categorie principali mostrano diversi livelli di prevedibilità. Software Pro ha il trend più stabile (variabilità mese su mese 12%), mentre Servizi è più volatile (28%). Il forecast aggregato deve pesare diversamente le categorie in base alla loro varianza...",
+      "chart": {
+        "type": "line",
+        "x_axis": "Mese",
+        "y_axis": "Importo Netto",
+        "aggregation": "sum",
+        "group_by": "Categoria",
+        "value_format": "currency_eur",
+        "sort": "label_asc",
+        "limit": 16,
+        "title": "Software Pro: 12% variabilità · Servizi: 28%",
+        "subtitle": "Confronto stabilità per categoria di prodotto",
+        "insight": "Software Pro è la categoria più affidabile per il forecast a breve termine",
+        "logic": "line multi-serie permette di confrontare la stabilità delle traiettorie"
+      },
+      "key_findings": ["Software Pro = ancora di stabilità del forecast", "Servizi richiede intervalli di confidenza più ampi"]
     }
   ],
   "recommendations": [
-    { "priority": "alta", "title": "Validare forecast con sales meeting", "action": "Confrontare la previsione modello con le pipeline qualitative dei venditori prima di formalizzare i budget.", "data_evidence": "Pipeline non presenti nei dati — necessaria validazione bottom-up", "expected_impact": "Forecast più accurato con +/- 5% di scarto" }
-  ]
+    {
+      "priority": "alta",
+      "title": "Validare forecast con sales meeting",
+      "action": "Confrontare la previsione modello con le pipeline qualitative dei venditori prima di formalizzare i budget. Includere componente bottom-up per le categorie più volatili.",
+      "data_evidence": "Pipeline non presenti nei dati — necessaria validazione bottom-up",
+      "expected_impact": "Forecast più accurato con scarto +/- 5% invece di +/- 12%"
+    }
+  ],
+  "data_quality_notes": ["Il modello non cattura shock esterni o stagionalità intra-mensili"]
 }`
   },
 
@@ -424,18 +617,58 @@ Se mancano alcune colonne, adatta l'analisi alle dimensioni disponibili.`,
 
 {
   "title": "Dashboard KPI · Customer Care",
+  "period_analyzed": "Mar 2024 - Apr 2025",
   "executive_summary": "Nel periodo analizzato sono stati gestiti 1.245 ticket con tempo medio di prima risposta di 4h12m (SLA 4h: rispettato 78% volte). Il 62% arriva da mail, 28% chat, 10% telefono. La categoria 'fatturazione' rappresenta il 34% dei volumi con tempo di risoluzione più alto (2,1 giorni vs media 0,9)...",
   "sections": [
     {
-      "title": "Volumi e canali",
-      "narrative": "Mail resta il canale dominante (772 ticket, 62%) ma con tempi di risoluzione medi di 1,8 giorni contro i 28 minuti della chat. Il telefono è marginale (124 ticket) ma ha il CSAT più alto (4,6/5)...",
-      "chart": { "type": "pie", "x_axis": "Canale", "y_axis": "ID Ticket", "aggregation": "count", "group_by": null, "title": "Distribuzione ticket per canale", "insight": "Mail satura il volume, chat è il più efficiente" },
+      "title": "Volumi per canale · efficienza vs adozione",
+      "narrative": "Mail resta il canale dominante (772 ticket, 62%) ma con tempi di risoluzione medi di 1,8 giorni contro i 28 minuti della chat. Il telefono è marginale (124 ticket) ma ha il CSAT più alto (4,6/5). Il gap di efficienza tra chat e mail è 67x — opportunità di riallocazione volumi enorme...",
+      "chart": {
+        "type": "donut",
+        "x_axis": "Canale",
+        "y_axis": "ID Ticket",
+        "aggregation": "count",
+        "group_by": null,
+        "value_format": "integer",
+        "sort": "value_desc",
+        "limit": 5,
+        "title": "Mail satura 62% volumi · chat solo 28% ma 67x più rapida",
+        "subtitle": "Distribuzione canali · gap di efficienza significativo",
+        "insight": "Sbilanciamento volumi-efficienza: opportunità di riallocazione",
+        "logic": "donut perché 3 categorie con volumi nettamente diversi rendono leggibile la composizione"
+      },
       "key_findings": ["62% volumi su mail con risoluzione 1,8gg", "Chat 28% volumi ma risoluzione 67x più rapida"]
+    },
+    {
+      "title": "Tempi di risoluzione per categoria",
+      "narrative": "Le categorie più frequenti hanno tempi di risoluzione molto disomogenei. Fatturazione (34% volumi) richiede 2,1 giorni medi — il triplo della media. Login (22% volumi) si risolve in 0,4 giorni. La somma del tempo operatore su Fatturazione è quindi 3x quello su Login nonostante volumi inferiori...",
+      "chart": {
+        "type": "horizontal_bar",
+        "x_axis": "Tempo Medio Risoluzione",
+        "y_axis": "Categoria",
+        "aggregation": "mean",
+        "group_by": null,
+        "value_format": "decimal",
+        "sort": "value_desc",
+        "limit": 8,
+        "title": "Fatturazione: 2,1 giorni medi · 5x rispetto a Login",
+        "subtitle": "Tempo medio risoluzione (giorni) per categoria",
+        "insight": "Fatturazione assorbe sproporzionatamente il tempo operatore",
+        "logic": "horizontal_bar permette confronti chiari di durate con etichette categorie leggibili"
+      },
+      "key_findings": ["Fatturazione = 5x tempo medio rispetto a Login", "Top 5 categorie coprono 78% volumi totali"]
     }
   ],
   "recommendations": [
-    { "priority": "alta", "title": "Spostare 30% volume mail su chat", "action": "Promuovere chat come canale primario nelle email automatiche e signature, target di shift +30% in 60 giorni.", "data_evidence": "Chat ha SLA risoluzione 67x più rapido a parità di FCR", "expected_impact": "Riduzione tempo medio risoluzione complessivo del 25%" }
-  ]
+    {
+      "priority": "alta",
+      "title": "Spostare 30% volume mail su chat",
+      "action": "Promuovere chat come canale primario nelle email automatiche e signature, target di shift +30% in 60 giorni con messaggi guida nei template di risposta.",
+      "data_evidence": "Chat ha SLA risoluzione 67x più rapido a parità di FCR",
+      "expected_impact": "Riduzione tempo medio risoluzione complessivo del 25%"
+    }
+  ],
+  "data_quality_notes": ["8% ticket senza categoria assegnata — esclusi dalle analisi per categoria"]
 }`
   },
 
@@ -457,18 +690,58 @@ Identifica pattern temporali (ore, giorni della settimana) se i dati lo permetto
 
 {
   "title": "Inbound Chat/Mail · Analisi Flussi",
+  "period_analyzed": "Gen 2024 - Apr 2025",
   "executive_summary": "I picchi di traffico sono concentrati nel lunedì mattina (9-11) con 142 contatti medi vs media giornaliera di 87. Il canale chat ha FCR del 71% vs mail al 54%, ma la mail ha durata media 2,3 giorni contro gli 8 minuti della chat. Categoria 'reso' satura il giovedì con +40% volumi rispetto agli altri giorni...",
   "sections": [
     {
-      "title": "Distribuzione temporale dei volumi",
-      "narrative": "L'analisi oraria evidenzia 3 fasce critiche: lunedì 9-11 (picco settimanale, +63% vs media), martedì-mercoledì 14-16 (picco pomeridiano, +28%), venerdì 16-18 (saturazione mail di settimana). Il sabato concentra solo il 4% dei volumi ma con tempi di risposta doppi (probabile sotto-organico)...",
-      "chart": { "type": "bar", "x_axis": "Giorno settimana", "y_axis": "ID Ticket", "aggregation": "count", "group_by": "Canale", "title": "Volumi per giorno e canale", "insight": "Concentrazione lun mattina con sotto-presidio sab" },
-      "key_findings": ["Lunedì 9-11 = 18% volumi settimanali", "Sabato sotto-presidio: tempi 2x"]
+      "title": "Distribuzione temporale per giorno e canale",
+      "narrative": "L'analisi evidenzia 3 fasce critiche: lunedì 9-11 (picco settimanale, +63% vs media), martedì-mercoledì 14-16 (picco pomeridiano, +28%), venerdì 16-18 (saturazione mail di settimana). Il sabato concentra solo il 4% dei volumi ma con tempi di risposta doppi (probabile sotto-organico). Mail dominante nei giorni infrasettimanali, chat con peso crescente nel weekend...",
+      "chart": {
+        "type": "grouped_bar",
+        "x_axis": "Giorno settimana",
+        "y_axis": ["Mail", "Chat"],
+        "aggregation": "count",
+        "group_by": "Canale",
+        "value_format": "integer",
+        "sort": "label_asc",
+        "limit": 7,
+        "title": "Lunedì 9-11 satura 18% dei volumi settimanali",
+        "subtitle": "Volumi per giorno × canale · pattern settimanali stabili",
+        "insight": "Sabato in sotto-presidio: 4% volumi ma tempi 2x rispetto ai feriali",
+        "logic": "grouped_bar permette di confrontare sia il totale per giorno sia il mix di canali"
+      },
+      "key_findings": ["Lunedì 9-11 = 18% volumi settimanali", "Sabato sotto-presidio: tempi di risposta 2x"]
+    },
+    {
+      "title": "Categorie di richiesta · mix e durata",
+      "narrative": "Le 5 categorie principali coprono l'82% dei volumi. 'Fatturazione' è la più frequente (28%) ma anche la più lenta (2,1 giorni medi). 'Reso' ha picco anomalo il giovedì (+40% vs altri giorni) probabilmente legato ai cicli logistici. 'Login' e 'Info prodotto' sono velocemente risolvibili (<30 min) e candidate per chatbot...",
+      "chart": {
+        "type": "stacked_bar",
+        "x_axis": "Giorno settimana",
+        "y_axis": ["Fatturazione", "Reso", "Login", "Info prodotto", "Altro"],
+        "aggregation": "count",
+        "group_by": "Categoria",
+        "value_format": "integer",
+        "sort": "label_asc",
+        "limit": 7,
+        "title": "Reso esplode al giovedì: +40% vs media",
+        "subtitle": "Composizione richieste per giorno · stagionalità marcata",
+        "insight": "Pattern settimanali nelle categorie permettono staffing predittivo",
+        "logic": "stacked_bar perché evidenzia sia il volume totale sia il mix di categorie per giorno"
+      },
+      "key_findings": ["Top 5 categorie = 82% volumi", "Reso giovedì: pattern logistico replicabile"]
     }
   ],
   "recommendations": [
-    { "priority": "alta", "title": "Riallocare staff sul lunedì 9-11", "action": "Spostare 2 operatori dal turno pomeridiano al mattino del lunedì per le prossime 4 settimane di test.", "data_evidence": "Lunedì 9-11 satura 18% volumi settimanali con SLA al 62%", "expected_impact": "Recupero SLA 80% e riduzione FCR drop nella fascia critica" }
-  ]
+    {
+      "priority": "alta",
+      "title": "Riallocare staff sul lunedì 9-11",
+      "action": "Spostare 2 operatori dal turno pomeridiano al mattino del lunedì per le prossime 4 settimane di test, con monitoraggio SLA giornaliero.",
+      "data_evidence": "Lunedì 9-11 satura 18% volumi settimanali con SLA al 62%",
+      "expected_impact": "Recupero SLA 80% e riduzione FCR drop nella fascia critica"
+    }
+  ],
+  "data_quality_notes": ["12% record senza timestamp preciso — esclusi dall'analisi oraria"]
 }`
   },
 
@@ -490,18 +763,56 @@ Usa il clustering per identificare problemi simili categorizzati diversamente. C
 
 {
   "title": "Troubleshooting Profiles · Analisi Problemi Ricorrenti",
+  "period_analyzed": "Gen 2024 - Apr 2025",
   "executive_summary": "Le 5 categorie più frequenti coprono il 78% dei ticket: Login (22%), Fatturazione (18%), Configurazione (15%), Performance (13%), Bug (10%). L'analisi cluster identifica un macro-cluster 'Login + Configurazione' (31% del totale) con tempo di risoluzione doppio rispetto alla media (1,8gg vs 0,9), suggerendo un onboarding poco chiaro come root cause comune...",
   "sections": [
     {
-      "title": "Top categorie problemi",
-      "narrative": "La categoria 'Login' guida i volumi con 274 ticket (22%) e tempo medio risoluzione di 0,4 giorni — pattern chiaro di problemi rapidi ma frequenti. Fatturazione invece ha solo 224 ticket ma satura il tempo operatore con 2,1 giorni medi: il tempo operatore aggregato è il triplo di quello speso su Login...",
-      "chart": { "type": "bar", "x_axis": "Categoria", "y_axis": "Tempo Medio Risoluzione", "aggregation": "mean", "group_by": null, "title": "Tempo medio risoluzione per categoria", "insight": "Fatturazione assorbe 3x tempo operatore vs Login" },
-      "key_findings": ["Top 5 categorie = 78% volumi", "Cluster Login+Config ha root cause comune (onboarding)"]
+      "title": "Top categorie · volumi vs tempo operatore",
+      "narrative": "La categoria Login guida i volumi con 274 ticket (22%) ma tempo medio di 0,4 giorni — pattern chiaro di problemi rapidi ma frequenti. Fatturazione invece ha solo 224 ticket ma satura il tempo operatore con 2,1 giorni medi: il tempo operatore aggregato è il triplo di quello speso su Login. La matrice volume×durata permette di distinguere problemi 'quick wins' da problemi 'time sinks'...",
+      "chart": {
+        "type": "scatter",
+        "x_axis": "Numero Ticket",
+        "y_axis": "Tempo Medio Risoluzione",
+        "aggregation": "mean",
+        "group_by": "Categoria",
+        "value_format": "decimal",
+        "title": "Fatturazione: pochi ticket ma 3x tempo operatore",
+        "subtitle": "Volumi × durata per categoria · identifica time sinks",
+        "insight": "Quadrante alto-destra (Fatturazione) drena tempo: priorità di automazione",
+        "logic": "scatter rivela il quadrante critico volume-durata dove ottimizzare"
+      },
+      "key_findings": ["Top 5 categorie = 78% volumi", "Fatturazione assorbe 3x tempo operatore vs Login"]
+    },
+    {
+      "title": "Pareto delle categorie · concentrazione volumi",
+      "narrative": "L'analisi Pareto sui ticket conferma che 5 categorie su 14 spiegano il 78% dei volumi. Le restanti 9 categorie sono code lunga di casistiche occasionali. Concentrare gli sforzi di knowledge base e automazione sulle top 5 produce massimo ritorno...",
+      "chart": {
+        "type": "bar",
+        "x_axis": "Categoria",
+        "y_axis": "Numero Ticket",
+        "aggregation": "count",
+        "group_by": null,
+        "value_format": "integer",
+        "sort": "value_desc",
+        "limit": 14,
+        "title": "Top 5 categorie coprono il 78% dei volumi",
+        "subtitle": "Distribuzione ticket per categoria · pattern Pareto",
+        "insight": "Code lunga di 9 categorie con volumi marginali (< 4% ciascuna)",
+        "logic": "bar verticali ordinati per volume mostrano nettamente la concentrazione Pareto"
+      },
+      "key_findings": ["5 categorie = 78% volumi totali", "9 categorie marginali sotto 4% ciascuna"]
     }
   ],
   "recommendations": [
-    { "priority": "alta", "title": "Tutorial onboarding video", "action": "Produrre 3 video tutorial (Login, primo accesso, prima configurazione) e mostrarli al primo login in app.", "data_evidence": "31% ticket in cluster onboarding-related", "expected_impact": "Riduzione 40% volumi cluster onboarding in 60 giorni" }
-  ]
+    {
+      "priority": "alta",
+      "title": "Tutorial onboarding video",
+      "action": "Produrre 3 video tutorial (Login, primo accesso, prima configurazione) e mostrarli al primo login in app. Affiancare knowledge base ricercabile.",
+      "data_evidence": "31% ticket in cluster onboarding-related",
+      "expected_impact": "Riduzione 40% volumi cluster onboarding in 60 giorni"
+    }
+  ],
+  "data_quality_notes": ["3% ticket senza categoria assegnata — esclusi dall'analisi"]
 }`
   },
 
@@ -523,22 +834,62 @@ ATTENZIONE — TONO RISPETTOSO:
 - NON menzionare nomi specifici nemmeno se presenti nei dati
 - Usa categorie tipo "il top 10%", "i sotto-performer relativi", "la media reparto X"
 - L'obiettivo è migliorare i processi, non valutare le persone`,
-    example: `Esempio parziale:
+    example: `Esempio parziale (tono rispettoso, sempre aggregato, mai nomi):
 
 {
   "title": "Analisi Produttività Personale",
+  "period_analyzed": "Gen 2024 - Apr 2025",
   "executive_summary": "Il team di 87 risorse distribuite su 4 sedi mostra produttività media di 142 unità/persona/mese con coefficiente di variazione del 34%. La sede di Bologna performa il 22% sopra la media, mentre Catania mostra gap del -18% non correlato all'anzianità (r=0,12). L'analisi suggerisce variabili di processo o organizzazione più che di skill individuale...",
   "sections": [
     {
-      "title": "Performance per sede",
-      "narrative": "Bologna (24 risorse) presenta produttività media di 173 unità/mese, il 22% sopra la media aziendale. Catania (18 risorse) si attesta a 117 unità/mese, il 18% sotto. La distribuzione interna a Bologna è più stretta (CV 21%) suggerendo processi più standardizzati...",
-      "chart": { "type": "bar", "x_axis": "Sede", "y_axis": "Produttività", "aggregation": "mean", "group_by": null, "title": "Produttività media per sede", "insight": "Gap del 47% tra sede top e sede in difficoltà" },
-      "key_findings": ["Bologna +22% vs media (CV interno 21%)", "Catania -18% non legato ad anzianità"]
+      "title": "Produttività media per sede",
+      "narrative": "Bologna (24 risorse) presenta produttività media di 173 unità/mese, il 22% sopra la media aziendale. Catania (18 risorse) si attesta a 117 unità/mese, il 18% sotto. La distribuzione interna a Bologna è più stretta (CV 21%) suggerendo processi più standardizzati. Il gap non si correla con l'anzianità media delle sedi (Catania media 5,2 anni vs Bologna 5,8 anni)...",
+      "chart": {
+        "type": "horizontal_bar",
+        "x_axis": "Produttività Media",
+        "y_axis": "Sede",
+        "aggregation": "mean",
+        "group_by": null,
+        "value_format": "integer",
+        "sort": "value_desc",
+        "limit": 6,
+        "title": "Bologna 173 unità/mese · Catania 117 (gap del 47%)",
+        "subtitle": "Produttività media aggregata · 4 sedi confrontate",
+        "insight": "Gap tra sede top e sede in difficoltà non spiegato da anzianità",
+        "logic": "horizontal_bar permette confronti chiari delle medie per sede con etichette leggibili"
+      },
+      "key_findings": ["Bologna +22% vs media aziendale", "Gap Catania non correlato ad anzianità (r=0,12)"]
+    },
+    {
+      "title": "Distribuzione produttività · top 10% e bottom 10%",
+      "narrative": "L'analisi della distribuzione mostra che il top 10% del team produce in media 218 unità/mese (53% sopra la media) mentre il bottom 10% si attesta a 89 unità/mese. La differenza più significativa non è tra individui ma tra reparti: 'Operations' e 'Customer Success' rappresentano i 2 cluster con maggiore varianza interna. Il top 10% si concentra al 70% in Bologna...",
+      "chart": {
+        "type": "stacked_bar",
+        "x_axis": "Reparto",
+        "y_axis": ["Top 10%", "Fascia centrale", "Bottom 10%"],
+        "aggregation": "count",
+        "group_by": "Fascia performance",
+        "value_format": "integer",
+        "sort": "value_desc",
+        "limit": 6,
+        "title": "Operations: maggiore varianza interna tra reparti",
+        "subtitle": "Composizione fasce performance per reparto · sempre aggregato",
+        "insight": "Varianza interna Operations suggerisce eterogeneità di processi",
+        "logic": "stacked_bar visualizza la composizione delle fasce di performance per reparto senza esporre individui"
+      },
+      "key_findings": ["Top 10% concentrato 70% in Bologna", "Operations e Customer Success: massima varianza interna"]
     }
   ],
   "recommendations": [
-    { "priority": "alta", "title": "Audit processi sede Catania", "action": "Settimana di osservazione operativa a Catania per mappare differenze di processo rispetto a Bologna, focus su task complessi.", "data_evidence": "Gap produttività -18% non spiegato da skill o anzianità", "expected_impact": "Identificare 2-3 leve di miglioramento per chiudere 50% del gap in 6 mesi" }
-  ]
+    {
+      "priority": "alta",
+      "title": "Audit processi sede Catania",
+      "action": "Settimana di osservazione operativa a Catania per mappare differenze di processo rispetto a Bologna, focus su task complessi e flussi standardizzati. Approccio collaborativo, non valutativo.",
+      "data_evidence": "Gap produttività -18% non spiegato da skill o anzianità",
+      "expected_impact": "Identificare 2-3 leve di miglioramento per chiudere 50% del gap in 6 mesi"
+    }
+  ],
+  "data_quality_notes": ["Dataset sempre analizzato in forma aggregata, mai per singolo dipendente"]
 }`
   },
 
@@ -560,22 +911,62 @@ ATTENZIONE — TONO NEUTRALE E NON DISCRIMINATORIO:
 - Concentrati su skill, esperienza, competenze, formazione
 - Usa il clustering per identificare profili tipo
 - Anonimizza sempre, ragiona per categorie`,
-    example: `Esempio parziale:
+    example: `Esempio parziale (tono neutrale, focus su skill ed esperienza, mai discriminante):
 
 {
   "title": "CV Profiling · Analisi Pool Candidati",
+  "period_analyzed": "Pool aggiornato Apr 2025",
   "executive_summary": "I 245 CV analizzati mostrano una concentrazione su profili junior (62% con 0-3 anni esperienza) e un gap su senior con esperienza 8+ anni (solo 11%). L'analisi cluster identifica 4 profili tipo: 'Tech Junior con stack moderno' (38%), 'Marketing/Comm con esperienza media' (25%), 'Operations multi-skill' (22%), 'Senior generalisti' (15%). Skill di Data Analytics sotto-rappresentate (presenti solo nel 18%)...",
   "sections": [
     {
-      "title": "Composizione per esperienza",
+      "title": "Composizione del pool per fascia di esperienza",
       "narrative": "Il pool è marcatamente sbilanciato verso profili junior: 62% ha 0-3 anni di esperienza, 27% ha 4-7 anni, solo 11% supera gli 8 anni. Questo riflette il sourcing degli ultimi 12 mesi orientato all'ingresso. Per ruoli di lead/manager interno l'attingibilità è limitata: solo 27 CV potenzialmente in target...",
-      "chart": { "type": "bar", "x_axis": "Anni Esperienza", "y_axis": "ID CV", "aggregation": "count", "group_by": null, "title": "Distribuzione esperienza", "insight": "Pool sbilanciato verso junior, gap su senior" },
-      "key_findings": ["62% pool è junior 0-3 anni", "Solo 27 CV con 8+ anni esperienza"]
+      "chart": {
+        "type": "bar",
+        "x_axis": "Fascia Esperienza",
+        "y_axis": "ID CV",
+        "aggregation": "count",
+        "group_by": null,
+        "value_format": "integer",
+        "sort": "label_asc",
+        "limit": 6,
+        "title": "62% pool junior · solo 11% con 8+ anni",
+        "subtitle": "Distribuzione fasce di esperienza · pool aggregato",
+        "insight": "Sbilanciamento verso junior limita attingibilità per ruoli senior interni",
+        "logic": "bar verticali per fasce ordinate cronologicamente mostrano lo squilibrio del pool"
+      },
+      "key_findings": ["62% pool è 0-3 anni di esperienza", "Solo 27 CV con 8+ anni esperienza"]
+    },
+    {
+      "title": "Skill tecniche · presenza nel pool",
+      "narrative": "L'inventario skill mostra forte presenza di tecnologie 'main stream' (JavaScript 73%, SQL 61%, Excel avanzato 58%) e gap significativi su skill emergenti: Data Analytics avanzato 18%, Cloud/DevOps 22%, Machine Learning 8%. Per ruoli orientati al data il pool richiede formazione interna o sourcing dedicato. Skill 'soft' come problem solving e gestione progetti presenti nel 65% e 41% rispettivamente...",
+      "chart": {
+        "type": "horizontal_bar",
+        "x_axis": "Presenza nel Pool",
+        "y_axis": "Skill",
+        "aggregation": "count",
+        "group_by": null,
+        "value_format": "percentage",
+        "sort": "value_desc",
+        "limit": 12,
+        "title": "Data Analytics solo 18% · gap critico per ruoli data",
+        "subtitle": "Penetrazione skill tecniche nel pool · top 12 confrontate",
+        "insight": "Gap su skill data e cloud richiede strategia mista sourcing + formazione",
+        "logic": "horizontal_bar per nomi skill lunghi e ranking immediato di copertura"
+      },
+      "key_findings": ["Skill main-stream coperte (60-73%)", "Gap data/cloud/ML tra 8% e 22%"]
     }
   ],
   "recommendations": [
-    { "priority": "alta", "title": "Sourcing dedicato profili senior", "action": "Attivare canale dedicato (referral employee, head hunter mirato) per profili 8+ anni nei prossimi 60 giorni.", "data_evidence": "Solo 11% pool è senior vs target organizzazione del 25%", "expected_impact": "Raddoppio pipeline senior entro Q3" }
-  ]
+    {
+      "priority": "alta",
+      "title": "Sourcing dedicato profili senior + percorso formativo data",
+      "action": "Attivare canale dedicato (referral employee, head hunter mirato) per profili 8+ anni nei prossimi 60 giorni. Parallelamente, lanciare percorso formativo Data Analytics interno per junior già in pool.",
+      "data_evidence": "Solo 11% pool è senior vs target organizzazione del 25% · skill Data Analytics al 18%",
+      "expected_impact": "Raddoppio pipeline senior entro Q3 · 30% pool con skill data entro Q4"
+    }
+  ],
+  "data_quality_notes": ["Skill auto-dichiarate dai candidati — verificate con test in fase di colloquio"]
 }`
   },
 
