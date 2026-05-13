@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "api/analyze.js": {
+      "maxDuration": 60
+    },
+    "api/comment.js": {
+      "maxDuration": 30
+    },
+    "api/summary.js": {
+      "maxDuration": 30
+    }
+  }
+}
