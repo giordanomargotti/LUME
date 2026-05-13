@@ -36,8 +36,8 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 3500,
-        system: 'Sei un generatore di report JSON. Restituisci ESCLUSIVAMENTE JSON valido che inizia con { e finisce con }. Mai testo prima, mai testo dopo, mai backtick markdown, mai spiegazioni. Solo il JSON puro. Mantieni la risposta concisa per non superare i token disponibili.',
+        max_tokens: 5000,
+        system: 'Restituisci ESCLUSIVAMENTE JSON valido. Inizia ESATTAMENTE con { e finisci ESATTAMENTE con }. VIETATO: backtick, markdown, ```json, testo introduttivo, spiegazioni. Solo JSON puro. Mantieni la risposta concisa per stare nei token disponibili: ogni sezione narrative max 120 parole, ogni recommendation max 50 parole. Se senti che stai per superare i token, accorcia, NON troncare.',
         messages: [{ role: 'user', content: fullPrompt }]
       })
     })
@@ -104,7 +104,9 @@ export default async function handler(req, res) {
       try {
         const start = text.indexOf('{')
         if (start >= 0) {
+          // Rimuovi prima eventuali backtick iniziali
           let t = text.slice(start)
+          // Trova ultima virgola top-level sicura e chiudi da lì
           let depth = 0, depthArr = 0, inStr = false, escape = false
           let lastSafeComma = -1
           for (let i = 0; i < t.length; i++) {
@@ -120,17 +122,68 @@ export default async function handler(req, res) {
             if (c === ',' && depthArr === 0 && depth === 1) lastSafeComma = i
           }
           if (lastSafeComma > 0 && depth > 0) {
-            // Tronca all'ultima virgola top-level e chiudi
             let fixed = t.slice(0, lastSafeComma)
-            // Chiudi array aperti
             for (let k = 0; k < depthArr; k++) fixed += ']'
-            // Chiudi oggetti aperti
             for (let k = 0; k < depth; k++) fixed += '}'
             parsed = JSON.parse(fixed)
-            console.log('✓ Recovered truncated JSON')
+            console.log('✓ Recovered truncated JSON (strategy 4)')
           }
         }
       } catch(e) { parseErrors.push('truncate-fix: ' + e.message) }
+    }
+
+    // Strategia 5: troncatura aggressiva — JSON tagliato a metà stringa
+    // Risale fino all'ultima virgola "safe" tra oggetti/array completi
+    if (!parsed) {
+      try {
+        const start = text.indexOf('{')
+        if (start >= 0) {
+          let t = text.slice(start)
+          // Se finiamo dentro una stringa, prova a tagliare PRIMA dell'ultima stringa aperta
+          let depth = 0, depthArr = 0, inStr = false, escape = false
+          let safePoint = -1  // posizione "sicura" = dopo ogni } o ] top-level
+
+          for (let i = 0; i < t.length; i++) {
+            const c = t[i]
+            if (escape) { escape = false; continue }
+            if (c === '\\') { escape = true; continue }
+            if (c === '"') { inStr = !inStr; continue }
+            if (inStr) continue
+            if (c === '{') depth++
+            if (c === '}') depth--
+            if (c === '[') depthArr++
+            if (c === ']') depthArr--
+
+            // Se siamo in posizione "completa" (oggetto chiuso dentro un array a depth=1)
+            if ((c === '}' || c === ']') && depth >= 1 && !inStr) {
+              safePoint = i + 1
+            }
+          }
+
+          if (safePoint > 0) {
+            // Taglia al safePoint, chiudi tutto ciò che resta aperto
+            let cut = t.slice(0, safePoint)
+            // Ricalcola depth dopo il taglio per chiudere correttamente
+            let d = 0, dA = 0, ins = false, esc = false
+            for (let i = 0; i < cut.length; i++) {
+              const c = cut[i]
+              if (esc) { esc = false; continue }
+              if (c === '\\') { esc = true; continue }
+              if (c === '"') { ins = !ins; continue }
+              if (ins) continue
+              if (c === '{') d++
+              if (c === '}') d--
+              if (c === '[') dA++
+              if (c === ']') dA--
+            }
+            // Chiudi array/oggetti rimasti aperti
+            for (let k = 0; k < dA; k++) cut += ']'
+            for (let k = 0; k < d; k++) cut += '}'
+            parsed = JSON.parse(cut)
+            console.log('✓ Recovered with aggressive truncate (strategy 5)')
+          }
+        }
+      } catch(e) { parseErrors.push('aggressive-truncate: ' + e.message) }
     }
 
     if (!parsed) {
