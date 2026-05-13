@@ -1,0 +1,7 @@
+{
+  "name": "lume-app",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Lume — Carica i tuoi dati. Scopri la tua storia.",
+  "private": true
+}
