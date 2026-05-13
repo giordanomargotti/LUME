@@ -299,6 +299,15 @@ P — PARAMETERS
 
 LINGUA: italiano professionale, no anglicismi inutili.
 NUMEROSITÀ: 4-6 kpi_cards, 3-5 sections, 3-5 recommendations.
+
+⭐ kpi_cards[0] = HERO KPI: il PRIMO kpi_card è il numero "wow" che incarna la tesi principale dell'executive_summary. Deve essere il dato più impattante e memorabile possibile. Esempi di buon hero KPI:
+- "47%" (con label "Concentrazione top 3 venditori")
+- "€1,72M" (con label "Fatturato analizzato")
+- "8.775" (con label "Contratti gestiti")
+- Il delta dovrebbe quantificare la dimensione del problema/opportunità
+
+Gli altri kpi_cards (2-5) sono supporting metrics: numeri di contesto che corroborano la tesi.
+
 NUMERI: formato italiano (1.000,50), € con simbolo, percentuali con segno (+12,3%), abbreviazioni €1,72M / €847k.
 
 🏛️ STRUTTURA ARGOMENTATIVA (Minto Pyramid):
@@ -344,10 +353,31 @@ Ordine: sort value_desc per categorie, label_asc per temporali.
 - heatmap (matrice 2D)
 - treemap (composizione disomogenea)
 
-REGOLE TECNICHE:
+⚠️ REGOLE TECNICHE GRAFICI (CRITICHE — RISPETTARE SEMPRE):
+
+1. x_axis e y_axis DEVONO essere ESATTAMENTE nomi di colonne presenti nel dataset DATI DISPONIBILI sopra. NON inventare nomi come "Numero Contratti" o "Conteggio Record".
+
+2. PER CONTEGGI (aggregation: count):
+   - x_axis = colonna categoriale (es. "AGENTE", "Regione")
+   - y_axis = STESSA colonna (es. "AGENTE") oppure una qualsiasi colonna ID univoca (es. "ID Contratto", "FORNITURA_CRM")
+   - NON SCRIVERE MAI y_axis: "Numero Contratti" o "Count"
+
+3. COLONNE DATE NUMERICHE (formato YYYYMMDD come 20260309 o 30001231): NON usarle MAI come y_axis di un grafico di valori. Sono date, non importi. Se devi visualizzarle:
+   - Per scatter di correlazione date: SEGNALARLO in data_quality_notes e SCEGLIERE altro grafico
+   - Per trend temporale: usa il pattern raggruppando per mese, non i numeri raw
+
+4. PER scatter: x_axis e y_axis devono essere ENTRAMBE colonne numeriche reali (importi, quantità, percentuali). NON usare colonne ID o date numeriche raw.
+
+5. PER dual_axis/grouped_bar/stacked_bar: y_axis è array di colonne, MA tutte devono esistere nel dataset. Per metriche calcolate (es. "Ticket medio"), specificare nel narrative che si tratta di un calcolo derivato e usare invece colonne raw (es. importo, count).
+
+6. SE NON ESISTE una colonna numerica adatta per il tuo grafico → usa "type": "bar" con aggregation: "count" e y_axis = qualsiasi colonna del dataset. Mai inventare.
+
+7. Per grafici di "valore medio" calcolato: usa aggregation: "mean" su una colonna numerica raw esistente.
+
+REGOLE TECNICHE GENERALI:
 - 1 grafico per sezione
-- Solo colonne effettivamente esistenti
-- y_axis può essere array per dual_axis/grouped_bar/stacked_bar
+- y_axis può essere array SOLO per dual_axis/grouped_bar/stacked_bar
+- Per heatmap: x_axis e group_by categoriali, y_axis numerica reale aggregata
 
 REGOLE CONTENUTO:
 - Ogni numero verificabile dai dati
