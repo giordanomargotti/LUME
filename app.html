@@ -623,6 +623,89 @@ footer{border-top:2.5px solid var(--ink);margin-top:60px;padding:14px 36px 14px 
 .ai-trend-flat{color:var(--muted);}
 .ai-kpi-comment{font-family:var(--mono);font-size:9px;color:var(--ink2);line-height:1.5;}
 
+/* ━━━ HERO KPI (Intervento 2 — Fase 5) ━━━ */
+.ai-kpi-block{
+  margin: 24px 0 32px 0;
+}
+.ai-kpi-block-eyebrow{
+  margin-bottom: 14px;
+}
+.ai-kpi-hero{
+  background: linear-gradient(135deg, var(--ink) 0%, #2a2520 100%);
+  color: white;
+  padding: 38px 42px;
+  border: 2px solid var(--ink);
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.ai-kpi-hero::before{
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 6px;
+  height: 100%;
+  background: linear-gradient(to bottom, var(--orange) 0%, var(--amber) 100%);
+}
+.ai-kpi-hero-label{
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+.ai-kpi-hero-value{
+  font-family: var(--lora);
+  font-size: 84px;
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  color: var(--orange);
+  margin-bottom: 10px;
+}
+.ai-kpi-hero-delta{
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  margin-bottom: 14px;
+}
+.ai-kpi-hero-delta.ai-trend-up{ color: #6dcd99; }
+.ai-kpi-hero-delta.ai-trend-down{ color: var(--amber); }
+.ai-kpi-hero-delta.ai-trend-flat{ color: rgba(255,255,255,0.5); }
+.ai-kpi-hero-comment{
+  font-family: var(--lora);
+  font-size: 15px;
+  font-style: italic;
+  line-height: 1.5;
+  color: rgba(255,255,255,0.85);
+  max-width: 620px;
+}
+
+.ai-kpi-supporting-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1px;
+  background: var(--rule);
+  border: 1.5px solid var(--ink);
+}
+.ai-kpi-supporting-grid .ai-kpi-card{
+  background: var(--paper);
+  padding: 18px 20px;
+  transition: background .15s;
+}
+.ai-kpi-supporting-grid .ai-kpi-card:hover{
+  background: white;
+}
+
+@media(max-width: 640px){
+  .ai-kpi-hero{ padding: 26px 22px; }
+  .ai-kpi-hero-value{ font-size: 56px; }
+  .ai-kpi-hero-comment{ font-size: 13px; }
+}
+
 .ai-chart-wrap{border:1.5px solid var(--ink);background:white;padding:20px 22px;margin:18px 0;}
 .ai-chart-headline{font-family:var(--lora);font-size:17px;font-weight:700;letter-spacing:-0.01em;line-height:1.25;color:var(--ink);margin-bottom:4px;}
 .ai-chart-subtitle{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:0.04em;font-style:italic;margin-bottom:14px;line-height:1.5;}
@@ -2433,7 +2516,48 @@ function buildDataProfile() {
   const completeness = Math.round(filled/total*100)
 
   let p = `Dataset: ${rawData.length} righe × ${headers.length} colonne. Completezza: ${completeness}%.\n\n`
-  p += `COLONNE E STATISTICHE:\n`
+
+  // Categorizza colonne: NUMERICHE (sicure per y_axis valore) vs DATE-NUMERICHE (NON usare come y_axis) vs CATEGORIALI
+  const numericCols = []
+  const dateNumericCols = []
+  const categoricalCols = []
+  const idCols = []
+
+  headers.forEach((h, ci) => {
+    const tp = types[ci]
+    const vals = rawData.map(r => r[ci]).filter(v => v!==null && v!=='')
+    if (tp === 'number') {
+      const nums = vals.map(v => parseFloat(v)).filter(v => !isNaN(v))
+      if (!nums.length) return
+      const max = Math.max(...nums)
+      const min = Math.min(...nums)
+      // Heuristics: se valori sono interi tra 19000101 e 99999999 → date YYYYMMDD
+      if (min >= 19000000 && max <= 99999999 && nums.every(n => Number.isInteger(n))) {
+        dateNumericCols.push(h)
+      }
+      // Se nome contiene ID/COD/CODICE è probabile sia identificatore
+      else if (/\b(id|cod|codice|nr|num\.?)/i.test(h) && nums.length > 100 && new Set(nums).size > nums.length * 0.9) {
+        idCols.push(h)
+      } else {
+        numericCols.push(h)
+      }
+    } else if (tp === 'date') {
+      dateNumericCols.push(h)
+    } else {
+      categoricalCols.push(h)
+    }
+  })
+
+  p += `📊 COLONNE NUMERICHE USABILI come y_axis (valori, importi, quantità):\n${numericCols.length ? numericCols.map(c => `  - ${c}`).join('\n') : '  (nessuna)'}\n\n`
+  p += `📁 COLONNE CATEGORIALI USABILI come x_axis o group_by:\n${categoricalCols.length ? categoricalCols.slice(0, 15).map(c => `  - ${c}`).join('\n') : '  (nessuna)'}\n\n`
+  if (dateNumericCols.length) {
+    p += `⚠️ COLONNE DATA (NON usare come y_axis di valore, sono date):\n${dateNumericCols.map(c => `  - ${c}`).join('\n')}\n\n`
+  }
+  if (idCols.length) {
+    p += `🔑 COLONNE ID (USA per count come y_axis, non per valore):\n${idCols.map(c => `  - ${c}`).join('\n')}\n\n`
+  }
+
+  p += `STATISTICHE DETTAGLIATE:\n`
 
   headers.forEach((h, ci) => {
     const tp = types[ci]
@@ -2577,20 +2701,38 @@ function renderAIReport(r) {
         </div>
       ` : ''}
 
-      <!-- KPI Cards -->
+      <!-- KPI Hero + Supporting (Intervento 2) -->
       ${(r.kpi_cards && r.kpi_cards.length) ? `
-        <div class="ai-rep-section">
-          <div class="ai-rep-sec-eyebrow">KPI Principali</div>
-          <div class="ai-kpi-grid">
-            ${r.kpi_cards.map(k => `
-              <div class="ai-kpi-card">
-                <div class="ai-kpi-label">${k.label}</div>
-                <div class="ai-kpi-value">${k.value}</div>
-                ${k.delta ? `<div class="ai-kpi-delta ai-trend-${k.trend||'flat'}">${k.delta}</div>` : ''}
-                <div class="ai-kpi-comment">${k.comment || ''}</div>
+        <div class="ai-kpi-block">
+          <div class="ai-rep-sec-eyebrow ai-kpi-block-eyebrow">I numeri della tesi</div>
+
+          ${(() => {
+            const hero = r.kpi_cards[0]
+            const rest = r.kpi_cards.slice(1)
+            return `
+              <!-- Hero KPI -->
+              <div class="ai-kpi-hero">
+                <div class="ai-kpi-hero-label">${hero.label}</div>
+                <div class="ai-kpi-hero-value">${hero.value}</div>
+                ${hero.delta ? `<div class="ai-kpi-hero-delta ai-trend-${hero.trend||'flat'}">${hero.delta}</div>` : ''}
+                ${hero.comment ? `<div class="ai-kpi-hero-comment">${hero.comment}</div>` : ''}
               </div>
-            `).join('')}
-          </div>
+
+              <!-- Supporting KPIs -->
+              ${rest.length ? `
+                <div class="ai-kpi-supporting-grid">
+                  ${rest.map(k => `
+                    <div class="ai-kpi-card">
+                      <div class="ai-kpi-label">${k.label}</div>
+                      <div class="ai-kpi-value">${k.value}</div>
+                      ${k.delta ? `<div class="ai-kpi-delta ai-trend-${k.trend||'flat'}">${k.delta}</div>` : ''}
+                      <div class="ai-kpi-comment">${k.comment || ''}</div>
+                    </div>
+                  `).join('')}
+                </div>
+              ` : ''}
+            `
+          })()}
         </div>
       ` : ''}
 
@@ -2793,11 +2935,52 @@ function renderAIChart(spec, canvasId) {
   const canvas = document.getElementById(canvasId)
   if (!canvas) return
 
+  // ━━ VALIDAZIONE E AUTO-FALLBACK (Intervento 1B) ━━
+  // Se la spec ha colonne inventate, normalizziamo:
+  // 1. Se aggregation = count, y_axis può essere null/inventato → usiamo x_axis come y
+  // 2. Se y_axis non esiste, fallback a count
+  // 3. Se è una colonna date numerica (YYYYMMDD), avvisiamo
+  const isDateNumericCol = (colName) => {
+    const idx = headers.indexOf(colName)
+    if (idx === -1) return false
+    if (types[idx] !== 'number') return false
+    const sample = rawData.slice(0, 50).map(r => parseFloat(r[idx])).filter(v => !isNaN(v))
+    if (!sample.length) return false
+    return sample.every(n => n >= 19000000 && n <= 99999999 && Number.isInteger(n))
+  }
+
   const xCol = headers.indexOf(spec.x_axis)
   // y_axis può essere stringa o array (per dual_axis, grouped_bar, stacked_bar)
-  const yAxes = Array.isArray(spec.y_axis) ? spec.y_axis : [spec.y_axis]
-  const yCols = yAxes.map(y => headers.indexOf(y))
+  let yAxes = Array.isArray(spec.y_axis) ? spec.y_axis : [spec.y_axis]
   const gCol = spec.group_by ? headers.indexOf(spec.group_by) : -1
+
+  // Fallback: per count, se y_axis non esiste, usa x_axis (count è indipendente da y)
+  if (spec.aggregation === 'count') {
+    yAxes = yAxes.map(y => {
+      if (!y || headers.indexOf(y) === -1) return spec.x_axis  // count usa x come riferimento
+      return y
+    })
+  } else {
+    // Per altre aggregazioni, se la colonna non esiste E non è scatter, fallback a count
+    const hasInvalidY = yAxes.some(y => !y || headers.indexOf(y) === -1)
+    if (hasInvalidY && spec.type !== 'scatter') {
+      console.warn(`Chart fallback: colonna y "${yAxes.join(',')}" non valida, uso count su x_axis`)
+      yAxes = [spec.x_axis]
+      spec.aggregation = 'count'
+      spec.value_format = 'integer'
+    }
+  }
+  let yCols = yAxes.map(y => headers.indexOf(y))
+
+  // Warning soft per colonne date numeriche usate come y_axis di valore (NON per scatter, dove possono servire)
+  if (spec.type !== 'scatter' && spec.aggregation !== 'count' && yAxes.some(y => isDateNumericCol(y))) {
+    console.warn(`Chart warning: y_axis "${yAxes.join(',')}" sembra essere una data numerica YYYYMMDD, non un valore`)
+    // Fallback automatico a count
+    yAxes = [spec.x_axis]
+    yCols = [xCol]
+    spec.aggregation = 'count'
+    spec.value_format = 'integer'
+  }
 
   if (xCol === -1) {
     canvas.parentElement.innerHTML += `<div class="ai-chart-warn">⚠ Colonna "${spec.x_axis}" non trovata nei dati</div>`
@@ -2811,16 +2994,27 @@ function renderAIChart(spec, canvasId) {
 
   // ── SCATTER ──
   if (spec.type === 'scatter') {
-    const pts = rawData.map(r => ({
-      x: parseFloat(r[xCol]),
-      y: yCols[0] >= 0 ? parseFloat(r[yCols[0]]) : 0
-    })).filter(p => !isNaN(p.x) && !isNaN(p.y))
-    drawAIChart({
-      canvasId, type: 'scatter',
-      datasets: [{ label: spec.title, data: pts }],
-      spec, valFmt
-    })
-    return
+    // Per scatter, se le colonne sono date numeriche (YYYYMMDD), avvisiamo + fallback a bar
+    if (isDateNumericCol(spec.x_axis) || (spec.y_axis && isDateNumericCol(spec.y_axis))) {
+      console.warn('Scatter con colonne date numeriche YYYYMMDD: rendering come bar conteggio')
+      // Fallback a bar count
+      spec.type = 'bar'
+      spec.aggregation = 'count'
+      spec.value_format = 'integer'
+      yAxes = [spec.x_axis]
+      yCols = [xCol]
+    } else {
+      const pts = rawData.map(r => ({
+        x: parseFloat(r[xCol]),
+        y: yCols[0] >= 0 ? parseFloat(r[yCols[0]]) : 0
+      })).filter(p => !isNaN(p.x) && !isNaN(p.y))
+      drawAIChart({
+        canvasId, type: 'scatter',
+        datasets: [{ label: spec.title, data: pts }],
+        spec, valFmt
+      })
+      return
+    }
   }
 
   // ── HEATMAP (bar segmentate per group_by) ──
