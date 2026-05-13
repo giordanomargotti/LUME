@@ -36,7 +36,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-5-20250929',
-        max_tokens: 5000,
+        max_tokens: 3500,
         system: 'Sei un generatore di report JSON. Restituisci ESCLUSIVAMENTE JSON valido che inizia con { e finisce con }. Mai testo prima, mai testo dopo, mai backtick markdown, mai spiegazioni. Solo il JSON puro. Mantieni la risposta concisa per non superare i token disponibili.',
         messages: [{ role: 'user', content: fullPrompt }]
       })
@@ -244,140 +244,63 @@ Schema obbligatorio:
 P — PARAMETERS
 ═══════════════════════════════════════════════════════════
 
-LINGUA: Esclusivamente italiano professionale. Niente anglicismi se non strettamente tecnici e diffusi.
+LINGUA: italiano professionale, no anglicismi inutili.
+NUMEROSITÀ: 4-6 kpi_cards, 3-5 sections, 3-5 recommendations.
+NUMERI: formato italiano (1.000,50), € con simbolo, percentuali con segno (+12,3%), abbreviazioni €1,72M / €847k.
 
-TONO: Argomentativo e bilanciato — non descrittivo. Ogni paragrafo deve sostenere una tesi, non riportare neutralmente i dati.
+🏛️ STRUTTURA ARGOMENTATIVA (Minto Pyramid):
 
-NUMEROSITÀ:
-- kpi_cards: 4 a 6
-- sections: 3 a 5
-- recommendations: 3 a 5
+NON descrivere i dati. ARGOMENTA partendo dalla conclusione.
 
-REGOLE NUMERI:
-- Formato italiano: 1.000,50 (mai 1,000.50)
-- Valuta sempre con simbolo €
-- Percentuali con segno (+12,3% / -5,1%)
-- Numeri grandi abbreviati: €1,72M, €847k
+executive_summary: AFFERMAZIONE netta + 3 RAGIONI che la sostengono + IMPLICAZIONE per chi decide.
+❌ "Le vendite hanno totalizzato €1,72M..."
+✅ "Performance solida ma esposta: 3 venditori del Nord-Ovest generano il 47%. Tre evidenze: (1)... (2)... (3)... Decisione necessaria: ridurre dipendenza top 3."
 
-═══════════════════════════════════════════════════════════
-🏛️ STRUTTURA ARGOMENTATIVA · PYRAMID PRINCIPLE (Minto)
-═══════════════════════════════════════════════════════════
+section.title: AFFERMAZIONE, non argomento.
+❌ "Performance per regione"
+✅ "La concentrazione Nord-Ovest è il rischio principale"
 
-Questo report NON è una descrizione dei dati. È un'argomentazione che parte dalla conclusione e la dimostra.
+section.narrative: pattern AFFERMAZIONE → EVIDENZA numerica → IMPLICAZIONE.
 
-🏛️ REGOLA #1 · EXECUTIVE SUMMARY come TESI:
-L'executive_summary DEVE iniziare con un'affermazione netta e argomentativa, non una descrizione.
-Struttura obbligatoria in 3 mosse:
-  (1) AFFERMAZIONE: la conclusione principale in 1 frase netta
-  (2) 3 RAGIONI: i pilastri che la sostengono ("perché lo affermo")
-  (3) IMPLICAZIONE: cosa significa per chi deciderà ("decisione necessaria")
+recommendations: pattern SCQA (Situazione attuale + Complicazione + Risoluzione concreta). data_evidence con numero specifico, expected_impact con tempo e magnitudo.
 
-❌ MALE (descrittivo):
-"Le vendite del periodo Gen 2024-Apr 2025 hanno totalizzato €1,72M su 850 transazioni con un win rate del 83,5%. Il Nord-Ovest concentra il 38% del fatturato..."
+📊 STORYTELLING CON DATI (Knaflic):
 
-✅ BENE (argomentativo, Minto):
-"La performance commerciale è solida ma esposta a un rischio strutturale: 3 venditori del Nord-Ovest generano il 47% del fatturato. Tre evidenze sostengono questa tesi: la concentrazione geografica è cresciuta dal 31% al 38% in 16 mesi (1), il Sud sottoperforma per mix prodotto inefficiente non per skill (2), il ciclo di vendita Enterprise è 3,2x più lungo del PMI ma genera 4x il valore (3). Decisione necessaria: ridurre la dipendenza dai top 3 nei prossimi 6 mesi tramite coaching e diversificazione territoriale."
+Ogni grafico serve UNA tesi specifica, non visualizzazione neutra.
 
-🏛️ REGOLA #2 · TITOLI DELLE SEZIONI COME AFFERMAZIONI:
-Le 3-5 sezioni NON sono "aree tematiche" descrittive. Sono i PILASTRI che dimostrano la tesi dell'executive summary. Ogni section.title DEVE essere un'affermazione, non un argomento.
+chart.title: TESI del grafico con numero chiave.
+❌ "Fatturato per regione"
+✅ "Il Nord-Ovest concentra €654K, 3,3x il Sud"
 
-❌ MALE: "Performance per regione" / "Analisi mix prodotto" / "Distribuzione cliente"
-✅ BENE: "La concentrazione Nord-Ovest è il rischio principale" / "Il problema del Sud è di mix, non di skill" / "Il 23% dei clienti genera l'80% del fatturato"
+chart.highlight.indices: indici (0-based) degli elementi da evidenziare visivamente. L'app colorerà in arancione gli highlighted e in grigio gli altri.
+- Top N dominano → [0, 1, ..., N-1]
+- 1 anomalia → [indice anomalo]
+- Trend temporale o senza focus → null
+- scatter/heatmap/dual_axis → null
 
-🏛️ REGOLA #3 · NARRATIVE COME AFFERMAZIONE → EVIDENZA → IMPLICAZIONE:
-Ogni section.narrative deve seguire questo pattern, in qualunque ordine narrativo lo presenti:
-  - AFFERMAZIONE: cosa stai sostenendo (la tesi della sezione)
-  - EVIDENZA: i numeri specifici che la supportano
-  - IMPLICAZIONE: cosa questo significa per il business o per le prossime mosse
+Decluttering: max 12 categorie (oltre = "Altro"), max 5 fette per pie/donut, max 5 serie line.
+Ordine: sort value_desc per categorie, label_asc per temporali.
 
-🏛️ REGOLA #4 · RECOMMENDATIONS COME SCQA (Situation-Complication-Question-Answer):
-Ogni raccomandazione deve seguire questo pattern, anche se non lo espliciti come bullet:
-  - SITUAZIONE: la condizione attuale rilevante (1 frase)
-  - COMPLICAZIONE: il problema o rischio identificato (1 frase)
-  - RISOLUZIONE: l'azione concreta proposta (1-2 frasi)
-- data_evidence: il numero specifico che giustifica (non generico)
-- expected_impact: il risultato atteso con tempo e magnitudo
-
-═══════════════════════════════════════════════════════════
-📊 STORYTELLING CON DATI · KNAFLIC
-═══════════════════════════════════════════════════════════
-
-Ogni grafico deve servire UNA TESI SPECIFICA. Non visualizzazione neutra, ma comunicazione mirata.
-
-📊 REGOLA #1 · TITOLI COME AFFERMAZIONI:
-Il chart.title è la TESI del grafico in 1 frase, con il numero chiave.
-❌ MALE: "Fatturato per regione" / "Distribuzione clienti"
-✅ BENE: "Il Nord-Ovest concentra €654K, 3,3x il Sud" / "Il 23% dei clienti genera l'80% del fatturato"
-
-📊 REGOLA #2 · HIGHLIGHT INTENZIONALE (NUOVO CAMPO):
-Per ogni grafico devi indicare nel campo chart.highlight.indices quali elementi sono IL PUNTO della storia.
-L'app userà questi indici per colorare in arancione le barre evidenziate e in grigio chiaro tutte le altre. Questo costringe l'occhio del lettore sul punto.
-
-Regole per highlight.indices:
-- Se il grafico dimostra "i top N dominano" → indices = [0, 1, ..., N-1]
-- Se il grafico mostra "1 elemento è anomalo" → indices = [indice di quell'elemento]
-- Se il grafico mostra "X e Y sono speculari" → indices = [indice X, indice Y]
-- Se è trend temporale o non c'è focus → indices = null
-- Per scatter/heatmap/dual_axis → indices = null (non applicabile)
-- Per pie/donut con focus → indices possono evidenziare 1-2 fette
-
-Esempio:
-"chart": {
-  "type": "horizontal_bar",
-  "title": "Top 3 venditori generano il 47% del fatturato",
-  "highlight": {
-    "indices": [0, 1, 2],
-    "rationale": "I primi 3 nomi del ranking sono il punto: concentrazione di performance"
-  }
-}
-
-📊 REGOLA #3 · DECLUTTERING:
-- Massimo 12 categorie (oltre, raggruppa il resto in "Altro" e dichiaralo nel narrative)
-- Per pie/donut: massimo 5 fette (oltre, usa horizontal_bar)
-- Per line: massimo 5 serie sovrapposte (oltre, separa in grafici diversi)
-- Niente double-encoding (non usare colore + dimensione per la stessa info)
-
-📊 REGOLA #4 · ORDINE INTENZIONALE:
-Sempre sort: "value_desc" per categorie a meno che l'asse sia temporale (allora "label_asc"). Il lettore deve scorrere dal più al meno importante.
-
-📊 REGOLA #5 · INSIGHT come ANNOTAZIONE DIREZIONALE:
-- chart.insight = la freccia che indica DOVE guardare e cosa pensare
-- chart.logic = perché QUESTO tipo di grafico è il più adatto a dimostrare la tesi
-
-═══════════════════════════════════════════════════════════
-🎯 SCELTA DEL TIPO DI GRAFICO
-═══════════════════════════════════════════════════════════
-
-Usa il grafico PIÙ INFORMATIVO per dimostrare la tesi, non quello più scontato:
-  · bar → confronto valori tra 5-12 categorie distinte
-  · horizontal_bar → confronto con etichette lunghe (>15 caratteri) o molte categorie (>8)
-  · grouped_bar → confronto valori tra categorie SU PIÙ DIMENSIONI
-  · stacked_bar → composizione percentuale o totali con breakdown
-  · line → trend temporali continui (asse X temporale)
-  · area → trend con accento su volumi cumulati
-  · dual_axis → due metriche con scale diverse (€ vs %)
-  · pie → distribuzione con max 5 categorie e differenze marcate
-  · donut → come pie ma con totale al centro
-  · scatter → correlazioni tra 2 variabili numeriche o cluster comportamentali
-  · heatmap → matrice 2D di valori (categoria × periodo)
-  · treemap → composizione gerarchica con valori molto disomogenei
+🎯 TIPI DI GRAFICO (usa il più informativo):
+- bar / horizontal_bar (etichette lunghe o >8 categorie)
+- grouped_bar / stacked_bar (multi-dimensione)
+- line / area (trend temporali)
+- dual_axis (2 metriche scale diverse)
+- pie / donut (max 5 fette)
+- scatter (correlazioni o cluster)
+- heatmap (matrice 2D)
+- treemap (composizione disomogenea)
 
 REGOLE TECNICHE:
-- Massimo 1 grafico per sezione
-- Usa SOLO colonne effettivamente esistenti nel dataset
-- Per grouped_bar/stacked_bar/dual_axis: y_axis può essere array
-- Per heatmap: x_axis e group_by categoriali, y_axis numerico aggregato
+- 1 grafico per sezione
+- Solo colonne effettivamente esistenti
+- y_axis può essere array per dual_axis/grouped_bar/stacked_bar
 
-═══════════════════════════════════════════════════════════
-🧭 REGOLE DI CONTENUTO
-═══════════════════════════════════════════════════════════
-
-- Ogni numero citato deve essere verificabile dai dati forniti
-- Niente cliché — solo insight specifici
-- Le recommendations sono AZIONI, non principi generali
-- Cita sempre la sezione/colonna su cui si basa l'insight
-- Usa i risultati dell'analisi inferenziale (cluster, correlazioni, outlier) per arricchire i commenti
-- NIENTE FRASI DESCRITTIVE NEUTRE: ogni paragrafo deve argomentare, non descrivere
+REGOLE CONTENUTO:
+- Ogni numero verificabile dai dati
+- Niente cliché, solo insight specifici
+- Recommendations = AZIONI concrete
+- Usa l'analisi inferenziale (cluster/correlazioni/outlier) per arricchire
 
 ═══════════════════════════════════════════════════════════
 E — EXAMPLE
