@@ -35,7 +35,7 @@ export default async function handler(req, res) {
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-5-20250929',
+        model: 'claude-haiku-4-5-20251001',
         max_tokens: 3500,
         system: 'Sei un generatore di report JSON. Restituisci ESCLUSIVAMENTE JSON valido che inizia con { e finisce con }. Mai testo prima, mai testo dopo, mai backtick markdown, mai spiegazioni. Solo il JSON puro. Mantieni la risposta concisa per non superare i token disponibili.',
         messages: [{ role: 'user', content: fullPrompt }]

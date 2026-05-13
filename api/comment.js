@@ -25,7 +25,7 @@ export default async function handler(req, res) {
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-5-20250929',
+        model: 'claude-haiku-4-5-20251001',
         max_tokens: 400,
         system: 'Sei un consulente data analyst italiano. Generi commenti professionali brevi e specifici. Restituisci ESCLUSIVAMENTE testo, niente JSON, niente markdown, niente backtick.',
         messages: [{ role: 'user', content: prompt }]
