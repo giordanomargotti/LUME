@@ -199,14 +199,14 @@ Schema obbligatorio:
 {
   "title": "string",
   "period_analyzed": "string — es. 'Gen 2024 - Apr 2025' o 'Periodo non determinabile'",
-  "executive_summary": "string 80-120 parole",
+  "executive_summary": "string 100-150 parole — DEVE seguire struttura Minto: AFFERMAZIONE + 3 RAGIONI + IMPLICAZIONE",
   "kpi_cards": [
-    { "label": "string", "value": "string formattato", "delta": "string o null", "trend": "up | down | flat", "comment": "string 1 frase" }
+    { "label": "string", "value": "string formattato", "delta": "string o null", "trend": "up | down | flat", "comment": "string 1 frase argomentativa, non descrittiva" }
   ],
   "sections": [
     {
-      "title": "string",
-      "narrative": "string 100-180 parole con numeri reali",
+      "title": "string — affermazione, non descrizione (es. 'Il Sud ha problema di mix, non di skill')",
+      "narrative": "string 100-180 parole, pattern AFFERMAZIONE → EVIDENZA → IMPLICAZIONE",
       "chart": {
         "type": "bar | horizontal_bar | grouped_bar | stacked_bar | line | area | dual_axis | pie | donut | scatter | heatmap | treemap",
         "x_axis": "nome esatto colonna",
@@ -216,16 +216,26 @@ Schema obbligatorio:
         "value_format": "currency_eur | percentage | number | integer | decimal",
         "sort": "value_desc | value_asc | label_asc | none",
         "limit": "numero massimo di categorie da mostrare (default 12, max 20)",
-        "title": "string — DEVE contenere il numero più importante che il grafico mostra",
+        "title": "string — DEVE essere l'AFFERMAZIONE che il grafico dimostra, con numero chiave",
         "subtitle": "string 6-12 parole — contestualizza cosa il grafico rivela",
         "insight": "string 1 frase con il take-away principale del grafico",
-        "logic": "string 1 frase — perché hai scelto questo tipo di grafico"
+        "logic": "string 1 frase — perché hai scelto questo tipo di grafico",
+        "highlight": {
+          "indices": "array di indici (0-based) degli elementi da evidenziare visivamente, oppure null se nessuno",
+          "rationale": "string 1 frase — cosa il lettore deve guardare in particolare"
+        }
       },
       "key_findings": ["string", "string"]
     }
   ],
   "recommendations": [
-    { "priority": "alta | media | bassa", "title": "string", "action": "string 30-60 parole", "data_evidence": "string", "expected_impact": "string" }
+    {
+      "priority": "alta | media | bassa",
+      "title": "string — verbo di azione",
+      "action": "string 40-70 parole — pattern SCQA: SITUAZIONE attuale + COMPLICAZIONE rilevata + RISOLUZIONE proposta",
+      "data_evidence": "string — l'evidenza numerica specifica che giustifica l'azione",
+      "expected_impact": "string — risultato quantificato con orizzonte temporale"
+    }
   ],
   "data_quality_notes": ["string"]
 }
@@ -236,7 +246,7 @@ P — PARAMETERS
 
 LINGUA: Esclusivamente italiano professionale. Niente anglicismi se non strettamente tecnici e diffusi.
 
-TONO: Bilanciato — sintesi executive in apertura, dettagli operativi nelle sezioni. Adatto sia a uso operativo sia a condivisione con direzione.
+TONO: Argomentativo e bilanciato — non descrittivo. Ogni paragrafo deve sostenere una tesi, non riportare neutralmente i dati.
 
 NUMEROSITÀ:
 - kpi_cards: 4 a 6
@@ -249,53 +259,125 @@ REGOLE NUMERI:
 - Percentuali con segno (+12,3% / -5,1%)
 - Numeri grandi abbreviati: €1,72M, €847k
 
-REGOLE GRAFICI (CRITICHE):
+═══════════════════════════════════════════════════════════
+🏛️ STRUTTURA ARGOMENTATIVA · PYRAMID PRINCIPLE (Minto)
+═══════════════════════════════════════════════════════════
 
-🎯 SCELTA DEL TIPO — usa il grafico PIÙ INFORMATIVO, non quello più scontato:
+Questo report NON è una descrizione dei dati. È un'argomentazione che parte dalla conclusione e la dimostra.
+
+🏛️ REGOLA #1 · EXECUTIVE SUMMARY come TESI:
+L'executive_summary DEVE iniziare con un'affermazione netta e argomentativa, non una descrizione.
+Struttura obbligatoria in 3 mosse:
+  (1) AFFERMAZIONE: la conclusione principale in 1 frase netta
+  (2) 3 RAGIONI: i pilastri che la sostengono ("perché lo affermo")
+  (3) IMPLICAZIONE: cosa significa per chi deciderà ("decisione necessaria")
+
+❌ MALE (descrittivo):
+"Le vendite del periodo Gen 2024-Apr 2025 hanno totalizzato €1,72M su 850 transazioni con un win rate del 83,5%. Il Nord-Ovest concentra il 38% del fatturato..."
+
+✅ BENE (argomentativo, Minto):
+"La performance commerciale è solida ma esposta a un rischio strutturale: 3 venditori del Nord-Ovest generano il 47% del fatturato. Tre evidenze sostengono questa tesi: la concentrazione geografica è cresciuta dal 31% al 38% in 16 mesi (1), il Sud sottoperforma per mix prodotto inefficiente non per skill (2), il ciclo di vendita Enterprise è 3,2x più lungo del PMI ma genera 4x il valore (3). Decisione necessaria: ridurre la dipendenza dai top 3 nei prossimi 6 mesi tramite coaching e diversificazione territoriale."
+
+🏛️ REGOLA #2 · TITOLI DELLE SEZIONI COME AFFERMAZIONI:
+Le 3-5 sezioni NON sono "aree tematiche" descrittive. Sono i PILASTRI che dimostrano la tesi dell'executive summary. Ogni section.title DEVE essere un'affermazione, non un argomento.
+
+❌ MALE: "Performance per regione" / "Analisi mix prodotto" / "Distribuzione cliente"
+✅ BENE: "La concentrazione Nord-Ovest è il rischio principale" / "Il problema del Sud è di mix, non di skill" / "Il 23% dei clienti genera l'80% del fatturato"
+
+🏛️ REGOLA #3 · NARRATIVE COME AFFERMAZIONE → EVIDENZA → IMPLICAZIONE:
+Ogni section.narrative deve seguire questo pattern, in qualunque ordine narrativo lo presenti:
+  - AFFERMAZIONE: cosa stai sostenendo (la tesi della sezione)
+  - EVIDENZA: i numeri specifici che la supportano
+  - IMPLICAZIONE: cosa questo significa per il business o per le prossime mosse
+
+🏛️ REGOLA #4 · RECOMMENDATIONS COME SCQA (Situation-Complication-Question-Answer):
+Ogni raccomandazione deve seguire questo pattern, anche se non lo espliciti come bullet:
+  - SITUAZIONE: la condizione attuale rilevante (1 frase)
+  - COMPLICAZIONE: il problema o rischio identificato (1 frase)
+  - RISOLUZIONE: l'azione concreta proposta (1-2 frasi)
+- data_evidence: il numero specifico che giustifica (non generico)
+- expected_impact: il risultato atteso con tempo e magnitudo
+
+═══════════════════════════════════════════════════════════
+📊 STORYTELLING CON DATI · KNAFLIC
+═══════════════════════════════════════════════════════════
+
+Ogni grafico deve servire UNA TESI SPECIFICA. Non visualizzazione neutra, ma comunicazione mirata.
+
+📊 REGOLA #1 · TITOLI COME AFFERMAZIONI:
+Il chart.title è la TESI del grafico in 1 frase, con il numero chiave.
+❌ MALE: "Fatturato per regione" / "Distribuzione clienti"
+✅ BENE: "Il Nord-Ovest concentra €654K, 3,3x il Sud" / "Il 23% dei clienti genera l'80% del fatturato"
+
+📊 REGOLA #2 · HIGHLIGHT INTENZIONALE (NUOVO CAMPO):
+Per ogni grafico devi indicare nel campo `chart.highlight.indices` quali elementi sono IL PUNTO della storia.
+L'app userà questi indici per colorare in arancione le barre evidenziate e in grigio chiaro tutte le altre. Questo costringe l'occhio del lettore sul punto.
+
+Regole per highlight.indices:
+- Se il grafico dimostra "i top N dominano" → indices = [0, 1, ..., N-1]
+- Se il grafico mostra "1 elemento è anomalo" → indices = [indice di quell'elemento]
+- Se il grafico mostra "X e Y sono speculari" → indices = [indice X, indice Y]
+- Se è trend temporale o non c'è focus → indices = null
+- Per scatter/heatmap/dual_axis → indices = null (non applicabile)
+- Per pie/donut con focus → indices possono evidenziare 1-2 fette
+
+Esempio:
+"chart": {
+  "type": "horizontal_bar",
+  "title": "Top 3 venditori generano il 47% del fatturato",
+  "highlight": {
+    "indices": [0, 1, 2],
+    "rationale": "I primi 3 nomi del ranking sono il punto: concentrazione di performance"
+  }
+}
+
+📊 REGOLA #3 · DECLUTTERING:
+- Massimo 12 categorie (oltre, raggruppa il resto in "Altro" e dichiaralo nel narrative)
+- Per pie/donut: massimo 5 fette (oltre, usa horizontal_bar)
+- Per line: massimo 5 serie sovrapposte (oltre, separa in grafici diversi)
+- Niente double-encoding (non usare colore + dimensione per la stessa info)
+
+📊 REGOLA #4 · ORDINE INTENZIONALE:
+Sempre `sort: "value_desc"` per categorie a meno che l'asse sia temporale (allora "label_asc"). Il lettore deve scorrere dal più al meno importante.
+
+📊 REGOLA #5 · INSIGHT come ANNOTAZIONE DIREZIONALE:
+- chart.insight = la freccia che indica DOVE guardare e cosa pensare
+- chart.logic = perché QUESTO tipo di grafico è il più adatto a dimostrare la tesi
+
+═══════════════════════════════════════════════════════════
+🎯 SCELTA DEL TIPO DI GRAFICO
+═══════════════════════════════════════════════════════════
+
+Usa il grafico PIÙ INFORMATIVO per dimostrare la tesi, non quello più scontato:
   · bar → confronto valori tra 5-12 categorie distinte
   · horizontal_bar → confronto con etichette lunghe (>15 caratteri) o molte categorie (>8)
-  · grouped_bar → confronto valori tra categorie SU PIÙ DIMENSIONI (es. fatturato per regione × prodotto)
+  · grouped_bar → confronto valori tra categorie SU PIÙ DIMENSIONI
   · stacked_bar → composizione percentuale o totali con breakdown
-  · line → trend temporali continui (richiede asse X temporale)
+  · line → trend temporali continui (asse X temporale)
   · area → trend con accento su volumi cumulati
-  · dual_axis → due metriche con scale diverse (es. volumi + percentuali)
+  · dual_axis → due metriche con scale diverse (€ vs %)
   · pie → distribuzione con max 5 categorie e differenze marcate
   · donut → come pie ma con totale al centro
-  · scatter → correlazioni tra 2 variabili numeriche
-  · heatmap → matrice 2D di valori (es. categoria × periodo)
+  · scatter → correlazioni tra 2 variabili numeriche o cluster comportamentali
+  · heatmap → matrice 2D di valori (categoria × periodo)
   · treemap → composizione gerarchica con valori molto disomogenei
 
-🎯 TITOLO DEL GRAFICO:
-  Il "title" DEVE contenere il numero o fatto chiave che il grafico mostra.
-  ❌ MALE: "Fatturato per regione"
-  ✅ BENE: "Il Nord-Ovest concentra €654K, il 38% del totale"
-  ❌ MALE: "Distribuzione clienti"
-  ✅ BENE: "Il 23% dei clienti genera l'80% del fatturato"
-
-🎯 SUBTITLE: contestualizza cosa il grafico rivela in 6-12 parole. Es: "Concentrazione geografica con gap di 3,3x verso il Sud"
-
-🎯 INSIGHT: il take-away principale che l'utente deve cogliere guardando il grafico
-
-🎯 LOGIC: spiega in 1 frase PERCHÉ quel tipo di grafico è il migliore. Es: "horizontal_bar per evidenziare il gap tra performer e ranking chiaro" — questo costringe a pensare alla scelta.
-
-🎯 VALUE_FORMAT: specifica sempre il formato dei valori (currency_eur, percentage, integer, decimal, number) — l'app userà questo per formattare assi e tooltip.
-
-🎯 SORT: ordina i dati per leggibilità (di solito "value_desc" per categorie, "label_asc" per temporali).
-
-🎯 LIMIT: max 20 categorie. Se ne hai di più, raggruppa il resto in "Altro" e dichiaralo nel narrative.
-
-🎯 ALTRE REGOLE:
+REGOLE TECNICHE:
 - Massimo 1 grafico per sezione
 - Usa SOLO colonne effettivamente esistenti nel dataset
-- Per grouped_bar/stacked_bar/dual_axis: y_axis può essere un array di nomi colonna
-- Per heatmap: x_axis e group_by sono entrambi categoriali, y_axis è numerico aggregato
+- Per grouped_bar/stacked_bar/dual_axis: y_axis può essere array
+- Per heatmap: x_axis e group_by categoriali, y_axis numerico aggregato
 
-REGOLE CONTENUTO:
+═══════════════════════════════════════════════════════════
+🧭 REGOLE DI CONTENUTO
+═══════════════════════════════════════════════════════════
+
 - Ogni numero citato deve essere verificabile dai dati forniti
 - Niente cliché — solo insight specifici
 - Le recommendations sono AZIONI, non principi generali
 - Cita sempre la sezione/colonna su cui si basa l'insight
-- Usa i risultati dell'analisi inferenziale per arricchire i commenti
+- Usa i risultati dell'analisi inferenziale (cluster, correlazioni, outlier) per arricchire i commenti
+- NIENTE FRASI DESCRITTIVE NEUTRE: ogni paragrafo deve argomentare, non descrivere
 
 ═══════════════════════════════════════════════════════════
 E — EXAMPLE
@@ -330,11 +412,11 @@ DATI ATTESI: transazioni di vendita con dimensioni come venditore, regione, prod
 {
   "title": "Sales Reporting · Performance Commerciale",
   "period_analyzed": "Gen 2024 - Apr 2025",
-  "executive_summary": "Le vendite del periodo Gen 2024-Apr 2025 hanno totalizzato €1,72M su 850 transazioni con un win rate del 83,5%. Il Nord-Ovest concentra il 38% del fatturato grazie a 3 venditori top performer, mentre il Sud sottoperforma con ticket medio (€1.850) inferiore del 35% alla media nazionale. Il segmento Enterprise mostra cicli di chiusura di 67 giorni medi ma valore per deal triplo rispetto a PMI...",
+  "executive_summary": "La performance commerciale è solida ma esposta a un rischio strutturale: 3 venditori del Nord-Ovest generano il 47% del fatturato totale (€812k su €1,72M). Tre evidenze sostengono questa tesi: la concentrazione geografica Nord-Ovest è del 38% con gap di 3,3x verso il Sud (1), il Sud sottoperforma per mix prodotto inefficiente non per skill — 78% Software Base vs media 45% (2), il segmento Hardware deteriora il margine complessivo nonostante pesi solo il 5,9% dei volumi (3). Decisione necessaria: ridurre la dipendenza dai top performer Nord-Ovest e riallineare il mix Sud nei prossimi 6 mesi.",
   "sections": [
     {
-      "title": "Concentrazione geografica del fatturato",
-      "narrative": "Il Nord-Ovest concentra €654k (38% del totale) grazie a 3 venditori top performer. Il Sud sottoperforma con €198k nonostante 2 venditori attivi — il ticket medio (€1.850) è il più basso suggerendo problemi di mix prodotto più che di volume. L'analisi cluster mostra che il 60% dei deal Nord-Ovest sono nel cluster ad alto valore (€4.200 medio) mentre il Sud è polarizzato sul cluster low-value...",
+      "title": "La concentrazione Nord-Ovest è il rischio principale",
+      "narrative": "Il Nord-Ovest concentra €654k (38% del totale) grazie a 3 venditori top performer su un totale di 10. Il Sud sottoperforma con €198k nonostante 2 venditori attivi — il ticket medio (€1.850) è il più basso suggerendo problemi di mix prodotto più che di volume. L'analisi cluster mostra che il 60% dei deal Nord-Ovest sono nel cluster ad alto valore (€4.200 medio) mentre il Sud è polarizzato sul cluster low-value. Implicazione: la dipendenza da una sola area geografica espone il business a shock locali e turnover dei top 3.",
       "chart": {
         "type": "horizontal_bar",
         "x_axis": "Importo Netto",
@@ -347,13 +429,17 @@ DATI ATTESI: transazioni di vendita con dimensioni come venditore, regione, prod
         "title": "Il Nord-Ovest concentra €654K, 3,3x il Sud",
         "subtitle": "Fatturato per regione · gap geografico marcato",
         "insight": "Concentrazione di fatturato nel Nord-Ovest con gap di 3,3x verso le regioni meridionali",
-        "logic": "horizontal_bar perché evidenzia il ranking e permette etichette regionali leggibili"
+        "logic": "horizontal_bar perché evidenzia il ranking e permette etichette regionali leggibili",
+        "highlight": {
+          "indices": [0],
+          "rationale": "Il Nord-Ovest è IL punto: tutto il messaggio ruota attorno alla sua dominanza"
+        }
       },
       "key_findings": ["Nord-Ovest genera 3,3x il Sud con stesso numero venditori", "Ticket medio Sud (€1.850) suggerisce mix prodotto inefficiente"]
     },
     {
-      "title": "Mix prodotto vs marginalità",
-      "narrative": "Il Software Pro è la categoria con miglior bilanciamento volumi/margine: 28% del fatturato (€482k) con marginalità 58%. L'Hardware penalizza il mix con marginalità del solo 18% nonostante rappresenti il 5,9% dei volumi. Il Software Enterprise concentra deal di alto valore (€18k medio) ma cicli più lunghi...",
+      "title": "L'Hardware deteriora il margine nonostante volumi marginali",
+      "narrative": "Il Software Pro è la categoria con miglior bilanciamento volumi/margine: 28% del fatturato (€482k) con marginalità 58%. L'Hardware è l'anomalia del portfolio: marginalità del 18% — la più bassa — nonostante rappresenti solo il 5,9% dei volumi. Il Software Enterprise concentra deal di alto valore (€18k medio) ma cicli più lunghi. Implicazione: dismettere o riprezzare Hardware può alzare il margine complessivo dal 56% al 58% senza impatti significativi sul fatturato.",
       "chart": {
         "type": "dual_axis",
         "x_axis": "Categoria",
@@ -366,7 +452,11 @@ DATI ATTESI: transazioni di vendita con dimensioni come venditore, regione, prod
         "title": "Hardware: 5,9% volumi ma margine al 18%",
         "subtitle": "Volumi e marginalità per categoria di prodotto",
         "insight": "L'Hardware deteriora il margine medio nonostante volumi marginali",
-        "logic": "dual_axis per confrontare due metriche con scale diverse (€ assoluti vs % marginalità)"
+        "logic": "dual_axis per confrontare due metriche con scale diverse (€ assoluti vs % marginalità)",
+        "highlight": {
+          "indices": null,
+          "rationale": "dual_axis non supporta highlight diretto; usare colori distinti per le due metriche"
+        }
       },
       "key_findings": ["Hardware abbassa margine complessivo dal 58% al 56%", "Software Pro è la sweet-spot del portfolio"]
     }
@@ -375,9 +465,9 @@ DATI ATTESI: transazioni di vendita con dimensioni come venditore, regione, prod
     {
       "priority": "alta",
       "title": "Riallineare mix prodotto Sud",
-      "action": "Affiancare ai 2 venditori Sud (Marini, Greco) un sales coach per 4 settimane focalizzato sul cross-sell di Software Pro ed Enterprise, oggi quasi assenti nel loro mix.",
+      "action": "Situazione: il Sud genera €198k con ticket medio €1.850 contro media nazionale di €2.850. Complicazione: il gap non è di volumi (numero deal simile alla media) ma di mix prodotto sbilanciato su entry level. Risoluzione: affiancare ai 2 venditori Sud (Marini, Greco) un sales coach per 4 settimane focalizzato sul cross-sell di Software Pro ed Enterprise, oggi quasi assenti nel loro mix.",
       "data_evidence": "Sud vende 78% Software Base e 0% Enterprise vs media nazionale 45/15%",
-      "expected_impact": "Aumento ticket medio Sud da €1.850 a €2.400 in 3 mesi"
+      "expected_impact": "Aumento ticket medio Sud da €1.850 a €2.400 in 3 mesi (+30%)"
     }
   ],
   "data_quality_notes": ["30 righe (3,5%) hanno colonna Margine vuota — escluse dall'analisi di marginalità", "17 righe con sconto >40% sono outlier — analizzate separatamente"]
@@ -420,7 +510,8 @@ ATTENZIONE: se mancano colonne identificative dei venditori, segnalalo in data_q
         "title": "Top 3 venditori generano il 47% del fatturato totale",
         "subtitle": "Ranking individuale · concentrazione marcata sui top performer",
         "insight": "Distribuzione polarizzata: 30% del team genera quasi metà del business",
-        "logic": "horizontal_bar perché evidenzia il ranking e i nomi dei venditori restano leggibili"
+        "logic": "horizontal_bar perché evidenzia il ranking e i nomi dei venditori restano leggibili",
+        "highlight": {"indices": [0], "rationale": "Il top del ranking è il punto del messaggio"}
       },
       "key_findings": ["Top 3 venditori (30% headcount) producono 47% fatturato", "Un venditore ha volumi top ma ticket medio del 51% inferiore"]
     },
@@ -437,7 +528,8 @@ ATTENZIONE: se mancano colonne identificative dei venditori, segnalalo in data_q
         "title": "Performance per venditore: 3 cluster naturali",
         "subtitle": "Ogni punto = un venditore · alto a destra = top performer",
         "insight": "Cluster workhorse (alto volume, basso ticket) ha potenziale di crescita non sfruttato",
-        "logic": "scatter perché l'incrocio tra due metriche numeriche rivela cluster comportamentali"
+        "logic": "scatter perché l'incrocio tra due metriche numeriche rivela cluster comportamentali",
+        "highlight": null
       },
       "key_findings": ["3 cluster naturali identificati nel team", "Cluster workhorse: 2 venditori con potenziale di upsell"]
     }
@@ -489,7 +581,8 @@ Calcola implicitamente metriche RFM (Recency, Frequency, Monetary) se la struttu
         "title": "3 cluster di clienti distinti per comportamento",
         "subtitle": "Ogni punto = un cliente · alto a destra = ad alto valore",
         "insight": "I cluster non si sovrappongono: strategie commerciali ben differenziabili",
-        "logic": "scatter perché rivela cluster naturali nell'incrocio tra le 2 metriche RFM principali"
+        "logic": "scatter perché rivela cluster naturali nell'incrocio tra le 2 metriche RFM principali",
+        "highlight": null
       },
       "key_findings": ["Big Spender = 15% clienti ma 41% fatturato", "PMI ricorrenti hanno frequenza 2,8x rispetto agli Enterprise"]
     },
@@ -508,7 +601,8 @@ Calcola implicitamente metriche RFM (Recency, Frequency, Monetary) se la struttu
         "title": "Top 10% clienti = €1,1M, il 64% del totale",
         "subtitle": "Pareto stretto · concentrazione di rischio elevata",
         "insight": "Top decile genera valore 6x rispetto al decile mediano",
-        "logic": "bar verticali ordinati per decile mostrano l'effetto cumulativo della concentrazione"
+        "logic": "bar verticali ordinati per decile mostrano l'effetto cumulativo della concentrazione",
+        "highlight": {"indices": [0], "rationale": "Il valore dominante è il punto del messaggio"}
       },
       "key_findings": ["80/20 stretto: 23% clienti = 80% fatturato", "Top 5% pesa 38% del business"]
     }
@@ -562,7 +656,8 @@ Usa la regressione lineare già calcolata per estrapolare il trend. Identifica s
         "title": "Crescita +3,2% mensile · €78k → €112k in 16 mesi",
         "subtitle": "Trend lineare con stagionalità Q4 marcata",
         "insight": "Modello di regressione affidabile (R²=0,68) per orizzonti di 3-6 mesi",
-        "logic": "area perché evidenzia il trend di volume cumulato e l'andamento progressivo"
+        "logic": "area perché evidenzia il trend di volume cumulato e l'andamento progressivo",
+        "highlight": null
       },
       "key_findings": ["Trend +3,2% mensile (R²=0,68)", "Stagionalità Q4 con +22% vs media"]
     },
@@ -581,7 +676,8 @@ Usa la regressione lineare già calcolata per estrapolare il trend. Identifica s
         "title": "Software Pro: 12% variabilità · Servizi: 28%",
         "subtitle": "Confronto stabilità per categoria di prodotto",
         "insight": "Software Pro è la categoria più affidabile per il forecast a breve termine",
-        "logic": "line multi-serie permette di confrontare la stabilità delle traiettorie"
+        "logic": "line multi-serie permette di confrontare la stabilità delle traiettorie",
+        "highlight": null
       },
       "key_findings": ["Software Pro = ancora di stabilità del forecast", "Servizi richiede intervalli di confidenza più ampi"]
     }
@@ -635,7 +731,8 @@ Se mancano alcune colonne, adatta l'analisi alle dimensioni disponibili.`,
         "title": "Mail satura 62% volumi · chat solo 28% ma 67x più rapida",
         "subtitle": "Distribuzione canali · gap di efficienza significativo",
         "insight": "Sbilanciamento volumi-efficienza: opportunità di riallocazione",
-        "logic": "donut perché 3 categorie con volumi nettamente diversi rendono leggibile la composizione"
+        "logic": "donut perché 3 categorie con volumi nettamente diversi rendono leggibile la composizione",
+        "highlight": {"indices": [0], "rationale": "La fetta principale è il punto del messaggio"}
       },
       "key_findings": ["62% volumi su mail con risoluzione 1,8gg", "Chat 28% volumi ma risoluzione 67x più rapida"]
     },
@@ -654,7 +751,8 @@ Se mancano alcune colonne, adatta l'analisi alle dimensioni disponibili.`,
         "title": "Fatturazione: 2,1 giorni medi · 5x rispetto a Login",
         "subtitle": "Tempo medio risoluzione (giorni) per categoria",
         "insight": "Fatturazione assorbe sproporzionatamente il tempo operatore",
-        "logic": "horizontal_bar permette confronti chiari di durate con etichette categorie leggibili"
+        "logic": "horizontal_bar permette confronti chiari di durate con etichette categorie leggibili",
+        "highlight": {"indices": [0], "rationale": "Il top del ranking è il punto del messaggio"}
       },
       "key_findings": ["Fatturazione = 5x tempo medio rispetto a Login", "Top 5 categorie coprono 78% volumi totali"]
     }
@@ -708,7 +806,8 @@ Identifica pattern temporali (ore, giorni della settimana) se i dati lo permetto
         "title": "Lunedì 9-11 satura 18% dei volumi settimanali",
         "subtitle": "Volumi per giorno × canale · pattern settimanali stabili",
         "insight": "Sabato in sotto-presidio: 4% volumi ma tempi 2x rispetto ai feriali",
-        "logic": "grouped_bar permette di confrontare sia il totale per giorno sia il mix di canali"
+        "logic": "grouped_bar permette di confrontare sia il totale per giorno sia il mix di canali",
+        "highlight": null
       },
       "key_findings": ["Lunedì 9-11 = 18% volumi settimanali", "Sabato sotto-presidio: tempi di risposta 2x"]
     },
@@ -727,7 +826,8 @@ Identifica pattern temporali (ore, giorni della settimana) se i dati lo permetto
         "title": "Reso esplode al giovedì: +40% vs media",
         "subtitle": "Composizione richieste per giorno · stagionalità marcata",
         "insight": "Pattern settimanali nelle categorie permettono staffing predittivo",
-        "logic": "stacked_bar perché evidenzia sia il volume totale sia il mix di categorie per giorno"
+        "logic": "stacked_bar perché evidenzia sia il volume totale sia il mix di categorie per giorno",
+        "highlight": null
       },
       "key_findings": ["Top 5 categorie = 82% volumi", "Reso giovedì: pattern logistico replicabile"]
     }
@@ -779,7 +879,8 @@ Usa il clustering per identificare problemi simili categorizzati diversamente. C
         "title": "Fatturazione: pochi ticket ma 3x tempo operatore",
         "subtitle": "Volumi × durata per categoria · identifica time sinks",
         "insight": "Quadrante alto-destra (Fatturazione) drena tempo: priorità di automazione",
-        "logic": "scatter rivela il quadrante critico volume-durata dove ottimizzare"
+        "logic": "scatter rivela il quadrante critico volume-durata dove ottimizzare",
+        "highlight": null
       },
       "key_findings": ["Top 5 categorie = 78% volumi", "Fatturazione assorbe 3x tempo operatore vs Login"]
     },
@@ -798,7 +899,8 @@ Usa il clustering per identificare problemi simili categorizzati diversamente. C
         "title": "Top 5 categorie coprono il 78% dei volumi",
         "subtitle": "Distribuzione ticket per categoria · pattern Pareto",
         "insight": "Code lunga di 9 categorie con volumi marginali (< 4% ciascuna)",
-        "logic": "bar verticali ordinati per volume mostrano nettamente la concentrazione Pareto"
+        "logic": "bar verticali ordinati per volume mostrano nettamente la concentrazione Pareto",
+        "highlight": {"indices": [0], "rationale": "Il valore dominante è il punto del messaggio"}
       },
       "key_findings": ["5 categorie = 78% volumi totali", "9 categorie marginali sotto 4% ciascuna"]
     }
@@ -856,7 +958,8 @@ ATTENZIONE — TONO RISPETTOSO:
         "title": "Bologna 173 unità/mese · Catania 117 (gap del 47%)",
         "subtitle": "Produttività media aggregata · 4 sedi confrontate",
         "insight": "Gap tra sede top e sede in difficoltà non spiegato da anzianità",
-        "logic": "horizontal_bar permette confronti chiari delle medie per sede con etichette leggibili"
+        "logic": "horizontal_bar permette confronti chiari delle medie per sede con etichette leggibili",
+        "highlight": {"indices": [0], "rationale": "Il top del ranking è il punto del messaggio"}
       },
       "key_findings": ["Bologna +22% vs media aziendale", "Gap Catania non correlato ad anzianità (r=0,12)"]
     },
@@ -875,7 +978,8 @@ ATTENZIONE — TONO RISPETTOSO:
         "title": "Operations: maggiore varianza interna tra reparti",
         "subtitle": "Composizione fasce performance per reparto · sempre aggregato",
         "insight": "Varianza interna Operations suggerisce eterogeneità di processi",
-        "logic": "stacked_bar visualizza la composizione delle fasce di performance per reparto senza esporre individui"
+        "logic": "stacked_bar visualizza la composizione delle fasce di performance per reparto senza esporre individui",
+        "highlight": null
       },
       "key_findings": ["Top 10% concentrato 70% in Bologna", "Operations e Customer Success: massima varianza interna"]
     }
@@ -933,7 +1037,8 @@ ATTENZIONE — TONO NEUTRALE E NON DISCRIMINATORIO:
         "title": "62% pool junior · solo 11% con 8+ anni",
         "subtitle": "Distribuzione fasce di esperienza · pool aggregato",
         "insight": "Sbilanciamento verso junior limita attingibilità per ruoli senior interni",
-        "logic": "bar verticali per fasce ordinate cronologicamente mostrano lo squilibrio del pool"
+        "logic": "bar verticali per fasce ordinate cronologicamente mostrano lo squilibrio del pool",
+        "highlight": {"indices": [0], "rationale": "Il valore dominante è il punto del messaggio"}
       },
       "key_findings": ["62% pool è 0-3 anni di esperienza", "Solo 27 CV con 8+ anni esperienza"]
     },
@@ -952,7 +1057,8 @@ ATTENZIONE — TONO NEUTRALE E NON DISCRIMINATORIO:
         "title": "Data Analytics solo 18% · gap critico per ruoli data",
         "subtitle": "Penetrazione skill tecniche nel pool · top 12 confrontate",
         "insight": "Gap su skill data e cloud richiede strategia mista sourcing + formazione",
-        "logic": "horizontal_bar per nomi skill lunghi e ranking immediato di copertura"
+        "logic": "horizontal_bar per nomi skill lunghi e ranking immediato di copertura",
+        "highlight": {"indices": [0], "rationale": "Il top del ranking è il punto del messaggio"}
       },
       "key_findings": ["Skill main-stream coperte (60-73%)", "Gap data/cloud/ML tra 8% e 22%"]
     }
