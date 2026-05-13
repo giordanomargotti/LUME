@@ -2433,9 +2433,9 @@ function buildDataProfile() {
     }
   })
 
-  p += `\n\nCAMPIONE PRIME 10 RIGHE:\n`
+  p += `\n\nCAMPIONE PRIME 5 RIGHE:\n`
   p += headers.join(' | ') + '\n'
-  rawData.slice(0,10).forEach(r => {
+  rawData.slice(0,5).forEach(r => {
     p += r.map(v => v===null?'':String(v).slice(0,30)).join(' | ') + '\n'
   })
 
