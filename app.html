@@ -1928,7 +1928,33 @@ function loadSheet(name){
   const json=XLSX.utils.sheet_to_json(ws,{header:1,defval:null,raw:false});
   if(!json.length)return;
   headers=json[0].map((h,i)=>h!==null?String(h):'Col'+(i+1));
-  rawData=json.slice(1).filter(r=>r.some(c=>c!==null&&c!==''));
+  let allData=json.slice(1).filter(r=>r.some(c=>c!==null&&c!==''));
+
+  // Warning + auto-sample per dataset grandi
+  const originalSize = allData.length
+  if (originalSize > 20000) {
+    // Campiona casualmente 20.000 righe per evitare timeout
+    const sampled = []
+    const step = originalSize / 20000
+    for (let i = 0; i < originalSize; i += step) {
+      sampled.push(allData[Math.floor(i)])
+    }
+    rawData = sampled.slice(0, 20000)
+    setTimeout(() => alert(
+      `Dataset di ${originalSize.toLocaleString('it')} righe rilevato.\n\n` +
+      `Per garantire tempi di risposta accettabili, Lume analizzerà un campione rappresentativo di 20.000 righe (1 ogni ${step.toFixed(1)}).\n\n` +
+      `Le statistiche risulteranno valide ma le analisi più precise richiedono un dataset più piccolo.`
+    ), 200)
+  } else {
+    rawData = allData
+    if (originalSize > 8000) {
+      setTimeout(() => alert(
+        `Dataset di ${originalSize.toLocaleString('it')} righe rilevato.\n\n` +
+        `L'analisi AI potrebbe richiedere 40-55 secondi. Attendi senza chiudere la pagina.`
+      ), 200)
+    }
+  }
+
   types=detectTypes();
   renderOverview();
   renderFieldLists();
