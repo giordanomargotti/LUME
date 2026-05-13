@@ -629,6 +629,7 @@ footer{border-top:2.5px solid var(--ink);margin-top:60px;padding:14px 36px 14px 
 .ai-chart-footer{margin-top:14px;padding-top:10px;border-top:1px solid var(--rule);}
 .ai-chart-insight{font-family:var(--mono);font-size:11px;color:var(--orange);letter-spacing:0.02em;font-weight:500;line-height:1.5;}
 .ai-chart-logic{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:0.04em;font-style:italic;margin-top:5px;}
+.ai-chart-spotlight{font-family:var(--mono);font-size:10px;color:var(--ink2);letter-spacing:0.04em;margin-top:8px;padding:6px 10px;background:rgba(217,79,30,0.06);border-left:2px solid var(--orange);line-height:1.5;}
 .ai-chart-warn{font-family:var(--mono);font-size:10px;color:var(--orange);padding:10px;background:var(--orange-bg);border:1px solid var(--orange);margin-top:8px;}
 
 .ai-findings{list-style:none;margin-top:10px;border-left:2px solid var(--orange);padding-left:14px;}
@@ -2578,6 +2579,9 @@ function renderAIReport(r) {
               <div class="ai-chart-headline">${s.chart.title || ''}</div>
               ${s.chart.subtitle ? `<div class="ai-chart-subtitle">${s.chart.subtitle}</div>` : ''}
               <canvas id="aiChart-${i}" height="200"></canvas>
+              ${(s.chart.highlight && s.chart.highlight.rationale && Array.isArray(s.chart.highlight.indices) && s.chart.highlight.indices.length > 0) ? `
+                <div class="ai-chart-spotlight">▸ ${s.chart.highlight.rationale}</div>
+              ` : ''}
               <div class="ai-chart-footer">
                 ${s.chart.insight ? `<div class="ai-chart-insight">→ ${s.chart.insight}</div>` : ''}
                 ${s.chart.logic ? `<div class="ai-chart-logic">// Scelta grafico: ${s.chart.logic}</div>` : ''}
@@ -2912,22 +2916,53 @@ function drawAIChart(opts) {
       chartJsType = 'bar'
   }
 
-  // Color datasets se mono-dataset
+  // Colors mono-dataset
   if (datasets.length === 1 && !isPieDonut && chartType !== 'scatter') {
-    datasets[0].backgroundColor = chartType === 'line' || chartType === 'area'
-      ? 'rgba(217, 79, 30, 0.15)'
-      : LUME_PALETTE[0] + 'cc'
-    datasets[0].borderColor = LUME_PALETTE[0]
-    datasets[0].borderWidth = 1.5
+    const highlight = spec && spec.highlight
+    const isLineOrArea = chartType === 'line' || chartType === 'area'
+
+    // KNAFLIC SPOTLIGHT: se highlight.indices presente e siamo su bar/horizontal_bar
+    if (highlight && Array.isArray(highlight.indices) && highlight.indices.length > 0 &&
+        !isLineOrArea && chartType !== 'treemap') {
+      const highlightSet = new Set(highlight.indices)
+      const dataLength = datasets[0].data.length
+
+      // Array di colori: arancione per evidenziati, grigio chiaro per gli altri
+      datasets[0].backgroundColor = Array.from({ length: dataLength }, (_, i) =>
+        highlightSet.has(i) ? LUME_PALETTE[0] + 'dd' : '#d4cfc8'
+      )
+      datasets[0].borderColor = Array.from({ length: dataLength }, (_, i) =>
+        highlightSet.has(i) ? LUME_PALETTE[0] : '#b8b2aa'
+      )
+      datasets[0].borderWidth = 1.5
+    } else {
+      // Default: tutto colore primario Lume
+      datasets[0].backgroundColor = isLineOrArea
+        ? 'rgba(217, 79, 30, 0.15)'
+        : LUME_PALETTE[0] + 'cc'
+      datasets[0].borderColor = LUME_PALETTE[0]
+      datasets[0].borderWidth = 1.5
+    }
+
     datasets[0].fill = fillArea
     datasets[0].tension = 0.3
-    datasets[0].pointRadius = (chartType === 'line' || chartType === 'area') ? 3 : 0
+    datasets[0].pointRadius = isLineOrArea ? 3 : 0
     datasets[0].pointBackgroundColor = LUME_PALETTE[0]
   }
 
-  // Pie/Donut: colori variati per slice
+  // Pie/Donut: colori variati per slice, con spotlight se richiesto
   if (isPieDonut) {
-    datasets[0].backgroundColor = datasets[0].data.map((_, i) => LUME_PALETTE[i % LUME_PALETTE.length])
+    const highlight = spec && spec.highlight
+    if (highlight && Array.isArray(highlight.indices) && highlight.indices.length > 0) {
+      // Knaflic-style: colori sui highlighted, grigi sugli altri
+      const highlightSet = new Set(highlight.indices)
+      datasets[0].backgroundColor = datasets[0].data.map((_, i) => {
+        if (highlightSet.has(i)) return LUME_PALETTE[i % LUME_PALETTE.length]
+        return '#d4cfc8'
+      })
+    } else {
+      datasets[0].backgroundColor = datasets[0].data.map((_, i) => LUME_PALETTE[i % LUME_PALETTE.length])
+    }
     datasets[0].borderColor = 'white'
     datasets[0].borderWidth = 2
   }
@@ -2945,7 +2980,7 @@ function drawAIChart(opts) {
   if (!isPieDonut) {
     const ticksFont = { family: 'JetBrains Mono', size: 9 }
     const tickColor = '#9a9590'
-    const gridColor = 'rgba(226,221,214,0.4)'
+    const gridColor = 'rgba(226,221,214,0.25)'  // Knaflic decluttering: gridlines più tenui
 
     if (chartType === 'scatter') {
       scales.x = {
@@ -3014,8 +3049,10 @@ function drawAIChart(opts) {
 
       const { ctx } = chart
       ctx.save()
-      ctx.font = '600 10px "JetBrains Mono", monospace'
-      ctx.fillStyle = '#1a1814'
+
+      // Highlight set per dataLabel colorato in modo coerente
+      const hl = spec && spec.highlight
+      const highlightSet = (hl && Array.isArray(hl.indices)) ? new Set(hl.indices) : null
 
       chart.data.datasets.forEach((dataset, i) => {
         const meta = chart.getDatasetMeta(i)
@@ -3023,6 +3060,20 @@ function drawAIChart(opts) {
           const value = dataset.data[idx]
           const formatted = formatChartValue(value, valFmt)
           const { x, y } = bar.getCenterPoint()
+
+          // Se c'è highlight: arancione + bold per evidenziati, grigio chiaro per gli altri
+          if (highlightSet) {
+            if (highlightSet.has(idx)) {
+              ctx.font = '700 11px "JetBrains Mono", monospace'
+              ctx.fillStyle = '#d94f1e'
+            } else {
+              ctx.font = '500 9px "JetBrains Mono", monospace'
+              ctx.fillStyle = '#9a9590'
+            }
+          } else {
+            ctx.font = '600 10px "JetBrains Mono", monospace'
+            ctx.fillStyle = '#1a1814'
+          }
 
           if (indexAxis === 'y') {
             // Horizontal bar: label a destra della barra
