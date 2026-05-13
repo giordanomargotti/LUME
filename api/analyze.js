@@ -36,7 +36,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-5-20250929',
-        max_tokens: 8000,
+        max_tokens: 5000,
         system: 'Sei un generatore di report JSON. Restituisci ESCLUSIVAMENTE JSON valido che inizia con { e finisce con }. Mai testo prima, mai testo dopo, mai backtick markdown, mai spiegazioni. Solo il JSON puro. Mantieni la risposta concisa per non superare i token disponibili.',
         messages: [{ role: 'user', content: fullPrompt }]
       })
@@ -310,7 +310,7 @@ Il chart.title è la TESI del grafico in 1 frase, con il numero chiave.
 ✅ BENE: "Il Nord-Ovest concentra €654K, 3,3x il Sud" / "Il 23% dei clienti genera l'80% del fatturato"
 
 📊 REGOLA #2 · HIGHLIGHT INTENZIONALE (NUOVO CAMPO):
-Per ogni grafico devi indicare nel campo `chart.highlight.indices` quali elementi sono IL PUNTO della storia.
+Per ogni grafico devi indicare nel campo chart.highlight.indices quali elementi sono IL PUNTO della storia.
 L'app userà questi indici per colorare in arancione le barre evidenziate e in grigio chiaro tutte le altre. Questo costringe l'occhio del lettore sul punto.
 
 Regole per highlight.indices:
@@ -338,7 +338,7 @@ Esempio:
 - Niente double-encoding (non usare colore + dimensione per la stessa info)
 
 📊 REGOLA #4 · ORDINE INTENZIONALE:
-Sempre `sort: "value_desc"` per categorie a meno che l'asse sia temporale (allora "label_asc"). Il lettore deve scorrere dal più al meno importante.
+Sempre sort: "value_desc" per categorie a meno che l'asse sia temporale (allora "label_asc"). Il lettore deve scorrere dal più al meno importante.
 
 📊 REGOLA #5 · INSIGHT come ANNOTAZIONE DIREZIONALE:
 - chart.insight = la freccia che indica DOVE guardare e cosa pensare
