@@ -2,385 +2,195 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Lume · Accedi</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
-:root {
-  --white:#ffffff; --paper:#fdfcfa; --cream:#f5f2ed;
-  --ink:#1a1814; --ink2:#3d3a35; --muted:#9a9590; --rule:#e2ddd6;
-  --orange:#d94f1e; --amber:#e8a020;
-  --lora:'Lora',Georgia,serif;
-  --serif:'Source Serif 4',Georgia,serif;
-  --mono:'JetBrains Mono',monospace;
-}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--cream);font-family:var(--serif);min-height:100vh;display:grid;grid-template-columns:1fr 1fr;}
+  :root {
+    --white: #FFFFFF; --ink: #151412; --ink-2: #57524B; --ink-3: #8C867D; --line: #E4E0D9;
+    --cream: #F3EFE7; --night: #151412; --night-line: #34312C; --on-night: #F2EEE7; --on-night-2: #A8A198;
+    --accent: #C2410C; --gold: #D4A843;
+    --sans: "Archivo", "Helvetica Neue", "Arial", sans-serif;
+    --mono: "JetBrains Mono", "SFMono-Regular", "Menlo", "Consolas", monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); font-family: var(--sans); color: var(--ink); background: var(--white); -webkit-font-smoothing: antialiased; }
+  h1, h2, p { margin: 0; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .label { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.04em; color: var(--ink-3); }
 
-body::before{
-  content:'';position:fixed;inset:0;
-  background-image:repeating-linear-gradient(to bottom,transparent,transparent 27px,var(--rule) 27px,var(--rule) 28px);
-  opacity:0.2;pointer-events:none;z-index:0;
-}
+  /* Colonna scura */
+  .sx { background: var(--night); color: var(--on-night); padding: clamp(32px, 5vw, 64px); display: flex; flex-direction: column; justify-content: space-between; gap: 40px; position: relative; overflow: hidden; }
+  .brand { display: inline-flex; align-items: center; gap: 8px; position: relative; z-index: 1; }
+  .brand svg { width: 22px; height: 26px; }
+  .brand b { font-weight: 700; font-size: 1.375rem; letter-spacing: -0.02em; color: var(--accent); }
+  .brand span { font-family: var(--mono); font-size: 0.75rem; color: var(--on-night-2); margin-left: 6px; }
+  .sx h1 { font-size: clamp(2.75rem, 1.6rem + 4vw, 5.5rem); font-weight: 600; letter-spacing: -0.04em; line-height: 0.98; position: relative; z-index: 1; }
+  .sx h1 em { font-style: normal; color: var(--accent); }
+  .sx .lead { margin-top: 28px; font-size: 1.125rem; line-height: 1.45; color: var(--on-night-2); max-width: 40ch; position: relative; z-index: 1; }
+  .punti { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; position: relative; z-index: 1; }
+  .punti div { border-top: 1px solid var(--night-line); padding-top: 12px; display: grid; gap: 6px; align-content: start; }
+  .punti .label { color: var(--on-night-2); }
+  .punti b { font-weight: 500; font-size: 1rem; }
+  .punti p { font-size: 0.875rem; color: var(--on-night-2); line-height: 1.45; }
+  .favo { position: absolute; right: -50px; top: -40px; width: 330px; opacity: 0.9; pointer-events: none; }
 
-/* ── LEFT PANEL ── */
-.left{
-  background:var(--ink);
-  display:flex;flex-direction:column;justify-content:space-between;
-  padding:56px 52px;position:relative;overflow:hidden;z-index:1;
-}
+  /* Colonna del modulo */
+  .dx { display: grid; place-items: center; padding: clamp(32px, 5vw, 64px); }
+  .box { width: 100%; max-width: 400px; display: grid; gap: 22px; }
+  .box h2 { font-size: clamp(2rem, 1.4rem + 2.6vw, 3rem); font-weight: 600; letter-spacing: -0.03em; line-height: 1.02; }
+  .box .sub { color: var(--ink-2); font-size: 1rem; margin-top: -10px; }
+  .seg { display: inline-flex; width: max-content; border: 1px solid var(--ink); }
+  .seg button { font-family: var(--sans); font-size: 0.9375rem; background: transparent; border: 0; padding: 10px 18px; cursor: pointer; color: var(--ink); }
+  .seg button + button { border-left: 1px solid var(--ink); }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: var(--white); }
+  form { display: grid; gap: 18px; }
+  form[hidden] { display: none; }
+  .campo { display: grid; gap: 6px; }
+  .campo label { font-family: var(--mono); font-size: 0.75rem; color: var(--ink-3); }
+  .campo input { font-family: var(--sans); font-size: 1.0625rem; color: var(--ink); background: transparent; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding: 8px 0 10px; width: 100%; }
+  .campo input:focus { outline: none; border-bottom-color: var(--ink); }
+  .btn { display: inline-flex; justify-content: center; align-items: center; gap: 10px; background: var(--accent); color: #fff; font-family: var(--sans); font-size: 0.9375rem; font-weight: 500; padding: 14px 18px; border: 0; cursor: pointer; }
+  .btn:hover { background: #A33608; }
+  .btn:disabled { background: var(--ink-3); cursor: wait; }
+  .oppure { display: flex; align-items: center; gap: 12px; font-family: var(--mono); font-size: 0.6875rem; color: var(--ink-3); }
+  .oppure::before, .oppure::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+  .google { display: inline-flex; justify-content: center; align-items: center; gap: 10px; background: transparent; color: var(--ink); border: 1px solid var(--ink); font-family: var(--sans); font-size: 0.9375rem; padding: 12px 18px; cursor: pointer; }
+  .google:hover { background: var(--cream); }
+  .msg { font-family: var(--mono); font-size: 0.75rem; line-height: 1.6; padding: 10px 12px; border-left: 3px solid; }
+  .msg.err { color: var(--accent); background: #FBEDE4; }
+  .msg.ok { color: #3F7A3A; background: #EEF5EC; }
+  .nota { font-family: var(--mono); font-size: 0.6875rem; color: var(--ink-3); line-height: 1.7; border-top: 1px solid var(--line); padding-top: 14px; }
 
-.left::before{
-  content:'';position:absolute;
-  bottom:-120px;left:-80px;
-  width:400px;height:400px;
-  background:radial-gradient(circle,rgba(217,79,30,0.18) 0%,transparent 70%);
-  pointer-events:none;
-}
-
-.left-top{}
-
-.logo-wrap{display:flex;align-items:flex-end;gap:6px;margin-bottom:56px;}
-.logo-flame svg{display:block;}
-.logo-wordmark{display:flex;align-items:flex-end;gap:2px;}
-.logo-text{font-family:var(--lora);font-size:38px;font-weight:700;color:white;letter-spacing:-.02em;line-height:1;}
-.logo-dot{width:7px;height:7px;background:var(--orange);border-radius:50%;margin-bottom:6px;flex-shrink:0;box-shadow:0 0 8px 3px rgba(217,79,30,0.4);}
-
-.left-headline{
-  font-family:var(--lora);
-  font-size:clamp(28px,3vw,40px);
-  font-weight:700;
-  color:white;
-  line-height:1.2;
-  letter-spacing:-.02em;
-  margin-bottom:20px;
-}
-
-.left-headline em{
-  font-style:italic;
-  color:var(--orange);
-}
-
-.left-sub{
-  font-family:var(--mono);
-  font-size:11px;
-  color:rgba(255,255,255,0.4);
-  letter-spacing:.08em;
-  line-height:1.8;
-}
-
-.left-features{
-  display:flex;flex-direction:column;gap:14px;
-  margin-top:48px;
-}
-
-.feature{
-  display:flex;align-items:flex-start;gap:12px;
-  font-family:var(--mono);font-size:10px;
-  color:rgba(255,255,255,0.55);
-  letter-spacing:.04em;line-height:1.5;
-}
-
-.feature-dot{
-  width:4px;height:4px;border-radius:50%;
-  background:var(--orange);flex-shrink:0;margin-top:5px;
-}
-
-.left-bottom{
-  font-family:var(--mono);font-size:9px;
-  color:rgba(255,255,255,0.2);
-  letter-spacing:.12em;
-  text-transform:uppercase;
-}
-
-/* ── RIGHT PANEL ── */
-.right{
-  display:flex;align-items:center;justify-content:center;
-  padding:56px 52px;position:relative;z-index:1;
-}
-
-.auth-box{width:100%;max-width:380px;}
-
-.auth-eyebrow{
-  font-family:var(--mono);font-size:9px;
-  letter-spacing:.22em;text-transform:uppercase;
-  color:var(--muted);margin-bottom:8px;
-}
-
-.auth-title{
-  font-family:var(--lora);font-size:28px;font-weight:700;
-  letter-spacing:-.02em;margin-bottom:4px;
-}
-
-.auth-sub{
-  font-family:var(--mono);font-size:10px;color:var(--muted);
-  letter-spacing:.05em;margin-bottom:32px;
-}
-
-/* Tabs */
-.auth-tabs{display:flex;gap:0;border-bottom:1.5px solid var(--ink);margin-bottom:28px;}
-.auth-tab{
-  font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;
-  padding:8px 18px;cursor:pointer;color:var(--muted);
-  border-bottom:2px solid transparent;margin-bottom:-1.5px;
-  background:none;border-top:none;border-left:none;border-right:none;
-  transition:all .15s;
-}
-.auth-tab.active{color:var(--orange);border-bottom-color:var(--orange);font-weight:500;}
-
-/* Form */
-.auth-form{display:flex;flex-direction:column;gap:16px;}
-.auth-form.hidden{display:none;}
-
-.field{display:flex;flex-direction:column;gap:5px;}
-.field label{font-family:var(--mono);font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);}
-.field input{
-  font-family:var(--mono);font-size:11px;
-  border:1.5px solid var(--rule);background:white;
-  color:var(--ink);padding:11px 13px;outline:none;
-  transition:border-color .15s;
-}
-.field input:focus{border-color:var(--orange);}
-.field input::placeholder{color:var(--rule);}
-
-.btn-auth{
-  font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
-  background:var(--ink);color:white;border:none;
-  padding:13px 24px;cursor:pointer;transition:background .15s;
-  margin-top:4px;
-}
-.btn-auth:hover{background:var(--orange);}
-.btn-auth:disabled{opacity:.5;cursor:not-allowed;}
-
-.auth-divider{
-  display:flex;align-items:center;gap:12px;
-  font-family:var(--mono);font-size:8px;color:var(--muted);
-  letter-spacing:.14em;text-transform:uppercase;
-}
-.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--rule);}
-
-.btn-google{
-  font-family:var(--mono);font-size:10px;letter-spacing:.1em;
-  background:white;color:var(--ink);
-  border:1.5px solid var(--rule);
-  padding:11px 24px;cursor:pointer;transition:all .15s;
-  display:flex;align-items:center;justify-content:center;gap:10px;
-}
-.btn-google:hover{border-color:var(--ink);}
-
-.auth-msg{
-  font-family:var(--mono);font-size:10px;
-  padding:10px 13px;
-  display:none;
-}
-.auth-msg.error{background:#fff2ec;color:var(--orange);border-left:3px solid var(--orange);}
-.auth-msg.success{background:#edf7f2;color:#2a7a4b;border-left:3px solid #2a7a4b;}
-.auth-msg.show{display:block;}
-
-.auth-note{
-  font-family:var(--mono);font-size:9px;color:var(--muted);
-  letter-spacing:.05em;line-height:1.7;margin-top:20px;
-  text-align:center;
-}
-
-@media(max-width:768px){
-  body{grid-template-columns:1fr;}
-  .left{display:none;}
-  .right{padding:40px 24px;}
-}
+  @media (max-width: 900px) {
+    body { grid-template-columns: 1fr; }
+    .sx { gap: 28px; }
+    .punti, .favo { display: none; }
+  }
 </style>
 </head>
 <body>
 
-<!-- LEFT -->
-<div class="left">
-  <div class="left-top">
-    <div class="logo-wrap">
-      <div class="logo-flame">
-        <svg width="26" height="34" viewBox="0 0 22 28" fill="none">
-          <path d="M11 2 C11 2,18 8,18 15 C18 20.5,15 25,11 25 C7 25,4 20.5,4 15 C4 8,11 2,11 2Z" fill="#d94f1e" opacity="0.18"/>
-          <path d="M11 4 C11 4,17 9.5,17 15 C17 19.8,14.5 23,11 23 C7.5 23,5 19.8,5 15 C5 9.5,11 4,11 4Z" fill="#d94f1e"/>
-          <path d="M11 10 C11 10,14 13.5,14 16.5 C14 18.8,12.7 20.5,11 20.5 C9.3 20.5,8 18.8,8 16.5 C8 13.5,11 10,11 10Z" fill="#e8a020" opacity="0.75"/>
-          <ellipse cx="11" cy="16" rx="1.5" ry="2.2" fill="white" opacity="0.55"/>
-        </svg>
-      </div>
-      <div class="logo-wordmark">
-        <span class="logo-text">Lume</span>
-        <span class="logo-dot"></span>
-      </div>
-    </div>
-
-    <h1 class="left-headline">Carica i tuoi dati.<br>Scopri la tua <em>storia.</em></h1>
-    <p class="left-sub">Analisi dati AI powered · Elaborazione sicura</p>
-
-    <div class="left-features">
-      <div class="feature"><span class="feature-dot"></span>Analisi SCOPE strutturata in 5 sezioni — output come un report di consulenza</div>
-      <div class="feature"><span class="feature-dot"></span>Prompt calibrati su settore, ruolo e business unit</div>
-      <div class="feature"><span class="feature-dot"></span>Visualizzazioni interattive, clustering, regressione, A/B test</div>
-      <div class="feature"><span class="feature-dot"></span>Pivot drag & drop — i tuoi dati sempre leggibili</div>
-      <div class="feature"><span class="feature-dot"></span>Storico analisi salvato nel tuo account</div>
-    </div>
+<section class="sx">
+  <div class="brand">
+    <svg viewBox="0 0 40 44" aria-hidden="true">
+      <path d="M20 4 C20 4, 13 16, 13 24 C13 27.9, 16.1 31, 20 31 C23.9 31, 27 27.9, 27 24 C27 16, 20 4, 20 4 Z" fill="none" stroke="#F2EEE7" stroke-width="2"/>
+      <path d="M20 16 C20 16, 17 21, 17 24 C17 25.7, 18.3 27, 20 27 C21.7 27, 23 25.7, 23 24 C23 21, 20 16, 20 16 Z" fill="#D4A843"/>
+    </svg>
+    <b>lume.</b><span>AntiChurn</span>
   </div>
 
-  <div class="left-bottom">Analisi dati AI powered · © Lume</div>
-</div>
+  <svg class="favo" viewBox="0 0 420 420" aria-hidden="true" id="favo"></svg>
 
-<!-- RIGHT -->
-<div class="right">
-  <div class="auth-box">
-    <div class="auth-eyebrow">Accesso piattaforma</div>
-    <h2 class="auth-title">Bentornato.</h2>
-    <p class="auth-sub">// accedi o crea il tuo account</p>
-
-    <div class="auth-tabs">
-      <button class="auth-tab active" onclick="switchTab('login')">Accedi</button>
-      <button class="auth-tab" onclick="switchTab('register')">Registrati</button>
-    </div>
-
-    <div class="auth-msg" id="authMsg"></div>
-
-    <!-- LOGIN -->
-    <div class="auth-form" id="loginForm">
-      <div class="field">
-        <label>Email</label>
-        <input type="email" id="loginEmail" placeholder="nome@azienda.it">
-      </div>
-      <div class="field">
-        <label>Password</label>
-        <input type="password" id="loginPass" placeholder="••••••••">
-      </div>
-      <button class="btn-auth" onclick="doLogin()">Entra →</button>
-
-      <div class="auth-divider">oppure</div>
-      <button class="btn-google" onclick="doGoogle()">
-        <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-        Continua con Google
-      </button>
-    </div>
-
-    <!-- REGISTER -->
-    <div class="auth-form hidden" id="registerForm">
-      <div class="field">
-        <label>Nome completo</label>
-        <input type="text" id="regName" placeholder="Mario Rossi">
-      </div>
-      <div class="field">
-        <label>Email</label>
-        <input type="email" id="regEmail" placeholder="nome@azienda.it">
-      </div>
-      <div class="field">
-        <label>Password</label>
-        <input type="password" id="regPass" placeholder="min. 8 caratteri">
-      </div>
-      <button class="btn-auth" onclick="doRegister()">Crea account →</button>
-
-      <div class="auth-divider">oppure</div>
-      <button class="btn-google" onclick="doGoogle()">
-        <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-        Continua con Google
-      </button>
-    </div>
-
-    <p class="auth-note">Nessun dato inviato senza consenso · Elaborazione sicura</p>
+  <div>
+    <h1>Conosci i tuoi <em>clienti.</em></h1>
+    <p class="lead">Salvaguarda la retention e limita il churn con metodi quantitativi.</p>
   </div>
-</div>
+
+  <div class="punti">
+    <div><span class="label">01</span><b>Scoring</b><p>Chi sta per andarsene, prima che succeda.</p></div>
+    <div><span class="label">02</span><b>Personas</b><p>Un volto per ogni gruppo di clienti.</p></div>
+    <div><span class="label">03</span><b>Mappa</b><p>Clienti e concorrenti, esagono per esagono.</p></div>
+  </div>
+</section>
+
+<main class="dx">
+  <div class="box">
+    <p class="label">Accesso</p>
+    <h2 id="titolo">Bentornato.</h2>
+    <p class="sub" id="sottotitolo">Entra con la tua email o con Google.</p>
+
+    <div class="seg" role="group" aria-label="Accesso o registrazione">
+      <button type="button" aria-pressed="true" data-t="login">Accedi</button>
+      <button type="button" aria-pressed="false" data-t="register">Registrati</button>
+    </div>
+
+    <p class="msg" id="msg" role="status" hidden></p>
+
+    <form id="loginForm" novalidate>
+      <div class="campo"><label for="loginEmail">Email</label><input type="email" id="loginEmail" autocomplete="email" placeholder="nome@azienda.it"></div>
+      <div class="campo"><label for="loginPass">Password</label><input type="password" id="loginPass" autocomplete="current-password" placeholder="••••••••"></div>
+      <button class="btn" type="submit">Entra</button>
+    </form>
+
+    <form id="registerForm" novalidate hidden>
+      <div class="campo"><label for="regName">Nome e cognome</label><input type="text" id="regName" autocomplete="name" placeholder="Mario Rossi"></div>
+      <div class="campo"><label for="regEmail">Email</label><input type="email" id="regEmail" autocomplete="email" placeholder="nome@azienda.it"></div>
+      <div class="campo"><label for="regPass">Password</label><input type="password" id="regPass" autocomplete="new-password" placeholder="almeno 8 caratteri"></div>
+      <button class="btn" type="submit">Crea account</button>
+    </form>
+
+    <div class="oppure">oppure</div>
+    <button class="google" type="button" id="google">
+      <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continua con Google
+    </button>
+
+    <p class="nota">I dati dei clienti si elaborano nel tuo browser e non vengono inviati a nessun server.</p>
+  </div>
+</main>
 
 <script>
-// ── SUPABASE CONFIG ──────────────────────────────────
-// Sostituisci questi valori con quelli del tuo progetto Supabase
-// Li trovi su: supabase.com → tuo progetto → Settings → API
+// ── decorazione: favo di esagoni nella colonna scura
+;(function () {
+  const TEAL = ['#CDEFEE', '#A3DCDA', '#73C3C0', '#45A6A3', '#227F7B', '#125D5A'], r = 26, w = Math.sqrt(3) * r
+  const forma = (cx, cy) => [...Array(6)].map((_, i) => { const a = Math.PI / 180 * (60 * i - 30); return `${(cx + r * Math.cos(a)).toFixed(1)},${(cy + r * Math.sin(a)).toFixed(1)}` }).join(' ')
+  let s = '', k = 7
+  for (let row = 0; row < 8; row++) for (let col = 0; col < 7; col++) {
+    const cx = col * w + (row % 2 ? w / 2 : 0) + 20, cy = row * r * 1.5 + 20
+    const d = Math.hypot(cx - 300, cy - 170) / 260
+    k = (k * 9301 + 49297) % 233280
+    if (d > 1 || k / 233280 > 0.82 - d * 0.5) continue
+    const c = Math.min(5, Math.max(0, Math.round((1 - d) * 5 + (k % 3) - 1)))
+    s += `<polygon points="${forma(cx, cy)}" fill="${TEAL[c]}" fill-opacity="${(0.25 + (1 - d) * 0.6).toFixed(2)}" stroke="#151412" stroke-width="2"/>`
+  }
+  document.getElementById('favo').innerHTML = s
+})()
+
+// ── accesso con Supabase
 const SUPABASE_URL = 'https://bejcehbawytcwifvuobd.supabase.co'
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJlamNlaGJhd3l0Y3dpZnZ1b2JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjUyNjMsImV4cCI6MjA5MjEwMTI2M30._OssTkFRKTuvbz-7aGDRiWGgTnK5hb6d2WerkPbkYfM'
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+sb.auth.getSession().then(({ data }) => { if (data.session) location.href = 'app.html' })
 
-const { createClient } = supabase
-const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+const $ = id => document.getElementById(id)
+function msg(t, tipo) { const m = $('msg'); m.textContent = t; m.className = 'msg ' + tipo; m.hidden = false }
+function nascondi() { $('msg').hidden = true }
 
-// ── CHECK SESSION (se già loggato, vai all'app) ──────
-sb.auth.getSession().then(({ data }) => {
-  if (data.session) window.location.href = 'app.html'
+document.querySelectorAll('.seg button').forEach(b => b.onclick = () => {
+  const reg = b.dataset.t === 'register'
+  document.querySelectorAll('.seg button').forEach(x => x.setAttribute('aria-pressed', x === b))
+  $('loginForm').hidden = reg; $('registerForm').hidden = !reg
+  $('titolo').textContent = reg ? 'Crea il tuo account.' : 'Bentornato.'
+  $('sottotitolo').textContent = reg ? 'Ti mandiamo una email per confermare l\'indirizzo.' : 'Entra con la tua email o con Google.'
+  nascondi()
 })
 
-// ── TAB SWITCH ───────────────────────────────────────
-function switchTab(tab) {
-  document.querySelectorAll('.auth-tab').forEach((t, i) => {
-    t.classList.toggle('active', (i === 0 && tab === 'login') || (i === 1 && tab === 'register'))
-  })
-  document.getElementById('loginForm').classList.toggle('hidden', tab !== 'login')
-  document.getElementById('registerForm').classList.toggle('hidden', tab !== 'register')
-  hideMsg()
-}
-
-// ── MESSAGES ─────────────────────────────────────────
-function showMsg(text, type) {
-  const el = document.getElementById('authMsg')
-  el.textContent = text
-  el.className = `auth-msg ${type} show`
-}
-function hideMsg() {
-  document.getElementById('authMsg').className = 'auth-msg'
-}
-
-// ── LOGIN ─────────────────────────────────────────────
-async function doLogin() {
-  const email = document.getElementById('loginEmail').value.trim()
-  const pass = document.getElementById('loginPass').value
-  if (!email || !pass) { showMsg('Inserisci email e password.', 'error'); return }
-
-  const btn = document.querySelector('#loginForm .btn-auth')
-  btn.disabled = true; btn.textContent = 'Accesso in corso…'
-
+$('loginForm').onsubmit = async e => {
+  e.preventDefault()
+  const email = $('loginEmail').value.trim(), pass = $('loginPass').value
+  if (!email || !pass) { msg('Inserisci email e password.', 'err'); return }
+  const btn = e.target.querySelector('.btn'); btn.disabled = true; btn.textContent = 'Accesso in corso…'
   const { error } = await sb.auth.signInWithPassword({ email, password: pass })
-
-  if (error) {
-    showMsg('Credenziali non valide. Riprova.', 'error')
-    btn.disabled = false; btn.textContent = 'Entra →'
-  } else {
-    showMsg('Accesso effettuato — reindirizzamento…', 'success')
-    setTimeout(() => window.location.href = 'app.html', 800)
-  }
+  if (error) { msg('Email o password non corrette.', 'err'); btn.disabled = false; btn.textContent = 'Entra' }
+  else { msg('Accesso effettuato.', 'ok'); setTimeout(() => location.href = 'app.html', 500) }
 }
 
-// ── REGISTER ──────────────────────────────────────────
-async function doRegister() {
-  const name = document.getElementById('regName').value.trim()
-  const email = document.getElementById('regEmail').value.trim()
-  const pass = document.getElementById('regPass').value
-  if (!name || !email || !pass) { showMsg('Compila tutti i campi.', 'error'); return }
-  if (pass.length < 8) { showMsg('Password minimo 8 caratteri.', 'error'); return }
-
-  const btn = document.querySelector('#registerForm .btn-auth')
-  btn.disabled = true; btn.textContent = 'Creazione account…'
-
-  const { error } = await sb.auth.signUp({
-    email, password: pass,
-    options: { data: { full_name: name } }
-  })
-
-  if (error) {
-    showMsg(error.message, 'error')
-    btn.disabled = false; btn.textContent = 'Crea account →'
-  } else {
-    showMsg('Account creato! Controlla la tua email per confermare.', 'success')
-    btn.textContent = '✓ Email inviata'
-  }
+$('registerForm').onsubmit = async e => {
+  e.preventDefault()
+  const name = $('regName').value.trim(), email = $('regEmail').value.trim(), pass = $('regPass').value
+  if (!name || !email || !pass) { msg('Compila tutti i campi.', 'err'); return }
+  if (pass.length < 8) { msg('La password deve avere almeno 8 caratteri.', 'err'); return }
+  const btn = e.target.querySelector('.btn'); btn.disabled = true; btn.textContent = 'Creazione account…'
+  const { error } = await sb.auth.signUp({ email, password: pass, options: { data: { full_name: name } } })
+  if (error) { msg(error.message, 'err'); btn.disabled = false; btn.textContent = 'Crea account' }
+  else { msg('Account creato. Controlla la tua email per confermare.', 'ok'); btn.textContent = 'Email inviata' }
 }
 
-// ── GOOGLE ────────────────────────────────────────────
-async function doGoogle() {
-  await sb.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: window.location.origin + '/app.html' }
-  })
-}
-
-// ── ENTER KEY ─────────────────────────────────────────
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    const isLogin = !document.getElementById('loginForm').classList.contains('hidden')
-    isLogin ? doLogin() : doRegister()
-  }
-})
+$('google').onclick = () => sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin + '/app.html' } })
 </script>
 </body>
 </html>
