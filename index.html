@@ -174,9 +174,17 @@ $('loginForm').onsubmit = async e => {
   const email = $('loginEmail').value.trim(), pass = $('loginPass').value
   if (!email || !pass) { msg('Inserisci email e password.', 'err'); return }
   const btn = e.target.querySelector('.btn'); btn.disabled = true; btn.textContent = 'Accesso in corso…'
-  const { error } = await sb.auth.signInWithPassword({ email, password: pass })
-  if (error) { msg('Email o password non corrette.', 'err'); btn.disabled = false; btn.textContent = 'Entra' }
-  else { msg('Accesso effettuato.', 'ok'); setTimeout(() => location.href = 'app.html', 500) }
+  let error
+  try { ({ error } = await sb.auth.signInWithPassword({ email, password: pass })) }
+  catch (x) { error = { message: x.message || String(x), rete: true } }
+  if (!error) { msg('Accesso effettuato.', 'ok'); setTimeout(() => location.href = 'app.html', 500); return }
+  console.error('Login non riuscito', error)
+  const m = String(error.message || '')
+  msg(/invalid login credentials/i.test(m) ? 'Email o password non corrette.'
+    : /email not confirmed/i.test(m) ? 'Email non ancora confermata: apri il link che ti abbiamo mandato.'
+    : error.rete || /fetch|network|failed/i.test(m) ? `Il servizio di accesso non risponde (${m}). Il progetto Supabase potrebbe essere in pausa.`
+    : `Accesso non riuscito: ${m}`, 'err')
+  btn.disabled = false; btn.textContent = 'Entra'
 }
 
 $('registerForm').onsubmit = async e => {
