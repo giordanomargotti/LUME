@@ -67,13 +67,36 @@
   .hero h1 { font-size: var(--t-xxl); letter-spacing: -0.04em; line-height: 0.98; grid-column: 1 / span 11; }
   .hero h1 em { font-style: normal; color: var(--accent); }
   .hero h1 .sott { display: block; font-size: 0.56em; letter-spacing: -0.03em; margin-top: 0.22em; }
-  .tesi { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(32px, 4vw, 72px); margin-top: clamp(48px, 6vw, 80px); }
-  .tesi article { display: grid; gap: 18px; align-content: start; }
-  .tesi h3 { font-size: var(--t-l); font-weight: 500; letter-spacing: -0.02em; line-height: 1.15; }
-  .tesi > article > p { color: var(--ink-2); font-size: var(--t-m); line-height: 1.5; }
-  .tesi .nums { grid-template-columns: 1fr 1fr; margin-top: 6px; }
-  .tesi .fonte { font-family: var(--mono); font-size: var(--t-xs); color: var(--ink-3); line-height: 1.6; }
-  @media (max-width: 860px) { .tesi { grid-template-columns: 1fr; } }
+  .hero { padding-bottom: clamp(24px, 3vw, 40px); }
+  .hero .hero-text { grid-column: auto; max-width: none; }
+  .hero .hero-text span { display: block; }
+  @media (min-width: 1200px) { .hero .hero-text span { white-space: nowrap; } }
+  .blocco { padding-block: clamp(48px, 6vw, 88px); }
+  .blocco .head p:not(.label) { grid-column: 4 / -1; max-width: none; }
+  .fonte { font-family: var(--mono); font-size: var(--t-xs); color: var(--ink-3); line-height: 1.6; margin-top: 18px; }
+  /* omini */
+  .omini { display: grid; grid-template-columns: repeat(50, minmax(0, 1fr)); gap: 6px 4px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
+  .omini svg { width: 100%; height: auto; display: block; }
+  @media (max-width: 760px) { .omini { grid-template-columns: repeat(25, minmax(0, 1fr)); } }
+  .omini-leg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 18px; }
+  .omini-leg div { display: grid; grid-template-columns: 22px auto; column-gap: 10px; align-items: center; }
+  .omini-leg svg { width: 22px; height: 28px; grid-row: span 2; }
+  .omini-leg b { font-size: var(--t-l); font-weight: 600; letter-spacing: -0.02em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .omini-leg span { font-size: var(--t-s); color: var(--ink-2); }
+  /* punto di pareggio */
+  .pareggio { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(28px, 4vw, 64px); align-items: start; }
+  .pareggio-testo { display: grid; gap: 22px; }
+  .pareggio-testo > p:first-child { color: var(--ink-2); font-size: var(--t-m); line-height: 1.5; }
+  .esempio { border-left: 3px solid var(--accent); padding: 4px 0 4px 16px; font-size: var(--t-s); color: var(--ink-2); line-height: 1.55; }
+  .esempio b { color: var(--ink); font-weight: 600; }
+  .pareggio-grafico .label { margin-bottom: 10px; }
+  .pareggio-grafico .chart { height: 300px; }
+  .tappe-pareggio { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; border-top: 1px solid var(--ink); padding-top: 12px; margin-top: 14px; }
+  .tappe-pareggio div { display: grid; gap: 4px; }
+  .tappe-pareggio b { font-size: var(--t-l); font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .tappe-pareggio b.neg { color: var(--accent); }
+  .nums.due { grid-template-columns: 1fr 1fr; margin-top: clamp(40px, 5vw, 64px); }
+  @media (max-width: 860px) { .pareggio { grid-template-columns: 1fr; } .omini-leg { grid-template-columns: 1fr; } }
   .hero-text { grid-column: 1 / span 8; margin-top: clamp(28px, 4vw, 48px); font-size: clamp(1.125rem, 0.8rem + 1.1vw, 1.5rem); line-height: 1.4; letter-spacing: -0.01em; color: var(--ink-2); max-width: 52ch; }
   .hero-text b { color: var(--ink); font-weight: 600; }
   @media (max-width: 860px) { .hero h1, .hero-text { grid-column: 1 / -1; } }
@@ -104,6 +127,25 @@
   @media (max-width: 860px) { .head .label, .head h2, .head p { grid-column: 1 / -1; } .head .label { padding-top: 0; } }
   .sub { font-size: var(--t-l); font-weight: 500; margin: clamp(40px, 5vw, 64px) 0 8px; }
   .sub-p { color: var(--ink-2); font-size: var(--t-s); max-width: 70ch; margin-bottom: 20px; }
+  .come { margin-top: 28px; display: grid; gap: 14px; border-top: 1px solid var(--ink); padding-top: 16px; }
+  .passi { list-style: none; counter-reset: p; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin: 0 0 14px; padding: 0; }
+  .passi li { counter-increment: p; font-size: var(--t-s); color: var(--ink-2); line-height: 1.5; }
+  .passi li::before { content: '0' counter(p); display: block; font-family: var(--mono); font-size: var(--t-xs); color: var(--ink-3); margin-bottom: 4px; }
+  .passi b { color: var(--ink); font-weight: 600; }
+  .strati-def { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 24px; margin: 0; }
+  .strati-def div { border-top: 1px solid var(--line); padding-top: 8px; }
+  .strati-def dt { font-weight: 600; font-size: var(--t-s); }
+  .strati-def dd { margin: 2px 0 0; font-size: var(--t-s); color: var(--ink-2); line-height: 1.45; }
+  @media (max-width: 860px) { .passi, .strati-def { grid-template-columns: 1fr; } }
+  details.apri { border-top: 1px solid var(--ink); }
+  details.apri + details.apri { margin-top: 0; }
+  details.apri:last-of-type { border-bottom: 1px solid var(--ink); }
+  details.apri > summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 16px; font-size: var(--t-l); font-weight: 500; letter-spacing: -0.02em; padding: 20px 0; }
+  details.apri > summary::-webkit-details-marker { display: none; }
+  details.apri > summary::after { content: '+'; font-family: var(--mono); font-weight: 400; font-size: 1.5rem; color: var(--ink-3); }
+  details.apri[open] > summary::after { content: '−'; }
+  details.apri > summary:hover::after { color: var(--accent); }
+  details.apri[open] { padding-bottom: 32px; }
 
   .btn { display: inline-flex; align-items: center; gap: 10px; background: var(--accent); color: #fff; text-decoration: none; font-size: var(--t-s); font-weight: 500; padding: 12px 18px; border: 0; cursor: pointer; font-family: var(--sans); }
   .btn:hover { background: #A33608; }
@@ -147,7 +189,12 @@
   td { padding: 10px 10px 10px 0; border-bottom: 1px solid var(--line); text-align: right; }
   th.l, td.l { text-align: left; }
   table.compatta td { padding-block: 5px; }
-  tr.best td { background: #FBEDE4; }
+  #sco-modelli tbody tr { cursor: pointer; }
+  #sco-modelli tbody tr:hover td { background: var(--cream); }
+  #sco-modelli tbody tr.sel td { background: #FBEDE4; }
+  #sco-modelli tbody tr.sel td:first-child { box-shadow: inset 3px 0 0 var(--accent); }
+  #sco-modelli td:first-child, #sco-modelli th:first-child { padding-left: 12px; }
+  #sco-modelli tbody tr:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
   td.pt { font-weight: 600; color: var(--accent); }
   td small { display: block; color: var(--ink-3); font-size: var(--t-xs); font-family: var(--mono); }
   .tag { display: inline-block; font-family: var(--mono); font-size: 0.6875rem; padding: 2px 6px; border: 1px solid currentColor; }
@@ -161,6 +208,8 @@
   .pcard:hover { border-color: var(--ink-3); border-top-color: var(--c); }
   .pcard[aria-pressed="true"] { background: var(--cream); border-color: var(--ink); border-top-color: var(--c); }
   .pcard h3 { font-size: 1.125rem; font-weight: 600; line-height: 1.15; }
+  .ptesta { display: flex; align-items: center; gap: 12px; }
+  .ptesta .faccia { width: 54px; height: 54px; flex: none; border-radius: 50%; }
   .pcard .quota { font-family: var(--mono); font-size: var(--t-xs); color: var(--ink-3); }
   .pcard dl { display: grid; grid-template-columns: 1fr auto; gap: 4px 8px; margin: 0; font-size: 0.8125rem; }
   .pcard dt { color: var(--ink-2); } .pcard dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
@@ -230,29 +279,51 @@
   <!-- TITLE PAGE -->
   <section class="wrap hero">
     <div class="grid"><h1>Conosci i tuoi clienti: <em class="sott">Trattenere vale più che Acquisire.</em></h1></div>
-    <div class="grid">
-      <p class="hero-text">Ogni anno una quota della vostra base clienti smette di rinnovare, di consumare, di tornare. Il dato arriva a consuntivo, quando il cliente è già andato e il margine è perso.</p>
+    <p class="hero-text"><span>Ogni anno una quota della vostra base clienti smette di rinnovare, di consumare, di tornare.</span> <span>Il dato arriva a consuntivo, quando il cliente è già andato e il margine è perso.</span></p>
+  </section>
+
+  <section class="wrap blocco">
+    <div class="grid head">
+      <p class="label">Retention mirata</p>
+      <h2>Perché la retention generica non basta</h2>
+      <p>Effettuare azioni di retention considerando tutti i clienti come se avessero la stessa probabilità di lasciarci significa sostenere un costo commerciale e di retention, concedendo sconti o regalando servizi aggiuntivi, anche per i clienti che sarebbero rimasti comunque, invece di intercettare chi sta davvero per andarsene.</p>
     </div>
-    <div class="tesi">
-      <article>
-        <h3>L'asimmetria economica tra Retention ed Acquisition</h3>
-        <p>Acquisire un cliente consuma capitale a monte e produce un costo noto, il CAC. Quell'investimento rientra solo se il cliente resta abbastanza a lungo. Trattenerlo, invece, lavora su un costo già sostenuto: ogni mese in più di permanenza è margine quasi netto, dopo il CAC payback period.</p>
-        <div class="nums">
-          <div class="num"><b>5×</b><p>Acquisire un nuovo cliente può costare fino a cinque volte più che mantenerne uno esistente.</p></div>
-          <div class="num"><b class="acc">+25-85%</b><p>Aumento dei profitti con una riduzione del 5% del tasso di churn, a seconda del settore.</p></div>
+    <div class="omini" id="omini" role="img" aria-label="100 clienti: 8 ad alto rischio, 19 a medio rischio, 73 a basso rischio"></div>
+    <div class="omini-leg" id="omini-leg"></div>
+    <p class="fonte">Esempio su 100 clienti attivi divisi per fascia di score. Una campagna generica raggiunge tutti e 100; una campagna mirata parte dagli 8 ad alto rischio.</p>
+  </section>
+
+  <section class="band-cream">
+    <div class="section wrap">
+      <div class="grid head">
+        <p class="label">Retention e acquisizione</p>
+        <h2>L'asimmetria economica tra Retention ed Acquisition</h2>
+      </div>
+      <div class="pareggio">
+        <div class="pareggio-testo">
+          <p>Acquisire un cliente consuma capitale a monte e produce un costo noto, il CAC. Quell'investimento rientra solo se il cliente resta abbastanza a lungo. Trattenerlo, invece, lavora su un costo già sostenuto: ogni mese in più di permanenza è margine quasi netto, dopo il CAC payback period.</p>
+          <p class="esempio"><b>Esempio nel settore energia.</b> Margine di 100 € l'anno per cliente, CAC di 80 €. Il pareggio arriva intorno al decimo mese: un cliente perso dopo sei mesi lascia una perdita di 30 €, uno che resta cinque anni genera 420 €.</p>
         </div>
-        <p class="fonte">Kotler, P. &amp; Keller, K. L. (2016). Marketing Management, 15ª ed. Pearson · Reichheld, F. F. &amp; Sasser, W. E. (1990). Zero Defections: Quality Comes to Services. Harvard Business Review, 68(5), 105–111.</p>
-      </article>
-      <article>
-        <h3>Perché la retention generica non basta</h3>
-        <p>Effettuare azioni di retention considerando tutti i clienti come se avessero la stessa probabilità di lasciarci significa sostenere un costo commerciale e di retention, concedendo sconti o regalando servizi aggiuntivi, anche per i clienti che sarebbero rimasti comunque, invece di intercettare chi sta davvero per andarsene.</p>
-        <div class="nums">
-          <div class="num"><b class="acc">10%</b><p>Churn a tre mesi tra i clienti raggiunti da una campagna di retention non mirata.</p></div>
-          <div class="num"><b>6%</b><p>Churn nello stesso periodo tra i clienti non contattati. Esperimento su 65.000 clienti di un operatore mobile.</p></div>
+        <div class="pareggio-grafico">
+          <p class="label">Margine netto cumulato per cliente, al netto del CAC</p>
+          <div class="chart"><canvas id="g-pareggio" aria-label="Margine cumulato: da -80 euro al mese zero a +420 euro dopo cinque anni, pareggio intorno al decimo mese"></canvas></div>
+          <div class="tappe-pareggio">
+            <div><span class="label">6 mesi</span><b class="neg">−30 €</b></div>
+            <div><span class="label">1 anno</span><b>+20 €</b></div>
+            <div><span class="label">2 anni</span><b>+120 €</b></div>
+            <div><span class="label">5 anni</span><b>+420 €</b></div>
+          </div>
         </div>
-        <p class="fonte">Ascarza, E., Iyengar, R. &amp; Schleicher, M. (2016). The Perils of Proactive Churn Prevention Using Plan Recommendations: Evidence from a Field Experiment. Journal of Marketing Research, 53(1), 46–60.</p>
-      </article>
+      </div>
+      <div class="nums due">
+        <div class="num"><b>5×</b><p>il costo che può avere l'acquisizione di un nuovo cliente rispetto al mantenimento di uno esistente</p></div>
+        <div class="num"><b>+25-85%</b><p>i profitti quando il churn scende del 5%, a seconda del settore</p></div>
+      </div>
+      <p class="fonte">Fonti: Kotler, P. &amp; Keller, K. L. (2016). Marketing Management, 15ª ed. Pearson · Reichheld, F. F. &amp; Sasser, W. E. (1990). Zero Defections: Quality Comes to Services. Harvard Business Review, 68(5), 105–111.</p>
     </div>
+  </section>
+
+  <section class="wrap">
     <nav class="percorso" aria-label="Percorso dell'analisi">
       <a class="tappa" href="#variabili"><span class="label">01</span><b>Variabili</b><p>Quali caratteristiche dei clienti sono legate al churn e come si posizionano i prezzi rispetto al mercato.</p></a>
       <a class="tappa" href="#personas"><span class="label">02</span><b>Personas</b><p>Cinque gruppi di clienti, costruiti con regole di segmentazione o con un algoritmo di clustering.</p></a>
@@ -290,13 +361,15 @@
   <section class="section wrap" id="variabili">
     <div class="grid head">
       <p class="label">01 · Variabili</p>
-      <h2>Caratteristiche legate al churn</h2>
+      <h2>Analisi delle caratteristiche legate al churn</h2>
       <p>Per ogni variabile: completezza nel file, capacità di distinguere i clienti persi da quelli attivi e tasso di churn per gruppo. In chiusura, il confronto dei prezzi con i concorrenti.</p>
     </div>
     <div id="var-vuoto" class="attesa">Disponibile dopo il caricamento dei dati.</div>
     <div id="var-corpo" hidden>
       <div class="nums" id="var-nums"></div>
-      <div class="pannelli" style="margin-top:48px">
+      <details class="apri" style="margin-top:48px">
+      <summary>Potere predittivo e completezza dei campi</summary>
+      <div class="pannelli">
         <div class="pan c7">
           <h3>Potere predittivo di ogni variabile</h3>
           <div class="chart alto"><canvas id="g-potere"></canvas></div>
@@ -307,15 +380,20 @@
           <div class="tab" id="var-campi"></div>
         </div>
       </div>
-      <p class="sub">Tasso di churn per gruppo</p>
+      </details>
+      <details class="apri">
+      <summary>Tasso di churn per gruppo</summary>
       <p class="sub-p">Quota di clienti cessati negli ultimi 12 mesi in ogni gruppo. In terracotta i gruppi sopra la media del parco clienti.</p>
       <div class="pannelli" id="var-multi"></div>
-      <p class="sub">Prezzi e mercato</p>
+      </details>
+      <details class="apri">
+      <summary>Prezzi e mercato</summary>
       <p class="sub-p">Scarto del prezzo unitario di ogni marchio dalla media dei concorrenti, per linea di prodotto. Valori negativi indicano un prezzo inferiore alla media.</p>
       <div class="pannelli">
         <div class="pan c8"><h3>Scarto dalla media di mercato</h3><div class="chart"><canvas id="g-prezzi"></canvas></div></div>
         <div class="pan c4"><h3>Churn per livello di prezzo pagato</h3><div class="chart"><canvas id="g-gap"></canvas></div></div>
       </div>
+      </details>
     </div>
   </section>
 
@@ -357,16 +435,18 @@
       <p class="sub">Confronto dei modelli</p>
       <div class="pannelli">
         <div class="pan c5"><h3>Risultati sul campione di verifica (30%)</h3><div class="tab" id="sco-modelli"></div>
-          <p class="nota">AUC: 0,5 = previsione casuale, 1 = previsione perfetta. Lift: rapporto tra il tasso di churn del 10% di clienti con score più alto e il tasso medio.</p></div>
-        <div class="pan c7"><h3>Curva ROC</h3><div class="chart"><canvas id="g-roc"></canvas></div></div>
+          <p class="nota">Seleziona un modello per vederne curva ROC e lift. AUC: 0,5 = previsione casuale, 1 = previsione perfetta. Lift: rapporto tra il tasso di churn del 10% di clienti con score più alto e il tasso medio.</p></div>
+        <div class="pan c7"><h3 id="roc-tit">Curva ROC</h3><div class="chart"><canvas id="g-roc"></canvas></div></div>
         <div class="pan c6"><h3 id="lift-tit">Lift per decile</h3><div class="chart"><canvas id="g-lift"></canvas></div>
           <p class="nota">Decile 1 = 10% dei clienti con score più alto. Linea tratteggiata = tasso medio di churn.</p></div>
         <div class="pan c6"><h3 id="imp-tit">Variabili più rilevanti</h3><div class="chart"><canvas id="g-imp"></canvas></div></div>
       </div>
+      <div id="sco-elenco" hidden>  <!-- elenco di priorita': nascosto per ora -->
       <p class="sub">Elenco di priorità</p>
       <p class="sub-p" id="sco-fasce"></p>
       <div class="azioni" style="margin-bottom:16px"><button class="btn sec" id="scarica" type="button">Scarica l'elenco completo con score (CSV)</button></div>
       <div class="tab" id="sco-top"></div>
+      </div>
     </div>
   </section>
 
@@ -393,6 +473,23 @@
           <div class="classifica" id="classifica"></div>
           <p class="mp-nota" id="map-nota"></p>
         </aside>
+      </div>
+      <div class="come">
+        <p class="label">Come ragiona l'algoritmo</p>
+        <ol class="passi">
+          <li><b>Esagoni.</b> Ogni cliente è assegnato a un esagono di circa 0,7 km² in base alla posizione. I dati si leggono solo in forma aggregata.</li>
+          <li><b>Quote.</b> Per ogni esagono si calcolano le quote di clienti persi, a rischio, esposti a concorrenti e, con i dati ISTAT, di clienti potenziali.</li>
+          <li><b>Indice.</b> Ogni quota diventa un punteggio 0-100 rispetto all'esagono con il valore più alto. L'indice è la media dei punteggi, calcolata dove ci sono almeno 8 clienti.</li>
+        </ol>
+        <p class="label">Cosa mostra ogni strato</p>
+        <dl class="strati-def">
+          <div><dt>Indice di priorità</dt><dd>Sintesi delle quote: più è alto, più la zona richiede un intervento. Le 10 zone con l'indice più alto sono numerate.</dd></div>
+          <div><dt>Clienti potenziali</dt><dd>Famiglie residenti (censimento ISTAT) non ancora clienti, in % delle famiglie dell'esagono.</dd></div>
+          <div><dt>Clienti persi</dt><dd>Clienti cessati negli ultimi 12 mesi, in % dei clienti dell'esagono.</dd></div>
+          <div><dt>Clienti a rischio</dt><dd>Clienti attivi in fascia di rischio alta, in % dei clienti attivi.</dd></div>
+          <div><dt>Esposti a concorrenti</dt><dd>Clienti attivi con un concorrente entro 1 km e più vicino del punto vendita più vicino, in % dei clienti attivi.</dd></div>
+          <div><dt>Clienti attivi</dt><dd>Numero di clienti attivi per esagono.</dd></div>
+        </dl>
       </div>
     </div>
   </section>
@@ -435,6 +532,41 @@ Chart.defaults.plugins.tooltip.backgroundColor = '#151412'
 const CH = {}
 function grafico(id, cfg) { CH[id]?.destroy(); CH[id] = new Chart(document.getElementById(id), cfg) }
 const S = {}   // stato dell'analisi
+
+// ───────────────────────── apertura: omini e punto di pareggio (esempi fissi)
+const OMINO = c => `<svg viewBox="0 0 20 26" aria-hidden="true"><circle cx="10" cy="6" r="4.4" fill="${c}"/><path d="M2.5 26 V18.5 a7.5 7.5 0 0 1 15 0 V26 Z" fill="${c}"/></svg>`
+function disegnaApertura() {
+  const fasce = [['Alto rischio', 8, '#C2410C'], ['Medio rischio', 19, '#E59866'], ['Basso rischio', 73, '#D9D1C4']]
+  $('#omini').innerHTML = fasce.flatMap(([, n, c]) => Array(n).fill(OMINO(c))).join('')
+  $('#omini-leg').innerHTML = fasce.map(([l, n, c]) => `<div>${OMINO(c)}<b>${n}%</b><span>${l}</span></div>`).join('')
+
+  const CAC = 80, MESE = 100 / 12, PAREGGIO = CAC / MESE, EVID = new Set([6, 12, 24, 60])
+  const punti = Array.from({ length: 61 }, (_, m) => ({ x: m, y: Math.round(-CAC + MESE * m) }))
+  const linee = { id: 'pareggio', afterDatasetsDraw(c) {
+    const { ctx, chartArea: a, scales: { x, y } } = c, px = x.getPixelForValue(PAREGGIO), y0 = y.getPixelForValue(0)
+    ctx.save()
+    ctx.strokeStyle = '#8A8378'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(a.left, y0); ctx.lineTo(a.right, y0); ctx.stroke()
+    ctx.strokeStyle = '#C2410C'; ctx.setLineDash([4, 3]); ctx.beginPath(); ctx.moveTo(px, a.top + 8); ctx.lineTo(px, a.bottom); ctx.stroke()
+    ctx.fillStyle = '#151412'; ctx.font = '600 12px Archivo, sans-serif'; ctx.fillText('pareggio ≈ 10 mesi', px + 8, a.top + 18)
+    ctx.fillStyle = '#57524B'; ctx.font = '11px "JetBrains Mono", monospace'; ctx.fillText('il CAC è ripagato', px + 8, a.top + 34)
+    ctx.restore()
+  } }
+  grafico('g-pareggio', { type: 'line', plugins: [linee],
+    data: { datasets: [{ data: punti, borderColor: '#151412', borderWidth: 2, tension: 0,
+      fill: { target: 'origin', above: 'rgba(212,168,67,0.30)', below: 'rgba(194,65,12,0.20)' },
+      pointRadius: c => EVID.has(c.raw?.x) ? 4 : 0, pointHoverRadius: 5, pointHitRadius: 8,
+      pointBackgroundColor: c => (c.raw?.y ?? 0) < 0 ? '#C2410C' : '#151412', pointBorderColor: '#F3EFE7', pointBorderWidth: 2 }] },
+    options: { maintainAspectRatio: false, layout: { padding: { right: 8, top: 4 } }, interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { display: false }, tooltip: { callbacks: {
+        title: t => t[0].raw.x < 12 ? `Mese ${t[0].raw.x}` : `Mese ${t[0].raw.x} · ${fmt(t[0].raw.x / 12, t[0].raw.x % 12 ? 1 : 0)} anni`,
+        label: c => `margine netto cumulato ${c.raw.y >= 0 ? '+' : ''}${fmt(c.raw.y)} €` } } },
+      scales: {
+        x: { type: 'linear', min: 0, max: 60, grid: { display: false }, ticks: { stepSize: 12, callback: v => v === 0 ? '0' : v === 12 ? '1 anno' : `${v / 12} anni` } },
+        y: { min: -100, max: 450, grid: { color: '#E4DED3' }, ticks: { stepSize: 100, callback: v => v % 100 ? '' : `${v > 0 ? '+' : ''}${v} €` } } } } })
+}
+disegnaApertura()
+// i grafici dentro i pannelli chiusi si ridimensionano all'apertura
+document.querySelectorAll('details.apri').forEach(d => d.addEventListener('toggle', () => { if (d.open) d.querySelectorAll('canvas').forEach(c => Chart.getChart(c)?.resize()) }))
 
 // ───────────────────────── caricamento
 const NOMI_FOGLI = { clienti: 'Clienti', puntivendita: 'Punti_vendita', concorrenti: 'Concorrenti', prodotti: 'Prodotti', prezzimercato: 'Prezzi_mercato' }
@@ -623,16 +755,76 @@ function disegnaVariabili() {
 // ───────────────────────── 02 personas
 const ETA = { '18-34': 26, '35-54': 45, '55-74': 64, '75+': 80 }
 const digitale = o => ML.si(o.fattura_digitale) || ML.si(o.area_clienti_web)
+// catalogo dei nomi: ogni persona ha un profilo atteso (pesi sui tratti standardizzati del cluster)
+const PERSONE = {
+  fedelissimo:  { nome: 'Il Fedelissimo', profilo: { anz: 1, dom: .6, var: -.6, rec: -.3 }, azione: 'Rinnovo anticipato a condizioni invariate, senza sconti non richiesti.', look: { capelli: 'corti', colore: '#B9B4AC', occhiali: 1 } },
+  oro:          { nome: "Il Cliente d'Oro", profilo: { ric: 1, prod: .4 }, azione: 'Referente dedicato e revisione annuale delle condizioni.', look: { capelli: 'raccolti', colore: '#3B2F2A', stella: 1 } },
+  nuovo:        { nome: 'Il Nuovo Arrivato', profilo: { anz: -1, var: .3 }, azione: 'Contatto entro i primi 90 giorni per consolidare il rapporto.', look: { capelli: 'ciuffo', colore: '#7A4E2D' } },
+  cacciatore:   { nome: 'Il Cacciatore di Offerte', profilo: { cam: 1, var: .6, anz: -.3 }, azione: 'Offerta a prezzo fisso con un vantaggio legato alla durata del contratto.', look: { capelli: 'lunghi', colore: '#7A4E2D' } },
+  connesso:     { nome: 'Il Cliente Connesso', profilo: { dig: .8, web: .8, eta: -.4 }, azione: 'Comunicazioni via email e app, con offerte legate al profilo.', look: { capelli: 'corti', colore: '#151412', cuffie: 1 } },
+  insoddisfatto:{ nome: "L'Insoddisfatto", profilo: { rec: 1, tic: .8 }, azione: 'Chiamata del servizio clienti per chiudere i problemi aperti, prima di qualsiasi offerta.', look: { capelli: 'calvo', colore: '#3B2F2A', occhiali: 1 } },
+  ritardatario: { nome: 'Il Pagatore in Ritardo', profilo: { sol: 1, dom: -.5 }, azione: 'Proposta di domiciliazione e piano di rientro prima delle scadenze.', look: { capelli: 'ciuffo', colore: '#151412' } },
+  imprenditore: { nome: "L'Imprenditore", profilo: { bus: 1, ric: .3 }, azione: 'Gestione con un referente dedicato e condizioni per partita IVA.', look: { capelli: 'corti', colore: '#3B2F2A', cravatta: 1 } },
+  tradizionale: { nome: 'Il Tradizionalista', profilo: { eta: 1, dig: -.6, web: -.6 }, azione: 'Contatto telefonico o allo sportello, comunicazioni cartacee semplici.', look: { capelli: 'raccolti', colore: '#B9B4AC', occhiali: 1 } },
+  multiservizio:{ nome: 'Il Cliente Multiservizio', profilo: { prod: 1 }, azione: 'Revisione congiunta delle condizioni di tutti i servizi attivi.', look: { capelli: 'lunghi', colore: '#151412' } },
+  silenzioso:   { nome: 'Il Cliente Silenzioso', profilo: { tic: -.8, rec: -.6, web: -.6 }, azione: 'Contatto periodico per misurare la soddisfazione prima del rinnovo.', look: { capelli: 'corti', colore: '#7A4E2D' } },
+  giovane:      { nome: 'Il Giovane Mobile', profilo: { eta: -1, var: .5, anz: -.4 }, azione: 'Offerte digitali con prezzo bloccato e vantaggi per chi resta.', look: { capelli: 'raccolti', colore: '#7A4E2D', cuffie: 1 } },
+  classico:     { nome: 'Il Classico', profilo: {}, azione: 'Comunicazione standard e controllo periodico dello score.', look: { capelli: 'corti', colore: '#3B2F2A' } },
+}
+// assegna a ogni cluster il nome piu' simile (senza ripetizioni): somiglianza = pesi · z / |pesi|
+function nomina(gruppi) {
+  const coppie = []
+  gruppi.forEach((g, gi) => {
+    const z = Object.fromEntries(g.zm.map(t => [t.u, t.z]))
+    for (const [id, P] of Object.entries(PERSONE)) {
+      const w = Object.entries(P.profilo).filter(([u]) => u in z)
+      if (id === 'classico') { coppie.push([0.35 - ML.mean(g.zm.map(t => Math.abs(t.z))), gi, id]); continue }
+      if (!w.length) continue
+      const norma = Math.sqrt(w.reduce((s, [, p]) => s + p * p, 0))
+      coppie.push([w.reduce((s, [u, p]) => s + p * z[u], 0) / norma, gi, id])
+    }
+  })
+  const out = {}, usati = new Set()
+  coppie.sort((a, b) => b[0] - a[0]).forEach(([, gi, id]) => { if (!(gi in out) && !usati.has(id)) { out[gi] = id; usati.add(id) } })
+  return gruppi.map((_, gi) => out[gi] || 'classico')
+}
+// faccina: aspetto dal catalogo, espressione dal churn del gruppo rispetto alla media
+let nFacce = 0
+function faccia(look, churn, colore) {
+  const id = 'fc' + (nFacce++), pelle = '#F2D6BD', ink = '#151412', h = look.colore
+  const umore = churn > S.base * 1.3 ? 'giu' : churn < S.base * 0.8 ? 'su' : 'pari'
+  const dietro = look.capelli === 'lunghi' ? `<path d="M17 30 C16 12, 48 12, 47 30 L48 47 L40 47 L40 28 L24 28 L24 47 L16 47 Z" fill="${h}"/>` : ''
+  const capelli = {
+    corti: `<path d="M18.8 30 C16 6, 48 6, 45.2 30 C44 23, 40 20, 32 20 C24 20, 20 23, 18.8 30 Z" fill="${h}"/>`,
+    ciuffo: `<path d="M18.8 30 C15 5, 45 2.5, 46.5 25 C44 21, 38 19, 31 20.5 C26 21.5, 22 23.5, 18.8 30 Z" fill="${h}"/>`,
+    lunghi: `<path d="M18.8 28 C16.5 5.5, 47.5 5.5, 45.2 28 C42 22, 37 19.5, 31 20 C25 20.5, 21 23, 18.8 28 Z" fill="${h}"/>`,
+    raccolti: `<circle cx="32" cy="8.5" r="5.5" fill="${h}"/><path d="M18.8 29 C16.5 5.5, 47.5 5.5, 45.2 29 C43 22.5, 39 20, 32 20 C25 20, 21 22.5, 18.8 29 Z" fill="${h}"/>`,
+    calvo: `<path d="M19.6 31 C19 26, 20 23, 22 22 L22.5 31 Z M44.4 31 C45 26, 44 23, 42 22 L41.5 31 Z" fill="${h}"/>`,
+  }[look.capelli] || ''
+  const bocca = { su: 'M27 35.5 Q32 40 37 35.5', pari: 'M28 36.5 L36 36.5', giu: 'M27 38.5 Q32 34.5 37 38.5' }[umore]
+  const ciglia = umore === 'giu' ? `<path d="M24 25.5 L29 23.6 M35 23.6 L40 25.5" stroke="${ink}" stroke-width="1.4" stroke-linecap="round"/>` : ''
+  const corpo = look.cravatta
+    ? `<path d="M8 64 C10 50, 21 46, 32 46 C43 46, 54 50, 56 64 Z" fill="${ink}"/><path d="M26.5 46 L32 54 L37.5 46 Z" fill="#fff"/><path d="M31 48.5 L33 48.5 L34.2 58 L32 61 L29.8 58 Z" fill="#C2410C"/>`
+    : `<path d="M8 64 C10 50, 21 46, 32 46 C43 46, 54 50, 56 64 Z" fill="${colore}"/>`
+  return `<svg viewBox="0 0 64 64" class="faccia" aria-hidden="true"><defs><clipPath id="${id}"><circle cx="32" cy="32" r="32"/></clipPath></defs>
+    <g clip-path="url(#${id})"><rect width="64" height="64" fill="${colore}22"/>${dietro}${corpo}<rect x="28" y="38" width="8" height="9" fill="${pelle}"/>
+    <ellipse cx="32" cy="28.5" rx="12.5" ry="13.5" fill="${pelle}"/>${capelli}
+    <circle cx="27" cy="29" r="1.6" fill="${ink}"/><circle cx="37" cy="29" r="1.6" fill="${ink}"/>${ciglia}
+    ${look.occhiali ? `<g fill="none" stroke="${ink}" stroke-width="1.3"><circle cx="27" cy="29" r="4"/><circle cx="37" cy="29" r="4"/><path d="M31 29 L33 29"/></g>` : ''}
+    <path d="${bocca}" fill="none" stroke="${ink}" stroke-width="1.6" stroke-linecap="round"/>
+    ${look.cuffie ? `<path d="M18 29 C16.5 3.5, 47.5 3.5, 46 29" fill="none" stroke="${ink}" stroke-width="2.6"/><rect x="16" y="26" width="5" height="9" rx="2" fill="${ink}"/><rect x="43" y="26" width="5" height="9" rx="2" fill="${ink}"/>` : ''}</g>
+    ${look.stella ? '<path d="M53 4 L55.4 9.2 L61 9.8 L56.8 13.6 L58 19 L53 16.2 L48 19 L49.2 13.6 L45 9.8 L50.6 9.2 Z" fill="#D4A843" stroke="#fff" stroke-width="1"/>' : ''}</svg>`
+}
 function personasRegole() {
   const R = S.d.righe, att = R.filter(o => !o.churn)
   const p85 = ML.quantile(att.map(o => o.ricavo), 0.85), med = ML.median(att.map(o => o.anzianita_anni))
   const dom = o => /domicil/i.test(o.metodo_pagamento || ''), dig = digitale
   const DEF = {
-    grande: ['Il Grande Cliente', 'Ricavo nel 15% più alto del parco clienti. Il valore giustifica un presidio dedicato anche quando il rischio è basso.', 'Referente dedicato e revisione annuale delle condizioni.'],
-    storico: ['Lo Storico Fedele', 'Anzianità sopra la mediana, prezzo fisso e pagamento domiciliato. È la parte più stabile del parco clienti.', 'Rinnovo anticipato a condizioni invariate, senza sconti non richiesti.'],
-    volatile: ['Il Nuovo Volatile', 'Anzianità sotto la mediana e prezzo variabile. Il churn si concentra nei primi due anni di rapporto.', 'Contatto entro i primi 90 giorni e proposta di passaggio a prezzo fisso.'],
-    digitale: ['Il Digitale', 'Usa la fattura digitale o l\'area clienti web. Si raggiunge online a costo contenuto.', 'Comunicazioni via email e area clienti, con offerte legate al profilo.'],
-    main: ['Il Cliente Tipo', 'Nessuna delle caratteristiche precedenti. Rappresenta il profilo medio del parco clienti.', 'Comunicazione standard e controllo periodico dello score.'],
+    grande: [PERSONE.oro.nome, 'Ricavo nel 15% più alto del parco clienti. Il valore giustifica un presidio dedicato anche quando il rischio è basso.', 'Referente dedicato e revisione annuale delle condizioni.'],
+    storico: [PERSONE.fedelissimo.nome, 'Anzianità sopra la mediana, prezzo fisso e pagamento domiciliato. È la parte più stabile del parco clienti.', 'Rinnovo anticipato a condizioni invariate, senza sconti non richiesti.'],
+    volatile: [PERSONE.nuovo.nome, 'Anzianità sotto la mediana e prezzo variabile. Il churn si concentra nei primi due anni di rapporto.', 'Contatto entro i primi 90 giorni e proposta di passaggio a prezzo fisso.'],
+    digitale: [PERSONE.connesso.nome, 'Usa la fattura digitale o l\'area clienti web. Si raggiunge online a costo contenuto.', 'Comunicazioni via email e area clienti, con offerte legate al profilo.'],
+    main: [PERSONE.classico.nome, 'Nessuna delle caratteristiche precedenti. Rappresenta il profilo medio del parco clienti.', 'Comunicazione standard e controllo periodico dello score.'],
   }
   R.forEach(o => {
     o.per_regole = o.ricavo >= p85 ? 'grande'
@@ -640,7 +832,8 @@ function personasRegole() {
       : o.anzianita_anni < med && o.prezzo_variabile === 1 ? 'volatile'
       : dig(o) ? 'digitale' : 'main'
   })
-  S.regole = Object.entries(DEF).map(([k, [nome, descr, azione]], i) => ({ k, nome, descr, azione, colore: CAT[i], membri: R.filter(o => o.per_regole === k) }))
+  const LOOK = { grande: 'oro', storico: 'fedelissimo', volatile: 'nuovo', digitale: 'connesso', main: 'classico' }
+  S.regole = Object.entries(DEF).map(([k, [nome, descr, azione]], i) => ({ k, nome, descr, azione, colore: CAT[i], look: PERSONE[LOOK[k]].look, membri: R.filter(o => o.per_regole === k) }))
   S.regoleNota = `Soglie: ricavo da ${eur(p85)} al mese (85° percentile) · anzianità mediana ${fmt(med, 1)} anni`
 }
 const TRATTI = {
@@ -676,18 +869,16 @@ function personasCluster(k = 5) {
     const tratti = zm.slice(0, 2).map(t => TRATTI[t.u][t.z > 0 ? 0 : 1])
     return { idx, tratti, zm }
   }).sort((a, b) => b.idx.length - a.idx.length)
+  const scelti = nomina(gruppi)
   S.cluster = gruppi.map((g, i) => {
-    const membri = g.idx.map(j => R[j])
+    const membri = g.idx.map(j => R[j]), P = PERSONE[scelti[i]]
     membri.forEach(o => o.per_cluster = i)
     const ch = membri.filter(o => o.churn).length / membri.length
-    const nome = `Gruppo ${String.fromCharCode(65 + i)} · ${g.tratti[0]}, ${g.tratti[1]}`
-    const azione = ch > S.base * 1.3 ? 'Gruppo prioritario: contattare per primi i clienti attivi in fascia alta.'
-      : ML.mean(membri.map(o => o.r_ricavo ?? 0.5)) > 0.65 ? 'Gruppo ad alto valore: servizio dedicato e rinnovo anticipato.'
-      : 'Comunicazione standard e controllo periodico dello score.'
+    const azione = (ch > S.base * 1.3 ? 'Gruppo prioritario. ' : '') + P.azione
     const descr = 'Differenze principali rispetto alla media: ' + g.zm.slice(0, 3).map(t => TRATTI[t.u][t.z > 0 ? 0 : 1]).join(', ') + '.'
-    return { k: i, nome, descr, azione, colore: CAT[i], membri }
+    return { k: i, nome: P.nome, gruppo: 'Gruppo ' + String.fromCharCode(65 + i), descr, azione, colore: CAT[i], look: P.look, membri }
   })
-  S.clusterNota = `k-means su ${usate.length} variabili standardizzate · 5 gruppi`
+  S.clusterNota = `k-means su ${usate.length} variabili standardizzate · 5 gruppi · nome scelto dal catalogo in base ai tratti del gruppo`
 }
 const ASSI = [   // [etichetta, valore del gruppo M] — l'asse compare solo se il dato esiste
   ['Anzianità', M => rk(M, 'anzianita_anni')], ['Valore', M => rk(M, 'ricavo')],
@@ -708,8 +899,8 @@ function disegnaPersonas() {
     const ch = M.filter(o => o.churn).length / (n || 1)
     const fb = ['Basso', 'Medio', 'Alto'].map(f => att.filter(o => o.fascia === f).length / (att.length || 1))
     return `<button type="button" class="pcard" style="--c:${g.colore}" aria-pressed="${i === selPer}" data-i="${i}">
-      <span class="quota">${fmt(n)} clienti · ${pct(n / R.length, 0)}</span>
-      <h3>${esc(g.nome)}</h3>
+      <span class="quota">${g.gruppo ? g.gruppo + ' · ' : ''}${fmt(n)} clienti · ${pct(n / R.length, 0)}</span>
+      <div class="ptesta">${faccia(g.look, ch, g.colore)}<h3>${esc(g.nome)}</h3></div>
       <dl><dt>Churn 12 mesi</dt><dd style="color:${ch > S.base ? 'var(--accent)' : 'inherit'}">${pct(ch)}</dd>
         <dt>Score medio attivi</dt><dd>${pct(ML.mean(att.map(o => o.score)))}</dd>
         <dt>Ricavo medio mensile</dt><dd>${eur(ML.mean(M.map(o => o.ricavo || 0)))}</dd></dl>
@@ -759,22 +950,8 @@ function disegnaScoring() {
     [pct(best.presi20, 0), 'Cessati intercettati', 'contattando il 20% dei clienti con score più alto'],
     [fmt(alti.length), 'Clienti attivi in fascia alta', eur(alti.reduce((s, [o]) => s + (o.ricavo || 0), 0)) + ' di ricavo mensile', true],
   ].map(([b, p, s, a]) => `<div class="num"><b class="${a ? 'acc' : ''}">${b}</b><p>${p}</p><small>${esc(s)}</small></div>`).join('')
-  $('#sco-modelli').innerHTML = `<table><thead><tr><th class="l">Modello</th><th>AUC</th><th>Lift 10%</th><th>Cessati nel 20%</th><th>Secondi</th></tr></thead><tbody>${
-    R.modelli.map(m => `<tr class="${m === best ? 'best' : ''}"><td class="l">${m.nome}${m === best ? ' <span class="tag" style="color:var(--accent)">scelto</span>' : ''}</td><td class="${m === best ? 'pt' : ''}">${fmt(m.auc, 3)}</td><td>${fmt(m.lift10, 2)}×</td><td>${pct(m.presi20, 0)}</td><td>${fmt(m.secondi, 2)}</td></tr>`).join('')}</tbody></table>`
-  const ordine = ['logistica', 'rf', 'gbm']
-  grafico('g-roc', { type: 'line', data: { datasets: [
-      ...ordine.map((id, i) => { const m = R.modelli.find(x => x.id === id); return { label: `${m.nome} (${fmt(m.auc, 3)})`, data: m.roc, borderColor: CAT[i], backgroundColor: CAT[i], borderWidth: 2, pointRadius: 0, tension: 0 } }),
-      { label: 'Previsione casuale', data: [{ x: 0, y: 0 }, { x: 1, y: 1 }], borderColor: '#B8B1A6', borderDash: [5, 4], borderWidth: 1, pointRadius: 0 }] },
-    options: { maintainAspectRatio: false, parsing: false, interaction: { mode: 'nearest', intersect: false },
-      plugins: { legend: { position: 'bottom' }, tooltip: { callbacks: { label: c => `${c.dataset.label}: veri positivi ${pct(c.raw.y, 0)} con falsi positivi ${pct(c.raw.x, 0)}` } } },
-      scales: { x: { type: 'linear', min: 0, max: 1, title: { display: true, text: 'Falsi positivi' }, ticks: { callback: v => v * 100 + '%' } },
-                y: { min: 0, max: 1, title: { display: true, text: 'Veri positivi (cessati intercettati)' }, ticks: { callback: v => v * 100 + '%' } } } } })
-  $('#lift-tit').textContent = 'Lift per decile · ' + best.nome
-  grafico('g-lift', { data: { labels: best.decili.map(d => d.decile), datasets: [
-      { type: 'bar', label: 'Lift', data: best.decili.map(d => d.lift), backgroundColor: best.decili.map((d, i) => i === 0 ? '#C2410C' : '#B8B1A6'), borderRadius: 4, maxBarThickness: 28 },
-      { type: 'line', label: 'Media', data: best.decili.map(() => 1), borderColor: '#151412', borderDash: [5, 4], borderWidth: 1, pointRadius: 0 }] },
-    options: { maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.dataset.label === 'Media' ? 'media = 1' : `${fmt(c.raw, 2)}× · ${pct(best.decili[c.dataIndex].tasso)} di cessati` } } },
-      scales: { y: { beginAtZero: true, title: { display: true, text: 'volte la media' } }, x: { grid: { display: false }, title: { display: true, text: 'decile di score' } } } } })
+  S.sel = best.id
+  disegnaModello()
   const imp = best.importanza.map((v, j) => ({ l: S.d.cols[j].l, v })).sort((a, b) => b.v - a.v).slice(0, 10)
   $('#imp-tit').textContent = 'Variabili più rilevanti · ' + best.nome
   document.getElementById('g-imp').parentNode.style.height = imp.length * 30 + 60 + 'px'
@@ -787,6 +964,32 @@ function disegnaScoring() {
   const nomeReg = k => S.regole.find(g => g.k === k)?.nome || ''
   $('#sco-top').innerHTML = `<table><thead><tr><th>#</th><th class="l">Cliente</th><th class="l">Persona</th><th class="l">Segnali principali</th><th class="l">Comune</th><th>Ricavo mese</th><th>Score</th><th>Fascia</th></tr></thead><tbody>${
     top.map(([o, i], r) => `<tr><td>${r + 1}</td><td class="l">${esc(o.id_cliente)}<small>${esc(o.prodotto)}</small></td><td class="l">${esc(nomeReg(o.per_regole))}</td><td class="l">${esc(motivi(i))}</td><td class="l">${esc(o.comune)}</td><td>${eur(o.ricavo)}</td><td class="pt">${pct(o.score)}</td><td><span class="tag f-${o.fascia}">${o.fascia}</span></td></tr>`).join('')}</tbody></table>`
+}
+function disegnaModello() {      // tabella, ROC e lift del modello selezionato
+  const R = S.R, best = R.migliore, sel = R.modelli.find(m => m.id === S.sel) || best
+  $('#sco-modelli').innerHTML = `<table><thead><tr><th class="l">Modello</th><th>AUC</th><th>Lift 10%</th><th>Cessati nel 20%</th><th>Secondi</th></tr></thead><tbody>${
+    R.modelli.map(m => `<tr data-id="${m.id}" class="${m === sel ? 'sel' : ''}" tabindex="0" aria-pressed="${m === sel}"><td class="l">${m.nome}${m === best ? ' <span class="tag" style="color:var(--accent)">scelto</span>' : ''}</td><td class="${m === sel ? 'pt' : ''}">${fmt(m.auc, 3)}</td><td>${fmt(m.lift10, 2)}×</td><td>${pct(m.presi20, 0)}</td><td>${fmt(m.secondi, 2)}</td></tr>`).join('')}</tbody></table>`
+  document.querySelectorAll('#sco-modelli tbody tr').forEach(tr => {
+    const vai = () => { if (S.sel !== tr.dataset.id) { S.sel = tr.dataset.id; disegnaModello() } }
+    tr.onclick = vai; tr.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); vai() } }
+  })
+  const ordine = ['logistica', 'rf', 'gbm']
+  const serie = ordine.map((id, i) => { const m = R.modelli.find(x => x.id === id), on = m === sel
+    return { label: `${m.nome} (${fmt(m.auc, 3)})`, data: m.roc, borderColor: on ? CAT[i] : CAT[i] + '40', backgroundColor: CAT[i], borderWidth: on ? 3 : 1.5, pointRadius: 0, tension: 0, order: on ? 0 : 1 } })
+  $('#roc-tit').textContent = 'Curva ROC · ' + sel.nome
+  grafico('g-roc', { type: 'line', data: { datasets: [...serie,
+      { label: 'Previsione casuale', data: [{ x: 0, y: 0 }, { x: 1, y: 1 }], borderColor: '#B8B1A6', borderDash: [5, 4], borderWidth: 1, pointRadius: 0, order: 2 }] },
+    options: { maintainAspectRatio: false, parsing: false, animation: { duration: 250 }, interaction: { mode: 'nearest', intersect: false },
+      plugins: { legend: { position: 'bottom', labels: { sort: (a, b) => a.datasetIndex - b.datasetIndex }, onClick: (e, it) => { const id = ordine[it.datasetIndex]; if (id) { S.sel = id; disegnaModello() } } },
+        tooltip: { callbacks: { label: c => `${c.dataset.label}: veri positivi ${pct(c.raw.y, 0)} con falsi positivi ${pct(c.raw.x, 0)}` } } },
+      scales: { x: { type: 'linear', min: 0, max: 1, title: { display: true, text: 'Falsi positivi' }, ticks: { callback: v => v * 100 + '%' } },
+                y: { min: 0, max: 1, title: { display: true, text: 'Veri positivi (cessati intercettati)' }, ticks: { callback: v => v * 100 + '%' } } } } })
+  $('#lift-tit').textContent = 'Lift per decile · ' + sel.nome
+  grafico('g-lift', { data: { labels: sel.decili.map(d => d.decile), datasets: [
+      { type: 'bar', label: 'Lift', data: sel.decili.map(d => d.lift), backgroundColor: sel.decili.map((d, i) => i === 0 ? '#C2410C' : '#B8B1A6'), borderRadius: 4, maxBarThickness: 28 },
+      { type: 'line', label: 'Media', data: sel.decili.map(() => 1), borderColor: '#151412', borderDash: [5, 4], borderWidth: 1, pointRadius: 0 }] },
+    options: { maintainAspectRatio: false, animation: { duration: 250 }, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.dataset.label === 'Media' ? 'media = 1' : `${fmt(c.raw, 2)}× · ${pct(sel.decili[c.dataIndex].tasso)} di cessati` } } },
+      scales: { y: { beginAtZero: true, title: { display: true, text: 'volte la media' } }, x: { grid: { display: false }, title: { display: true, text: 'decile di score' } } } } })
 }
 $('#scarica').onclick = () => {
   const rows = [['id_cliente', 'score_churn', 'fascia', 'persona_regole', 'gruppo_cluster', 'segnali', 'prodotto', 'comune', 'ricavo_mensile']]

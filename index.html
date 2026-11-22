@@ -30,8 +30,9 @@
   .brand span { font-family: var(--mono); font-size: 0.75rem; color: var(--on-night-2); margin-left: 6px; }
   .sx h1 { font-size: clamp(2.75rem, 1.6rem + 4vw, 5.5rem); font-weight: 600; letter-spacing: -0.04em; line-height: 0.98; position: relative; z-index: 1; }
   .sx h1 em { font-style: normal; color: var(--accent); }
-  .sx .lead { margin-top: 28px; font-size: 1.125rem; line-height: 1.45; color: var(--on-night-2); max-width: 44ch; position: relative; z-index: 1; }
-  .sx .lead b { display: block; color: var(--on-night); font-weight: 500; margin-bottom: 10px; }
+  .sx .lead { margin-top: 28px; font-size: 1.0625rem; line-height: 1.5; color: var(--on-night-2); position: relative; z-index: 1; }
+  .sx .lead b { display: block; color: var(--on-night); font-weight: 500; margin-bottom: 8px; }
+  @media (min-width: 1180px) { .sx .lead b { white-space: nowrap; } }
   .metodi { position: relative; z-index: 1; display: grid; gap: 16px; }
   .metodi .intro { font-size: 0.9375rem; color: var(--on-night); }
   .punti { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; position: relative; z-index: 1; }
