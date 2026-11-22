@@ -21,7 +21,7 @@ ap.add_argument("--area", choices=["italia", "rimini"], default="italia")
 ap.add_argument("--n", type=int, default=None)
 ARG = ap.parse_args()
 AREA = ARG.area
-N = ARG.n or (10000 if AREA == "italia" else 3000)
+N = ARG.n or (200000 if AREA == "italia" else 3000)
 OUT_NOME = "lume_antichurn_dati_demo.xlsx" if AREA == "italia" else "lume_antichurn_dati_demo_rimini.xlsx"
 
 rng = np.random.default_rng(2026)
@@ -55,33 +55,47 @@ if AREA == "italia":
     CITTA = pd.DataFrame({"nome": [NOMI_IT.get(c["name"], c["name"]) for c in tenute],
                           "pop": [c["population"] for c in tenute],
                           "lat": [c["latitude"] for c in tenute], "lon": [c["longitude"] for c in tenute]})
-    CITTA["sd"] = 0.006 + 0.0035 * np.sqrt(CITTA["pop"] / 1e4)       # gradi: ~1,5 km per 40.000 ab., ~6 km per Roma
+    CITTA["sd"] = 0.006 + 0.0035 * np.sqrt(CITTA["pop"] / 1e4)       # gradi: ~1,5 km per 40.000 ab.
+    # 80% dei clienti nelle tre aree metropolitane, il resto nelle altre citta' in base alla popolazione
+    GRANDI = {"Roma": (.35, .075), "Milano": (.28, .060), "Napoli": (.17, .050)}   # quota, deviazione in gradi
+    grande = CITTA.nome.isin(GRANDI)
+    altre = CITTA["pop"].where(~grande, 0)
+    CITTA["peso"] = np.where(grande, CITTA.nome.map(lambda x: GRANDI.get(x, (0, 0))[0]), .20 * altre / altre.sum())
+    CITTA.loc[grande, "sd"] = CITTA.loc[grande, "nome"].map(lambda x: GRANDI[x][1])
 
-    def punti(n, peso_esp=1.0, scala=1.0, peso_pv=1.0):
-        w = CITTA["pop"].values ** peso_esp * np.where(CITTA.index < 30, peso_pv, 1.0); w = w / w.sum()
-        out = []
+    def punti(n, scala=1.0):
+        w = CITTA["peso"].values / CITTA["peso"].sum()
+        k = rng.choice(len(CITTA), p=w, size=int(n * 1.25))
+        lat = rng.normal(CITTA.lat.values[k], CITTA.sd.values[k] * scala)
+        lon = rng.normal(CITTA.lon.values[k], CITTA.sd.values[k] * scala * 1.3)
+        ok = globe.is_land(lat, lon)
+        out = np.column_stack([lat[ok], lon[ok]])
         while len(out) < n:
-            k = rng.choice(len(CITTA), p=w)
-            c = CITTA.iloc[k]
-            lat, lon = rng.normal(c.lat, c.sd * scala), rng.normal(c.lon, c.sd * scala * 1.3)
-            if globe.is_land(lat, lon):
-                out.append((lat, lon))
-        return np.array(out)
+            out = np.vstack([out, punti(n - len(out), scala)])
+        return out[:n]
+
+    def comuni_di(lat, lon):        # citta' piu' vicina, a blocchi per non saturare la memoria
+        nomi = []
+        for i in range(0, len(lat), 20000):
+            d = km(lat[i:i + 20000, None], lon[i:i + 20000, None], CITTA.lat.values[None], CITTA.lon.values[None])
+            nomi.extend(CITTA.nome.values[np.argmin(d, axis=1)])
+        return nomi
 
     def comune_di(lat, lon):
-        d = km(lat, lon, CITTA.lat.values, CITTA.lon.values)
-        return (CITTA.nome.iloc[int(np.argmin(d))], None)
+        return (comuni_di(np.array([lat]), np.array([lon]))[0], None)
 
-    # punti vendita: uno nelle 30 citta' piu' grandi, due a Roma, Milano, Napoli e Torino
+    # punti vendita: 6 a Roma, 5 a Milano, 4 a Napoli, uno nelle altre 27 citta' piu' grandi
+    QUANTI = {"Roma": 6, "Milano": 5, "Napoli": 4}
     pv = []
     for _, c in CITTA.head(30).iterrows():
-        for j in range(2 if c["pop"] > 8e5 else 1):
+        q = QUANTI.get(c.nome, 1)
+        for j in range(q):
             while True:
-                lat, lon = rng.normal(c.lat, c.sd * .35), rng.normal(c.lon, c.sd * .45)
+                lat, lon = rng.normal(c.lat, c.sd * .5), rng.normal(c.lon, c.sd * .65)
                 if globe.is_land(lat, lon): break
-            pv.append((f"PV{len(pv)+1:02d}", f"{AZIENDA} · {c.nome}{' ' + str(j + 1) if c["pop"] > 8e5 else ''}", c.nome, round(lat, 5), round(lon, 5)))
+            pv.append((f"PV{len(pv)+1:02d}", f"{AZIENDA} · {c.nome}{' ' + str(j + 1) if q > 1 else ''}", c.nome, round(lat, 5), round(lon, 5)))
     PV = pd.DataFrame(pv, columns=["id_punto", "nome", "comune", "lat", "lon"])
-    cp = punti(320, peso_esp=0.9, scala=0.7)
+    cp = punti(1000, scala=0.8)
 else:
     def costa(lon):  # latitudine approssimata della linea di costa (Bellaria-Riccione)
         return 44.093 - 0.809 * (lon - 12.545)
@@ -131,7 +145,7 @@ CO = pd.DataFrame({
     "tipo_punto": rng.choice(TIPI, len(cp), p=[.5, .35, .15]),
     "lat": cp[:, 0].round(5), "lon": cp[:, 1].round(5),
 })
-CO.insert(3, "comune", [comune_di(a, b)[0] for a, b in cp])
+CO.insert(3, "comune", comuni_di(cp[:, 0], cp[:, 1]) if AREA == "italia" else [comune_di(a, b)[0] for a, b in cp])
 
 # ---------------------------------------------------------------- prodotti e prezzi di mercato
 PRODOTTI = pd.DataFrame([
@@ -152,7 +166,7 @@ PM = pd.DataFrame(righe, columns=["marchio", "categoria", "tipo_prezzo", "prezzo
 media_mkt = PM.groupby(["categoria", "tipo_prezzo"]).prezzo_unitario.mean()
 
 # ---------------------------------------------------------------- clienti
-pos = punti(N, scala=0.8, peso_pv=2.5) if AREA == "italia" else punti(N, CENTRI)   # piu' clienti nelle citta' con punto vendita
+pos = punti(N) if AREA == "italia" else punti(N, CENTRI)
 lat, lon = pos[:, 0], pos[:, 1]
 business = rng.random(N) < 0.14
 prod = np.where(business, "Business Luce",
@@ -195,8 +209,11 @@ mkt = np.array([media_mkt[(c, "Variabile" if v else "Fisso")] for c, v in zip(ca
 gap = (info.loc[prod, "prezzo_unitario"].values * (1 - sconto / 100) - mkt) / mkt
 
 # distanze
-d_co = np.min(km(lat[:, None], lon[:, None], CO.lat.values[None], CO.lon.values[None]), axis=1)
-d_pv = np.min(km(lat[:, None], lon[:, None], PV.lat.values[None], PV.lon.values[None]), axis=1)
+def dmin(la, lo, P):             # distanza dal punto piu' vicino, a blocchi
+    return np.concatenate([np.min(km(la[i:i + 10000, None], lo[i:i + 10000, None], P.lat.values[None], P.lon.values[None]), axis=1)
+                           for i in range(0, len(la), 10000)])
+d_co = dmin(lat, lon, CO)
+d_pv = dmin(lat, lon, PV)
 
 # giorni alla scadenza (solo prezzo fisso, rinnovo annuale)
 scad_gg = np.where(variabile, np.nan, (365 - (gg_att % 365)).astype(float))
@@ -238,7 +255,7 @@ fine = [c if c else RIF for c in cess]
 scad = [None if variabile[i] else att[i] + timedelta(days=365 * int(np.ceil(((fine[i] - att[i]).days + 1) / 365)))
         for i in range(N)]
 
-comuni = [comune_di(a, b) for a, b in zip(lat, lon)]
+comuni = [(c, None) for c in comuni_di(lat, lon)] if AREA == "italia" else [comune_di(a, b) for a, b in zip(lat, lon)]
 CL = pd.DataFrame({
     "id_cliente": [f"C{i+1:05d}" for i in range(N)],
     "data_attivazione": att, "data_cessazione": cess, "prodotto": prod, "ricavo_mensile": ricavo,
@@ -288,6 +305,7 @@ FORMATI = {"data_attivazione": "DD/MM/YYYY", "data_cessazione": "DD/MM/YYYY", "d
 
 wb = Workbook()
 wb.remove(wb.active)
+wb._fonts[0] = Font(name=ARIAL, size=10, color=INK)     # carattere predefinito di tutte le celle: Arial 10
 
 def foglio(nome, df):
     ws = wb.create_sheet(nome)
@@ -304,7 +322,6 @@ def foglio(nome, df):
             if isinstance(v, np.generic):
                 v = v.item()
             c = ws.cell(row=i, column=j, value=v)
-            c.font = f_txt
             fmt = FORMATI.get(df.columns[j - 1])
             if fmt:
                 c.number_format = fmt
@@ -380,3 +397,18 @@ foglio("Prezzi_mercato", PM)
 OUT = str(__import__("pathlib").Path(__file__).resolve().parents[1] / "dati" / OUT_NOME)
 wb.save(OUT)
 print(OUT, CTRL)
+
+# stessi dati in JSON compatto per il pulsante "Prova con i dati demo" (si carica senza leggere l'Excel)
+if AREA == "italia":
+    import json, pathlib, datetime as dt
+    def tab(df):
+        def v(x):
+            if x is None or (isinstance(x, float) and np.isnan(x)): return None
+            if isinstance(x, (dt.date, dt.datetime)): return x.isoformat()[:10]
+            if isinstance(x, np.generic): x = x.item()
+            return round(x, 5) if isinstance(x, float) else x
+        return {"c": list(df.columns), "r": [[v(x) for x in riga] for riga in df.itertuples(index=False)]}
+    cartella = pathlib.Path(OUT).parent / "demo"; cartella.mkdir(exist_ok=True)
+    js = {"Clienti": tab(CL), "Punti_vendita": tab(PV), "Concorrenti": tab(CO), "Prodotti": tab(PRODOTTI), "Prezzi_mercato": tab(PM)}
+    (cartella / "lume_demo.json").write_text(json.dumps(js, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    print(cartella / "lume_demo.json")

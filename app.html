@@ -78,6 +78,15 @@
   .omini { display: grid; grid-template-columns: repeat(50, minmax(0, 1fr)); gap: 6px 4px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
   .omini svg { width: 100%; height: auto; display: block; }
   @media (max-width: 760px) { .omini { grid-template-columns: repeat(25, minmax(0, 1fr)); } }
+  .fasce-blocchi { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px clamp(16px, 2vw, 32px); margin-top: 18px; }
+  .fasce-blocchi > div { display: grid; grid-template-columns: 26px 1fr; column-gap: 10px; row-gap: 4px; align-content: start; }
+  .fasce-blocchi svg { width: 26px; height: 34px; grid-row: span 2; }
+  .fasce-blocchi b { font-size: var(--t-xl); font-weight: 600; letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .fasce-blocchi .nome { font-size: var(--t-s); color: var(--ink); font-weight: 500; }
+  .fasce-blocchi dl { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; margin: 8px 0 0; padding-top: 8px; border-top: 1px solid var(--line); font-size: var(--t-xs); }
+  .fasce-blocchi dt { color: var(--ink-2); } .fasce-blocchi dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+  .fasce-blocchi .regola { grid-column: 1 / -1; font-family: var(--mono); font-size: var(--t-xs); color: var(--ink-3); }
+  @media (max-width: 860px) { .fasce-blocchi { grid-template-columns: 1fr; } }
   .omini-leg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 18px; }
   .omini-leg div { display: grid; grid-template-columns: 22px auto; column-gap: 10px; align-items: center; }
   .omini-leg svg { width: 22px; height: 28px; grid-row: span 2; }
@@ -203,7 +212,7 @@
   td.pt { font-weight: 600; color: var(--accent); }
   td small { display: block; color: var(--ink-3); font-size: var(--t-xs); font-family: var(--mono); }
   .tag { display: inline-block; font-family: var(--mono); font-size: 0.6875rem; padding: 2px 6px; border: 1px solid currentColor; }
-  .f-Alto { color: #B42318; } .f-Medio { color: #9A6700; } .f-Basso { color: #3F7A3A; }
+  .f-Alto { color: #C2410C; } .f-Medio { color: #A85A1F; } .f-Basso { color: #6E675D; }
 
   /* Personas */
   .pcards { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
@@ -356,7 +365,8 @@
         <div class="carica-lato">
           <div class="azioni">
             <button class="btn" id="demo" type="button">Prova con i dati demo</button>
-            <a class="link" href="dati/lume_antichurn_dati_demo.xlsx" download>Scarica il modello Excel</a>
+            <a class="link" href="dati/lume_antichurn_dati_demo_rimini.xlsx" download>Scarica il modello Excel</a>
+            <a class="link" href="dati/lume_antichurn_dati_demo.xlsx" download>Dati demo in Excel (200.000 clienti, 25 MB)</a>
           </div>
           <p>Campi obbligatori per ogni cliente: codice, data di attivazione, data di cessazione (vuota se attivo), prodotto, ricavo mensile, comune e posizione. I campi facoltativi, come ticket all'assistenza, cambi di prodotto, solleciti, variazione dei consumi e voto NPS, aumentano l'accuratezza del modello.</p>
           <p class="stato" id="stato"></p>
@@ -440,9 +450,13 @@
     <div id="sco-vuoto" class="attesa">Disponibile dopo il caricamento dei dati.</div>
     <div id="sco-corpo" hidden>
       <div class="nums" id="sco-nums"></div>
+      <p class="sub">Fasce di rischio</p>
+      <p class="sub-p" id="fasce-regola"></p>
+      <div class="omini" id="fasce-omini"></div>
+      <div class="fasce-blocchi" id="fasce-blocchi"></div>
       <p class="sub">Confronto dei modelli</p>
       <div class="pannelli">
-        <div class="pan c5"><h3>Risultati sul campione di verifica (30%)</h3><div class="tab" id="sco-modelli"></div>
+        <div class="pan c5"><h3 id="ver-tit">Risultati sul campione di verifica (30%)</h3><div class="tab" id="sco-modelli"></div>
           <p class="nota">Seleziona un modello per vederne curva ROC e lift. AUC: 0,5 = previsione casuale, 1 = previsione perfetta. Lift: rapporto tra il tasso di churn del 10% di clienti con score più alto e il tasso medio.</p></div>
         <div class="pan c7"><h3 id="roc-tit">Curva ROC</h3><div class="chart"><canvas id="g-roc"></canvas></div></div>
         <div class="pan c6"><h3 id="lift-tit">Lift per decile</h3><div class="chart"><canvas id="g-lift"></canvas></div>
@@ -537,7 +551,7 @@ const eur = v => v == null || isNaN(v) ? '—' : '€ ' + fmt(v, 0)
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))
 const CAT = ['#C2410C', '#008F87', '#9A7A0A', '#6A55C8', '#C2367A']      // palette validata, ordine fisso
 const TEAL = ['#CDEFEE', '#A3DCDA', '#73C3C0', '#45A6A3', '#227F7B', '#125D5A']
-const FASCE = { Basso: '#3F7A3A', Medio: '#D9A21B', Alto: '#B42318' }
+const FASCE = { Basso: '#D9D1C4', Medio: '#E59866', Alto: '#C2410C' }   // stessa scala degli omini in apertura
 Chart.defaults.font.family = '"Archivo", "Helvetica Neue", Arial, sans-serif'
 Chart.defaults.font.size = 12
 Chart.defaults.color = '#57524B'
@@ -587,7 +601,7 @@ document.querySelectorAll('details.apri').forEach(d => d.addEventListener('toggl
 const NOMI_FOGLI = { clienti: 'Clienti', puntivendita: 'Punti_vendita', concorrenti: 'Concorrenti', prodotti: 'Prodotti', prezzimercato: 'Prezzi_mercato' }
 const norm = s => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]/g, '')
 function leggiExcel(buf) {
-  const wb = XLSX.read(buf, { type: 'array', cellDates: true })
+  const wb = XLSX.read(buf, { type: 'array', cellDates: true, dense: true })
   const fogli = {}
   for (const n of wb.SheetNames) {
     const k = NOMI_FOGLI[norm(n)]; if (!k) continue
@@ -608,21 +622,26 @@ function controlla(f) {
 }
 function stato(t, errore) { $('#stato').innerHTML = errore ? `<span class="err">${esc(t)}</span>` : esc(t) }
 
-async function avvia(buf, nome) {
-  let f
-  try { f = leggiExcel(buf) } catch (e) { stato('File non leggibile: ' + e.message, true); return }
-  const err = controlla(f)
-  if (err.length) { stato(err.join('\n'), true); return }
+const fase = async t => { $('#lavoro').textContent = t; await new Promise(r => setTimeout(r, 40)) }
+async function avvia(dati, nome) {
   $('#lavoro').hidden = false
-  await new Promise(r => setTimeout(r, 30))
+  let f
+  if (dati instanceof ArrayBuffer) {
+    await fase(`Lettura del file Excel (${fmt(dati.byteLength / 1048576, 1)} MB)…`)
+    try { f = leggiExcel(dati) } catch (e) { $('#lavoro').hidden = true; stato('File non leggibile: ' + e.message, true); return }
+  } else f = dati
+  const err = controlla(f)
+  if (err.length) { $('#lavoro').hidden = true; stato(err.join('\n'), true); return }
   try {
-    analizza(f)
+    await analizza(f)
     const avvisi = []
     if (!f.Concorrenti) avvisi.push('foglio Concorrenti assente: distanze dai concorrenti non calcolate')
     if (!f.Prezzi_mercato || !f.Prodotti) avvisi.push('fogli Prodotti o Prezzi_mercato assenti: confronto prezzi non calcolato')
     const senzaPos = S.d.righe.filter(o => o.lat == null).length
     if (senzaPos) avvisi.push(`${fmt(senzaPos)} clienti senza coordinate (la geocodifica degli indirizzi sarà disponibile in una versione successiva)`)
+    if (S.R.campione) avvisi.push(`modelli addestrati su un campione di ${fmt(S.R.campione.tr)} clienti e valutati su ${fmt(S.R.campione.te)}; lo score è calcolato su tutti`)
     stato(`${nome}: ${fmt(f.Clienti.length)} righe lette, ${fmt(S.d.righe.length)} clienti nel perimetro.` + (avvisi.length ? '\n' + avvisi.join('\n') : ''))
+    await fase('Calcolo della mappa a esagoni…')
     scegliRisoluzione()
     await caricaIstat()
     disegnaMappa()
@@ -635,25 +654,32 @@ const drop = $('#drop')
 drop.ondragover = e => { e.preventDefault(); drop.classList.add('over') }
 drop.ondragleave = () => drop.classList.remove('over')
 drop.ondrop = async e => { e.preventDefault(); drop.classList.remove('over'); const fl = e.dataTransfer.files[0]; if (fl) avvia(await fl.arrayBuffer(), fl.name) }
-$('#demo').onclick = async () => {
+$('#demo').onclick = async () => {     // stessi dati del file Excel demo, in JSON compatto: si carica in pochi secondi
   stato('Caricamento dei dati demo…')
-  const r = await fetch('dati/lume_antichurn_dati_demo.xlsx')
-  if (!r.ok) { stato('File demo non trovato sul server.', true); return }
-  avvia(await r.arrayBuffer(), 'Dati demo')
+  $('#lavoro').hidden = false; await fase('Download dei dati demo…')
+  const r = await fetch('dati/demo/lume_demo.json')
+  if (!r.ok) { $('#lavoro').hidden = true; stato('File demo non trovato sul server.', true); return }
+  const js = await r.json(), fogli = {}
+  for (const k in js) fogli[k] = js[k].r.map(v => Object.fromEntries(js[k].c.map((c, j) => [c, v[j]])))
+  avvia(fogli, 'Dati demo')
 }
 
 // ───────────────────────── analisi completa
-function analizza(f) {
+async function analizza(f) {
   S.f = f
+  await fase(`Preparazione di ${fmt(f.Clienti.length)} clienti…`)
   S.d = ML.prepara(f)
   if (S.d.y.reduce((a, b) => a + b, 0) < 20) throw new Error('servono almeno 20 clienti cessati negli ultimi 12 mesi')
+  await fase('Addestramento e confronto dei tre modelli…')
   S.R = ML.addestraTutti(S.d)
+  await fase('Score, fasce di rischio e personas…')
   S.logit = S.R.modelli.find(m => m.id === 'logistica').modello
   const m = S.R.migliore.modello
   S.d.righe.forEach((o, i) => { o.p = m.prob(S.d.X[i]); o.score = ML.calibra(o.p, S.R.prior) })
-  const att = S.d.righe.filter(o => !o.churn)
-  S.q70 = ML.quantile(att.map(o => o.score), 0.70); S.q95 = ML.quantile(att.map(o => o.score), 0.95)
-  S.d.righe.forEach(o => o.fascia = o.score >= S.q95 ? 'Alto' : o.score >= S.q70 ? 'Medio' : 'Basso')
+  // fasce di rischio a regola fissa, in multipli del tasso medio di churn (lo score e' calibrato su quel tasso)
+  S.base = S.d.y.reduce((a, b) => a + b, 0) / S.d.righe.length
+  S.sogliaMedia = S.base; S.sogliaAlta = 2 * S.base
+  S.d.righe.forEach(o => o.fascia = o.score >= S.sogliaAlta ? 'Alto' : o.score >= S.sogliaMedia ? 'Medio' : 'Basso')
   // posizione percentile (0-1, pari merito al punto medio) per i radar
   S.d.righe.forEach(o => { o.ticket = ML.num(o.n_ticket_12m) })
   for (const k of ['anzianita_anni', 'ricavo', 'score', 'ticket']) {
@@ -663,6 +689,7 @@ function analizza(f) {
   S.base = S.d.y.reduce((a, b) => a + b, 0) / S.d.righe.length    // serve gia' alle personas
   personasRegole(); personasCluster()
   for (const s of ['var', 'per', 'sco', 'map']) { $(`#${s}-vuoto`).hidden = true; $(`#${s}-corpo`).hidden = false }
+  await fase('Grafici…')
   disegnaVariabili(); disegnaPersonas(); disegnaScoring()
 }
 function bisect(a, v, dopo) { let lo = 0, hi = a.length; while (lo < hi) { const m = (lo + hi) >> 1; if (dopo ? a[m] <= v : a[m] < v) lo = m + 1; else hi = m } return lo }
@@ -966,6 +993,8 @@ function disegnaScoring() {
     [pct(best.presi20, 0), 'Cessati intercettati', 'contattando il 20% dei clienti con score più alto'],
     [fmt(alti.length), 'Clienti attivi in fascia alta', eur(alti.reduce((s, [o]) => s + (o.ricavo || 0), 0)) + ' di ricavo mensile', true],
   ].map(([b, p, s, a]) => `<div class="num"><b class="${a ? 'acc' : ''}">${b}</b><p>${p}</p><small>${esc(s)}</small></div>`).join('')
+  disegnaFasce(att.map(([o]) => o))
+  if (R.campione) $('#ver-tit').textContent = `Risultati sul campione di verifica (${fmt(R.campione.te)} clienti)`
   S.sel = best.id
   disegnaModello()
   const imp = best.importanza.map((v, j) => ({ l: S.d.cols[j].l, v })).sort((a, b) => b.v - a.v).slice(0, 10)
@@ -975,11 +1004,31 @@ function disegnaScoring() {
     options: { indexAxis: 'y', maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => fmt(c.raw, 3) } } },
       scales: { x: { beginAtZero: true, title: { display: true, text: best.id === 'logistica' ? 'coefficiente standardizzato (valore assoluto)' : 'calo di AUC se la variabile viene permutata' } }, y: { grid: { display: false }, ticks: { autoSkip: false } } } } })
   const nf = f => att.filter(([o]) => o.fascia === f).length
-  $('#sco-fasce').innerHTML = `I 25 clienti attivi con score più alto; il file CSV contiene l'elenco completo. Fasce di rischio sui clienti attivi: <b>bassa</b> ${fmt(nf('Basso'))} clienti (score sotto ${pct(S.q70)}), <b>media</b> ${fmt(nf('Medio'))}, <b>alta</b> ${fmt(nf('Alto'))} (il 5% con score più alto, da ${pct(S.q95)}). Lo score è la probabilità di churn a 12 mesi, ricalibrata sul tasso di churn osservato nel parco clienti.`
+  $('#sco-fasce').innerHTML = `I 25 clienti attivi con score più alto. Fasce di rischio sui clienti attivi: <b>alta</b> ${fmt(nf('Alto'))}, <b>media</b> ${fmt(nf('Medio'))}, <b>bassa</b> ${fmt(nf('Basso'))}.`
   const top = att.sort((a, b) => b[0].score - a[0].score).slice(0, 25)
   const nomeReg = k => S.regole.find(g => g.k === k)?.nome || ''
   $('#sco-top').innerHTML = `<table><thead><tr><th>#</th><th class="l">Cliente</th><th class="l">Persona</th><th class="l">Segnali principali</th><th class="l">Comune</th><th>Ricavo mese</th><th>Score</th><th>Fascia</th></tr></thead><tbody>${
     top.map(([o, i], r) => `<tr><td>${r + 1}</td><td class="l">${esc(o.id_cliente)}<small>${esc(o.prodotto)}</small></td><td class="l">${esc(nomeReg(o.per_regole))}</td><td class="l">${esc(motivi(i))}</td><td class="l">${esc(o.comune)}</td><td>${eur(o.ricavo)}</td><td class="pt">${pct(o.score)}</td><td><span class="tag f-${o.fascia}">${o.fascia}</span></td></tr>`).join('')}</tbody></table>`
+}
+function disegnaFasce(A) {        // A = clienti attivi
+  const F = [['Alto', 'Alto rischio', `score da ${pct(S.sogliaAlta)}, almeno il doppio del tasso medio`],
+             ['Medio', 'Medio rischio', `score tra ${pct(S.sogliaMedia)} e ${pct(S.sogliaAlta)}`],
+             ['Basso', 'Basso rischio', `score sotto ${pct(S.sogliaMedia)}, il tasso medio`]]
+  const g = F.map(([f]) => A.filter(o => o.fascia === f))
+  const q = g.map(x => x.length / (A.length || 1))
+  // 100 omini, arrotondamento ai resti piu' grandi
+  const n = q.map(v => Math.floor(v * 100)), resto = 100 - n.reduce((a, b) => a + b, 0)
+  q.map((v, i) => [v * 100 - n[i], i]).sort((a, b) => b[0] - a[0]).slice(0, resto).forEach(([, i]) => n[i]++)
+  $('#fasce-regola').innerHTML = `Regola fissa sul tasso medio di churn del parco clienti (${pct(S.base)}): <b>alto</b> se lo score è almeno il doppio del tasso medio, <b>medio</b> se è tra il tasso medio e il doppio, <b>basso</b> se è sotto. Ogni omino è l'1% dei clienti attivi.`
+  $('#fasce-omini').innerHTML = F.flatMap(([f], i) => Array(n[i]).fill(OMINO(FASCE[f]))).join('')
+  $('#fasce-omini').setAttribute('role', 'img')
+  $('#fasce-omini').setAttribute('aria-label', F.map(([, l], i) => `${l} ${pct(q[i], 0)}`).join(', '))
+  $('#fasce-blocchi').innerHTML = F.map(([f, l, r], i) => `<div>${OMINO(FASCE[f])}<b>${pct(q[i], 0)}</b><span class="nome">${l}</span>
+    <dl><dt>Clienti attivi</dt><dd>${fmt(g[i].length)}</dd>
+      <dt>Score medio</dt><dd>${pct(ML.mean(g[i].map(o => o.score)))}</dd>
+      <dt>Uscite attese in 12 mesi</dt><dd>${fmt(g[i].reduce((s, o) => s + o.score, 0))}</dd>
+      <dt>Ricavo mensile</dt><dd>${eur(g[i].reduce((s, o) => s + (o.ricavo || 0), 0))}</dd></dl>
+    <span class="regola">${r}</span></div>`).join('')
 }
 function disegnaModello() {      // tabella, ROC e lift del modello selezionato
   const R = S.R, best = R.migliore, sel = R.modelli.find(m => m.id === S.sel) || best
@@ -1010,7 +1059,7 @@ function disegnaModello() {      // tabella, ROC e lift del modello selezionato
 $('#scarica').onclick = () => {      // file Excel: clienti attivi ordinati per score + foglio legenda
   const att = S.d.righe.map((o, i) => [o, i]).filter(([o]) => !o.churn).sort((a, b) => b[0].score - a[0].score)
   const testa = ['Posizione', 'id_cliente', 'Score churn', 'Fascia di rischio', 'Persona (regole)', 'Gruppo (clustering)', 'Segnali principali', 'Prodotto', 'Comune', 'Ricavo mensile (€)']
-  const righe = att.map(([o, i], r) => [r + 1, o.id_cliente, o.score, o.fascia, S.regole.find(g => g.k === o.per_regole)?.nome || '', S.cluster[o.per_cluster]?.nome || '', motivi(i), o.prodotto, o.comune, o.ricavo ?? null])
+  const righe = att.map(([o, i], r) => [r + 1, o.id_cliente, Math.round(o.score * 1e4) / 1e4, o.fascia, S.regole.find(g => g.k === o.per_regole)?.nome || '', S.cluster[o.per_cluster]?.nome || '', motivi(i), o.prodotto, o.comune, o.ricavo ?? null])
   const ws = XLSX.utils.aoa_to_sheet([testa, ...righe])
   for (let r = 1; r <= righe.length; r++) {
     ws[XLSX.utils.encode_cell({ r, c: 2 })].z = '0.0%'
@@ -1022,11 +1071,11 @@ $('#scarica').onclick = () => {      // file Excel: clienti attivi ordinati per 
   const leg = XLSX.utils.aoa_to_sheet([
     ['Campo', 'Significato'],
     ['Score churn', 'Probabilità di churn nei 12 mesi successivi, ricalibrata sul tasso di churn osservato nel parco clienti.'],
-    ['Fascia di rischio', `Alta: il 5% dei clienti attivi con score più alto (da ${pct(S.q95)}). Media: dal 70° al 95° percentile. Bassa: score sotto ${pct(S.q70)}.`],
+    ['Fascia di rischio', `Regola fissa sul tasso medio di churn (${pct(S.base)}). Alta: score almeno doppio del tasso medio (da ${pct(S.sogliaAlta)}). Media: score tra il tasso medio e il doppio. Bassa: score sotto il tasso medio.`],
     ['Persona (regole)', 'Gruppo assegnato con le regole di segmentazione.'],
     ['Gruppo (clustering)', 'Gruppo assegnato dal k-means, con il nome scelto in base ai tratti del gruppo.'],
     ['Segnali principali', 'Le due variabili che spingono di più lo score del cliente verso l\'alto (regressione logistica).'],
-    ['Modello', `${best.nome}, AUC ${fmt(best.auc, 3)} sul campione di verifica (30% dei clienti).`],
+    ['Modello', `${best.nome}, AUC ${fmt(best.auc, 3)} sul campione di verifica (${S.R.campione ? fmt(S.R.campione.te) + ' clienti estratti dal 30% non usato per l\'addestramento' : '30% dei clienti'}).`],
     ['Data di riferimento', rif],
     ['Clienti nel file', String(righe.length)],
   ])
@@ -1034,7 +1083,7 @@ $('#scarica').onclick = () => {      // file Excel: clienti attivi ordinati per 
   const wb = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(wb, ws, 'Score clienti')
   XLSX.utils.book_append_sheet(wb, leg, 'Legenda')
-  XLSX.writeFile(wb, 'lume_score_clienti_attivi.xlsx', { compression: true })
+  XLSX.writeFile(wb, 'lume_score_clienti_attivi.xlsx', { compression: true, bookSST: true })
 }
 
 // ───────────────────────── 04 mappa a esagoni
@@ -1106,7 +1155,7 @@ function calcolaEsagoni() {
   // punteggi: valore / massimo tra le zone con abbastanza clienti x 100
   const metr = ['persi', 'rischio', 'switch', ...(S.istat ? ['potenziali'] : [])]
   const ok = E.filter(e => e.ok)
-  const max = Object.fromEntries(metr.map(m => [m, Math.max(...ok.map(e => e[m] ?? 0)) || 1]))
+  const max = Object.fromEntries(metr.map(m => [m, ok.reduce((a, e) => Math.max(a, e[m] ?? 0), 0) || 1]))
   ok.forEach(e => { e.voti = metr.map(m => (e[m] ?? 0) / max[m] * 100); e.indice = ML.mean(e.voti) / 100 })
   S.metr = metr
   S.E = E

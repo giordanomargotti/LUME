@@ -50,6 +50,25 @@
     }
     return { km: best, idx }
   }
+  // indice a griglia per cercare il punto piu' vicino senza confrontare tutti i punti (molti clienti, molti concorrenti)
+  function indiceVicini(punti, passo = 0.1) {
+    if (punti.length < 150) return (lat, lon) => piuVicino(lat, lon, punti)
+    const G = new Map(), chiave = (i, j) => i * 100000 + j
+    punti.forEach((p, n) => { const k = chiave(Math.floor(p.lat / passo), Math.floor(p.lon / passo)); if (!G.has(k)) G.set(k, []); G.get(k).push(n) })
+    return (lat, lon) => {
+      const i0 = Math.floor(lat / passo), j0 = Math.floor(lon / passo), passoKm = passo * 111.2 * Math.cos(lat * Math.PI / 180)
+      let best = Infinity, idx = -1
+      for (let r = 0; r < 60; r++) {
+        for (let i = i0 - r; i <= i0 + r; i++) for (let j = j0 - r; j <= j0 + r; j++) {
+          if (Math.max(Math.abs(i - i0), Math.abs(j - j0)) !== r) continue
+          const L = G.get(chiave(i, j)); if (!L) continue
+          for (const n of L) { const d = km(lat, lon, punti[n].lat, punti[n].lon); if (d < best) { best = d; idx = n } }
+        }
+        if (idx >= 0 && best <= r * passoKm) return { km: best, idx }
+      }
+      return piuVicino(lat, lon, punti)
+    }
+  }
   const num = v => { if (v == null || v === '') return null; const x = typeof v === 'number' ? v : parseFloat(String(v).replace(',', '.')); return isNaN(x) ? null : x }
   const si = v => /^(s[iì]|y|yes|true|1|x)$/i.test(String(v ?? '').trim())
 
@@ -60,6 +79,7 @@
     const prodotti = fogli.Prodotti || [], mercato = fogli.Prezzi_mercato || []
     const pv = (fogli.Punti_vendita || []).map(p => ({ ...p, lat: num(p.lat), lon: num(p.lon) })).filter(p => p.lat != null)
     const co = (fogli.Concorrenti || []).map(p => ({ ...p, lat: num(p.lat), lon: num(p.lon) })).filter(p => p.lat != null)
+    const vicinoCo = indiceVicini(co), vicinoPv = indiceVicini(pv)
     const finestraMesi = opz.finestraMesi || 12
 
     // data di riferimento = data piu' recente presente nel file (estrazione)
@@ -104,8 +124,8 @@
       } else o.gap_prezzo = null
       o.lat = num(r.lat); o.lon = num(r.lon)
       if (o.lat != null && o.lon != null) {
-        if (co.length) { const v = piuVicino(o.lat, o.lon, co); o.dist_concorrente = v.km; o.concorrente = co[v.idx] }
-        if (pv.length) { const v = piuVicino(o.lat, o.lon, pv); o.dist_punto = v.km; o.punto = pv[v.idx] }
+        if (co.length) { const v = vicinoCo(o.lat, o.lon); o.dist_concorrente = v.km; o.concorrente = co[v.idx] }
+        if (pv.length) { const v = vicinoPv(o.lat, o.lon); o.dist_punto = v.km; o.punto = pv[v.idx] }
       }
       righe.push(o)
     }
@@ -176,7 +196,7 @@
       const idx = y.map((v, i) => v === cl ? i : -1).filter(i => i >= 0)
       for (let i = idx.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1));[idx[i], idx[j]] = [idx[j], idx[i]] }
       const n = Math.round(idx.length * quota)
-      tr.push(...idx.slice(0, n)); te.push(...idx.slice(n))
+      for (let i = 0; i < idx.length; i++) (i < n ? tr : te).push(idx[i])
     }
     return { tr, te }
   }
@@ -291,13 +311,13 @@
   function valuta(nodo, bx) { while (nodo.j != null) nodo = bx[nodo.j] <= nodo.b ? nodo.sx : nodo.dx; return nodo.v }
   function guadagni(nodo, imp) { if (nodo.j == null) return; imp[nodo.j] += nodo.gain; guadagni(nodo.sx, imp); guadagni(nodo.dx, imp) }
 
-  function randomForest(X, y, w, { alberi = 150, profondita = 8, minFoglia = 8, seed = 7 } = {}) {
+  function randomForest(X, y, w, { alberi = 150, profondita = 8, minFoglia = 8, seed = 7, maxBootstrap = 12000 } = {}) {
     const { B, soglie, bin } = binner(X), n = X.length, p = X[0].length
     const nbin = soglie.map(t => t.length), r = rng(seed), mtry = Math.max(1, Math.round(Math.sqrt(p)))
     const foresta = [], imp = new Array(p).fill(0)
     for (let t = 0; t < alberi; t++) {
       const cnt = new Float64Array(n)
-      for (let i = 0; i < n; i++) cnt[Math.floor(r() * n)]++            // bootstrap
+      for (let i = 0, nb = Math.min(n, maxBootstrap); i < nb; i++) cnt[Math.floor(r() * n)]++            // bootstrap (al massimo maxBootstrap righe per albero)
       const idx = [], g = new Float64Array(n), h = new Float64Array(n)
       for (let i = 0; i < n; i++) if (cnt[i]) { idx.push(i); g[i] = -cnt[i] * w[i] * y[i]; h[i] = cnt[i] * w[i] }
       const a = albero(B, idx, g, h, nbin, { profondita, minFoglia, lambda: 0, mtry, r })
@@ -377,8 +397,21 @@
   function aucUnivariata(x, y) { const a = auc(y, x); return isNaN(a) ? NaN : a }
 
   // ───────────────────────── confronto dei tre modelli
-  function addestraTutti(d, { seed = 42, avanzamento = () => {} } = {}) {
-    const { tr, te } = dividi(d.y, 0.7, seed)
+  // sottocampione stratificato: con parchi clienti molto grandi si addestra e si valuta su un campione
+  function campione(idx, y, max, seed) {
+    if (idx.length <= max) return idx
+    const r = rng(seed), out = []
+    for (const cl of [0, 1]) {
+      const g = idx.filter(i => y[i] === cl)
+      for (let i = g.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1));[g[i], g[j]] = [g[j], g[i]] }
+      const m = Math.round(g.length * max / idx.length); for (let i = 0; i < m; i++) out.push(g[i])
+    }
+    return out
+  }
+  function addestraTutti(d, { seed = 42, maxAddestramento = 25000, maxVerifica = 25000, avanzamento = () => {} } = {}) {
+    let { tr, te } = dividi(d.y, 0.7, seed)
+    const ridotto = tr.length > maxAddestramento || te.length > maxVerifica
+    tr = campione(tr, d.y, maxAddestramento, seed + 1); te = campione(te, d.y, maxVerifica, seed + 2)
     const Xtr = tr.map(i => d.X[i]), ytr = tr.map(i => d.y[i]), wtr = pesiBilanciati(ytr)
     const Xte = te.map(i => d.X[i]), yte = te.map(i => d.y[i])
     const prior = mean(d.y), out = []
@@ -398,12 +431,23 @@
     const migliore = out[0]
     migliore.importanza = migliore.id === 'logistica'
       ? migliore.modello.coef.map((c, j) => Math.abs(migliore.modello.b[j + 1]))
-      : importanzaPermutazione(migliore.modello, Xte, yte)
-    return { modelli: out, migliore, tr, te, yte, prior }
+      : (() => { const s = campione(Xte.map((_, i) => i), yte, 8000, seed + 3); return importanzaPermutazione(migliore.modello, s.map(i => Xte[i]), s.map(i => yte[i])) })()
+    return { modelli: out, migliore, tr, te, yte, prior, campione: ridotto ? { tr: tr.length, te: te.length } : null }
   }
 
   // ───────────────────────── k-means (k-means++ con piu' ripartenze)
-  function kmeans(Z, k, { ripartenze = 6, iter = 60, seed = 5 } = {}) {
+  // con molti clienti i centri si stimano su un campione e poi si assegnano tutti i clienti
+  function kmeans(Z, k, { maxN = 30000, ...opz } = {}) {
+    if (Z.length <= maxN) return kmeansBase(Z, k, opz)
+    const r = rng(17), idx = Z.map((_, i) => i)
+    for (let i = idx.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1));[idx[i], idx[j]] = [idx[j], idx[i]] }
+    const m = kmeansBase(idx.slice(0, maxN).map(i => Z[i]), k, opz), p = Z[0].length
+    const lab = Z.map(z => { let bj = 0, bd = Infinity
+      for (let c = 0; c < k; c++) { let s = 0; for (let j = 0; j < p; j++) s += (z[j] - m.C[c][j]) ** 2; if (s < bd) { bd = s; bj = c } }
+      return bj })
+    return { lab, C: m.C, inerzia: m.inerzia }
+  }
+  function kmeansBase(Z, k, { ripartenze = 6, iter = 60, seed = 5 } = {}) {
     const r = rng(seed), n = Z.length, p = Z[0].length
     const d2 = (a, b) => { let s = 0; for (let j = 0; j < p; j++) s += (a[j] - b[j]) ** 2; return s }
     let best = null
@@ -436,7 +480,7 @@
     return best
   }
 
-  root.LumeML = { rng, quantile, median, mean, aData, km, piuVicino, num, si, prepara, dividi, pesiBilanciati,
+  root.LumeML = { rng, quantile, median, mean, aData, km, piuVicino, indiceVicini, num, si, prepara, dividi, pesiBilanciati,
     logistica, randomForest, gradientBoosting, auc, roc, decili, calibra, importanzaPermutazione, aucUnivariata,
     addestraTutti, kmeans }
   if (typeof module !== 'undefined') module.exports = root.LumeML
