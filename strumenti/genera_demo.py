@@ -15,6 +15,7 @@ RIF = date(2026, 10, 31)          # data dell'estrazione
 INIZIO_FINESTRA = RIF - timedelta(days=365)
 N = 3000
 AZIENDA = "Azienda Demo"
+INTERCETTA = -3.40
 
 # ---------------------------------------------------------------- territorio
 def costa(lon):  # latitudine approssimata della linea di costa (Bellaria-Riccione)
@@ -113,6 +114,17 @@ reclami = rng.poisson(0.35, N)
 insoluti = np.where(rng.random(N) < .07, rng.gamma(2, 70, N).round(2), 0.0)
 sconto = rng.choice([0, 5, 10], N, p=[.6, .25, .15])
 
+# relazione con l'assistenza, fatturazione, uso dei canali digitali
+ticket = reclami + rng.poisson(0.9, N)                      # i reclami sono una parte dei contatti
+cambi = rng.poisson(np.minimum(anni, 6) * 0.12, N)          # cambi di offerta: crescono con l'anzianita'
+rettifiche = rng.poisson(0.18, N)
+solleciti = np.where(insoluti > 0, rng.poisson(2.2, N) + 1, rng.poisson(0.25, N))
+area_web = rng.random(N) < np.where(fascia == "75+", .15, np.where(canale == "Web", .80, .42))
+consenso = rng.random(N) < .58
+var_cons = np.where(rng.random(N) < .06, rng.uniform(-.75, -.30, N), rng.normal(0, .12, N))
+nps_lat = rng.normal(7.6, 1.7, N) - 0.9 * np.minimum(reclami, 3) - 0.5 * rettifiche - 0.2 * np.minimum(ticket, 6)
+nps = np.where(rng.random(N) < .40, np.clip(np.round(nps_lat), 0, 10), np.nan)   # risponde il 40%
+
 ric_base = np.where(business, rng.gamma(6, 45, N), np.where(categoria == "Gas", rng.gamma(9, 7, N), rng.gamma(9, 6.5, N)))
 ricavo = (ric_base * (1 + 0.45 * (n_prod == 2)) * (1 - sconto / 100)).round(2)
 margine = (ricavo * rng.uniform(.08, .18, N)).round(2)
@@ -129,12 +141,15 @@ d_pv = np.min(km(lat[:, None], lon[:, None], PV.lat.values[None], PV.lon.values[
 scad_gg = np.where(variabile, np.nan, (365 - (gg_att % 365)).astype(float))
 
 # ---- probabilita' di churn a 12 mesi (modello "vero", sconosciuto all'app)
-logit = (-3.05 + 0.85 * variabile + 0.75 * (anni < 1) + 0.35 * ((anni >= 1) & (anni < 2))
-         - 0.55 * (pagamento == "Domiciliazione") - 0.35 * fattura_dig + 0.45 * np.minimum(reclami, 4)
-         + 0.80 * (insoluti > 0) + 4.0 * gap + 1.0 * np.exp(-d_co / 0.9) - 0.45 * np.exp(-d_pv / 1.2)
+logit = (INTERCETTA + 0.85 * variabile + 0.75 * (anni < 1) + 0.35 * ((anni >= 1) & (anni < 2))
+         - 0.55 * (pagamento == "Domiciliazione") - 0.35 * fattura_dig + 0.30 * np.minimum(reclami, 4)
+         + 0.55 * (insoluti > 0) + 4.0 * gap + 1.0 * np.exp(-d_co / 0.9) - 0.45 * np.exp(-d_pv / 1.2)
          - 0.55 * (n_prod == 2) + 0.40 * (fascia == "18-34") - 0.30 * (fascia == "75+")
          + 0.55 * (np.nan_to_num(scad_gg, nan=999) < 75) + 0.50 * (canale == "Teleselling")
-         + 0.20 * (canale == "Web") - 0.20 * business)
+         + 0.20 * (canale == "Web") - 0.20 * business
+         + 0.18 * np.minimum(ticket, 6) + 0.28 * np.minimum(cambi, 3) + 0.35 * np.minimum(rettifiche, 3)
+         + 0.15 * np.minimum(solleciti, 5) - 1.6 * np.clip(var_cons, -.8, .3) - 0.40 * area_web
+         - 0.15 * consenso - 0.12 * (nps_lat - 7.5))
 p = 1 / (1 + np.exp(-logit))
 churn = (rng.random(N) < p) & (gg_att > 45)
 
@@ -166,9 +181,14 @@ CL = pd.DataFrame({
     "canale_acquisizione": canale, "sconto_pct": sconto, "data_scadenza_offerta": scad,
     "metodo_pagamento": pagamento, "fattura_digitale": np.where(fattura_dig, "Sì", "No"),
     "n_prodotti": n_prod, "n_reclami_12m": reclami, "insoluti_eur": insoluti, "margine_mensile": margine,
+    "n_ticket_12m": ticket, "n_cambi_prodotto": cambi, "n_fatture_rettificate_12m": rettifiche,
+    "n_solleciti_12m": solleciti, "var_consumo_pct": (var_cons * 100).round(1),
+    "area_clienti_web": np.where(area_web, "Sì", "No"), "consenso_marketing": np.where(consenso, "Sì", "No"),
+    "voto_nps": nps,
 })
 # qualche vuoto realistico nei campi facoltativi
-for c, q in [("fascia_eta", .06), ("canale_acquisizione", .04), ("metodo_pagamento", .03), ("margine_mensile", .10)]:
+for c, q in [("fascia_eta", .06), ("canale_acquisizione", .04), ("metodo_pagamento", .03), ("margine_mensile", .10),
+             ("var_consumo_pct", .05)]:
     m = rng.random(N) < q
     CL[c] = CL[c].astype(object); CL.loc[m, c] = None
 CL["indirizzo"] = None; CL["civico"] = None
@@ -197,7 +217,7 @@ OBBL = {"Clienti": ["id_cliente", "data_attivazione", "data_cessazione", "prodot
 FORMATI = {"data_attivazione": "DD/MM/YYYY", "data_cessazione": "DD/MM/YYYY", "data_scadenza_offerta": "DD/MM/YYYY",
            "data_rilevazione": "DD/MM/YYYY", "ricavo_mensile": "#,##0.00", "margine_mensile": "#,##0.00",
            "insoluti_eur": "#,##0.00", "prezzo_unitario": "0.000", "quota_fissa_mese": "#,##0.00",
-           "lat": "0.00000", "lon": "0.00000"}
+           "lat": "0.00000", "lon": "0.00000", "var_consumo_pct": "0.0", "voto_nps": "0"}
 
 wb = Workbook()
 wb.remove(wb.active)
@@ -236,35 +256,43 @@ ws["A2"] = (f"Azienda fittizia ({AZIENDA}), area di Rimini. Nessun dato reale. D
 ws["A2"].font = Font(name=ARIAL, size=10, color="57524B")
 ws["A4"] = "Legenda"; ws["A4"].font = Font(name=ARIAL, size=11, bold=True, color=INK)
 ws["A5"] = "Obbligatorio"; ws["A5"].font, ws["A5"].fill = f_req, fill_req
-ws["B5"] = "serve per scoring, personas o mappa"; ws["B5"].font = f_txt
+ws["B5"] = "necessario per scoring, personas o mappa"; ws["B5"].font = f_txt
 ws["A6"] = "Facoltativo"; ws["A6"].font, ws["A6"].fill = f_opt, fill_opt
-ws["B6"] = "migliora il modello; si può lasciare vuoto"; ws["B6"].font = f_txt
+ws["B6"] = "aumenta l'accuratezza del modello; può restare vuoto"; ws["B6"].font = f_txt
 ws["A7"] = "Posizione"; ws["A7"].font = f_opt
-ws["B7"] = "indirizzo + civico + cap oppure lat + lon (qui lat/lon)"; ws["B7"].font = f_txt
+ws["B7"] = "indirizzo + civico + cap oppure lat + lon (in questo file: lat e lon)"; ws["B7"].font = f_txt
 
 CAMPI = [
-    ("Clienti", "id_cliente", "Sì", "testo", "codice anonimo: niente nomi o codici fiscali"),
-    ("Clienti", "data_attivazione", "Sì", "data", "anzianità del cliente"),
-    ("Clienti", "data_cessazione", "Sì", "data o vuoto", "vuoto = attivo; cessati negli ultimi 12 mesi = churn"),
-    ("Clienti", "prodotto", "Sì", "testo", "deve esistere nel foglio Prodotti"),
-    ("Clienti", "ricavo_mensile", "Sì", "€", "valore del cliente e valore a rischio"),
-    ("Clienti", "comune, cap", "Sì", "testo", "mappa e confronti per zona"),
-    ("Clienti", "indirizzo, civico / lat, lon", "Sì (uno dei due)", "testo / gradi", "posizione sulla mappa a esagoni"),
-    ("Clienti", "tipo_cliente", "No", "Privato / Business", "segmentazione"),
-    ("Clienti", "fascia_eta", "No", "18-34 … 75+", "personas e scoring (solo privati)"),
-    ("Clienti", "canale_acquisizione", "No", "testo", "scoring"),
-    ("Clienti", "sconto_pct", "No", "%", "prezzo effettivo contro mercato"),
-    ("Clienti", "data_scadenza_offerta", "No", "data", "giorni al rinnovo (solo prezzo fisso)"),
-    ("Clienti", "metodo_pagamento", "No", "testo", "scoring"),
-    ("Clienti", "fattura_digitale", "No", "Sì / No", "scoring e personas"),
-    ("Clienti", "n_prodotti", "No", "intero", "clienti con più prodotti"),
-    ("Clienti", "n_reclami_12m", "No", "intero", "scoring"),
-    ("Clienti", "insoluti_eur", "No", "€", "scoring"),
-    ("Clienti", "margine_mensile", "No", "€", "margine a rischio"),
-    ("Punti_vendita", "id_punto, nome, comune, lat, lon", "Sì", "", "la tua rete fisica"),
-    ("Concorrenti", "marchio, tipo_punto, comune, lat, lon", "Sì", "", "rischio di passaggio a un concorrente vicino"),
-    ("Prodotti", "prodotto, categoria, tipo_prezzo, prezzo_unitario, unita", "Sì", "", "i tuoi listini"),
-    ("Prezzi_mercato", "marchio, categoria, tipo_prezzo, prezzo_unitario", "Sì", "", "confronto prezzi con i concorrenti"),
+    ("Clienti", "id_cliente", "Sì", "testo", "Codice anonimo. Non inserire nomi o codici fiscali."),
+    ("Clienti", "data_attivazione", "Sì", "data", "Anzianità del cliente."),
+    ("Clienti", "data_cessazione", "Sì", "data o vuoto", "Vuoto se il cliente è attivo. I cessati negli ultimi 12 mesi definiscono il churn."),
+    ("Clienti", "prodotto", "Sì", "testo", "Deve corrispondere a un prodotto del foglio Prodotti."),
+    ("Clienti", "ricavo_mensile", "Sì", "€", "Valore del cliente e ricavo esposto al churn."),
+    ("Clienti", "comune, cap", "Sì", "testo", "Mappa e confronti per zona."),
+    ("Clienti", "indirizzo, civico / lat, lon", "Sì (uno dei due)", "testo / gradi", "Posizione del cliente sulla mappa a esagoni."),
+    ("Clienti", "tipo_cliente", "No", "Privato / Business", "Segmentazione."),
+    ("Clienti", "fascia_eta", "No", "18-34 … 75+", "Personas e scoring (solo clienti privati)."),
+    ("Clienti", "canale_acquisizione", "No", "testo", "Scoring."),
+    ("Clienti", "sconto_pct", "No", "%", "Prezzo effettivo rispetto al mercato."),
+    ("Clienti", "data_scadenza_offerta", "No", "data", "Giorni al rinnovo (solo prezzo fisso)."),
+    ("Clienti", "metodo_pagamento", "No", "testo", "Scoring."),
+    ("Clienti", "fattura_digitale", "No", "Sì / No", "Scoring e personas."),
+    ("Clienti", "n_prodotti", "No", "intero", "Clienti con più prodotti attivi."),
+    ("Clienti", "n_reclami_12m", "No", "intero", "Reclami formali negli ultimi 12 mesi."),
+    ("Clienti", "n_ticket_12m", "No", "intero", "Contatti con l'assistenza (telefono, email, chat, sportello) negli ultimi 12 mesi, reclami inclusi."),
+    ("Clienti", "n_cambi_prodotto", "No", "intero", "Cambi di offerta o di prodotto dall'attivazione."),
+    ("Clienti", "n_fatture_rettificate_12m", "No", "intero", "Fatture corrette o stornate negli ultimi 12 mesi."),
+    ("Clienti", "insoluti_eur", "No", "€", "Importo scaduto e non pagato alla data dell'estrazione."),
+    ("Clienti", "n_solleciti_12m", "No", "intero", "Solleciti di pagamento inviati negli ultimi 12 mesi."),
+    ("Clienti", "var_consumo_pct", "No", "%", "Variazione del consumo negli ultimi 12 mesi di fornitura rispetto ai 12 precedenti. Per i cessati: fino alla data di cessazione."),
+    ("Clienti", "area_clienti_web", "No", "Sì / No", "Registrato all'area clienti web o all'app."),
+    ("Clienti", "consenso_marketing", "No", "Sì / No", "Consenso alle comunicazioni commerciali."),
+    ("Clienti", "voto_nps", "No", "0-10 o vuoto", "Ultimo voto di raccomandazione. Vuoto se il cliente non ha risposto."),
+    ("Clienti", "margine_mensile", "No", "€", "Margine esposto al churn."),
+    ("Punti_vendita", "id_punto, nome, comune, lat, lon", "Sì", "", "Rete fisica dell'azienda."),
+    ("Concorrenti", "marchio, tipo_punto, comune, lat, lon", "Sì", "", "Esposizione dei clienti a un concorrente vicino."),
+    ("Prodotti", "prodotto, categoria, tipo_prezzo, prezzo_unitario, unita", "Sì", "", "Listino dell'azienda."),
+    ("Prezzi_mercato", "marchio, categoria, tipo_prezzo, prezzo_unitario", "Sì", "", "Confronto dei prezzi con i concorrenti."),
 ]
 r0 = 9
 for j, h in enumerate(["Foglio", "Campo", "Obbligatorio", "Formato", "A cosa serve"], 1):

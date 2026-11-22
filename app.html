@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lume · Conosci i tuoi clienti</title>
+<title>Lume AntiChurn · Conosci i tuoi clienti</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -138,6 +138,7 @@
   th { font-family: var(--mono); font-size: var(--t-xs); font-weight: 400; color: var(--ink-3); text-align: right; padding: 10px 10px 10px 0; border-bottom: 1px solid var(--ink); vertical-align: bottom; line-height: 1.35; }
   td { padding: 10px 10px 10px 0; border-bottom: 1px solid var(--line); text-align: right; }
   th.l, td.l { text-align: left; }
+  table.compatta td { padding-block: 5px; }
   tr.best td { background: #FBEDE4; }
   td.pt { font-weight: 600; color: var(--accent); }
   td small { display: block; color: var(--ink-3); font-size: var(--t-xs); font-family: var(--mono); }
@@ -222,13 +223,13 @@
   <section class="wrap hero">
     <div class="grid"><h1>Conosci i tuoi <em>clienti.</em></h1></div>
     <div class="grid">
-      <p class="hero-text"><b>Salvaguarda la retention e limita il churn</b> con metodi quantitativi: lo score che segnala chi sta per andarsene, le personas che danno un volto a gruppi di clienti simili, la mappa che mostra la tua rete fisica e quella dei concorrenti.</p>
+      <p class="hero-text">Tre analisi sullo stesso parco clienti. Lo <b>scoring</b> indica chi ha la probabilità di churn più alta nei prossimi 12 mesi. Le <b>personas</b> descrivono gruppi omogenei a cui riservare azioni diverse. La <b>mappa</b> mostra dove si concentrano clienti persi, clienti a rischio e concorrenti.</p>
     </div>
     <nav class="percorso" aria-label="Percorso dell'analisi">
-      <a class="tappa" href="#variabili"><span class="label">01</span><b>Variabili</b><p>Cosa c'è nei dati e quali caratteristiche si legano all'abbandono.</p></a>
-      <a class="tappa" href="#personas"><span class="label">02</span><b>Personas</b><p>Gruppi di clienti omogenei, a regole o trovati dal modello.</p></a>
-      <a class="tappa" href="#scoring"><span class="label">03</span><b>Scoring</b><p>Tre modelli a confronto e la probabilità di abbandono di ogni cliente.</p></a>
-      <a class="tappa" href="#mappa-sez"><span class="label">04</span><b>Mappa</b><p>Esagoni da 0,7 km²: dove agire per primi.</p></a>
+      <a class="tappa" href="#variabili"><span class="label">01</span><b>Variabili</b><p>Quali caratteristiche dei clienti sono legate al churn e come si posizionano i prezzi rispetto al mercato.</p></a>
+      <a class="tappa" href="#personas"><span class="label">02</span><b>Personas</b><p>Cinque gruppi di clienti, costruiti con regole di segmentazione o con un algoritmo di clustering.</p></a>
+      <a class="tappa" href="#scoring"><span class="label">03</span><b>Scoring</b><p>Tre modelli di machine learning a confronto. Il più accurato assegna uno score a ogni cliente attivo.</p></a>
+      <a class="tappa" href="#mappa-sez"><span class="label">04</span><b>Mappa</b><p>Il territorio in esagoni da 0,7 km², ordinati per priorità di intervento.</p></a>
     </nav>
   </section>
 
@@ -236,21 +237,21 @@
     <div class="section wrap">
       <div class="grid head">
         <p class="label">00 · Dati</p>
-        <h2>Carica il file dei clienti.</h2>
-        <p>Un Excel con un foglio per clienti, punti vendita, concorrenti, prodotti e prezzi di mercato. I calcoli avvengono nel tuo browser: i dati non vengono inviati a nessun server.</p>
+        <h2>Caricamento dei dati</h2>
+        <p>Un file Excel con cinque fogli: clienti, punti vendita, concorrenti, prodotti e prezzi di mercato. L'elaborazione avviene nel browser: il file non viene caricato su alcun server.</p>
       </div>
       <div class="carica">
         <label class="drop" id="drop">
           <input type="file" id="file" accept=".xlsx,.xls">
-          <span><b>Trascina qui l'Excel</b> oppure clicca per sceglierlo</span>
+          <span><b>Trascina qui il file Excel</b> o fai clic per selezionarlo</span>
           <small>fogli: Clienti · Punti_vendita · Concorrenti · Prodotti · Prezzi_mercato</small>
         </label>
         <div class="carica-lato">
           <div class="azioni">
-            <button class="btn" id="demo" type="button">Usa i dati demo</button>
+            <button class="btn" id="demo" type="button">Prova con i dati demo</button>
             <a class="link" href="dati/lume_antichurn_dati_demo.xlsx" download>Scarica il modello Excel</a>
           </div>
-          <p>Campi minimi per cliente: codice, data di attivazione, data di cessazione (vuota se attivo), prodotto, ricavo mensile, comune e posizione (indirizzo o coordinate). Gli altri campi migliorano il modello.</p>
+          <p>Campi obbligatori per ogni cliente: codice, data di attivazione, data di cessazione (vuota se attivo), prodotto, ricavo mensile, comune e posizione. I campi facoltativi, come ticket all'assistenza, cambi di prodotto, solleciti, variazione dei consumi e voto NPS, aumentano l'accuratezza del modello.</p>
           <p class="stato" id="stato"></p>
         </div>
       </div>
@@ -261,31 +262,31 @@
   <section class="section wrap" id="variabili">
     <div class="grid head">
       <p class="label">01 · Variabili</p>
-      <h2>Cosa raccontano i dati.</h2>
-      <p>Qualità dei campi, legame di ogni caratteristica con l'abbandono e confronto dei prezzi con il mercato.</p>
+      <h2>Caratteristiche legate al churn</h2>
+      <p>Per ogni variabile: completezza nel file, capacità di distinguere i clienti persi da quelli attivi e tasso di churn per gruppo. In chiusura, il confronto dei prezzi con i concorrenti.</p>
     </div>
-    <div id="var-vuoto" class="attesa">Carica i dati per vedere l'analisi.</div>
+    <div id="var-vuoto" class="attesa">Disponibile dopo il caricamento dei dati.</div>
     <div id="var-corpo" hidden>
       <div class="nums" id="var-nums"></div>
       <div class="pannelli" style="margin-top:48px">
         <div class="pan c7">
-          <h3>Quali variabili separano chi se ne va da chi resta</h3>
+          <h3>Potere predittivo di ogni variabile</h3>
           <div class="chart alto"><canvas id="g-potere"></canvas></div>
-          <p class="nota">Indice di Gini della singola variabile (0 = nessun segnale, 100 = separazione perfetta).</p>
+          <p class="nota">Indice di Gini calcolato sulla singola variabile: 0 = nessuna relazione con il churn, 100 = separazione completa tra clienti persi e attivi.</p>
         </div>
         <div class="pan c5">
-          <h3>Campi trovati nel file</h3>
+          <h3>Completezza dei campi</h3>
           <div class="tab" id="var-campi"></div>
         </div>
       </div>
-      <p class="sub">Tasso di abbandono per caratteristica</p>
-      <p class="sub-p">Quota di clienti cessati negli ultimi 12 mesi per ogni gruppo. In terracotta i gruppi sopra la media.</p>
+      <p class="sub">Tasso di churn per gruppo</p>
+      <p class="sub-p">Quota di clienti cessati negli ultimi 12 mesi in ogni gruppo. In terracotta i gruppi sopra la media del parco clienti.</p>
       <div class="pannelli" id="var-multi"></div>
-      <p class="sub">Prezzi rispetto al mercato</p>
-      <p class="sub-p">Scarto del prezzo unitario di ogni marchio dalla media dei concorrenti, per linea di prodotto. Sotto zero = più economico.</p>
+      <p class="sub">Prezzi e mercato</p>
+      <p class="sub-p">Scarto del prezzo unitario di ogni marchio dalla media dei concorrenti, per linea di prodotto. Valori negativi indicano un prezzo inferiore alla media.</p>
       <div class="pannelli">
-        <div class="pan c8"><h3>Prezzo rispetto alla media di mercato</h3><div class="chart"><canvas id="g-prezzi"></canvas></div></div>
-        <div class="pan c4"><h3>Abbandono per prezzo pagato rispetto al mercato</h3><div class="chart"><canvas id="g-gap"></canvas></div></div>
+        <div class="pan c8"><h3>Scarto dalla media di mercato</h3><div class="chart"><canvas id="g-prezzi"></canvas></div></div>
+        <div class="pan c4"><h3>Churn per livello di prezzo pagato</h3><div class="chart"><canvas id="g-gap"></canvas></div></div>
       </div>
     </div>
   </section>
@@ -295,21 +296,21 @@
     <div class="section wrap">
       <div class="grid head">
         <p class="label">02 · Customer segmentation</p>
-        <h2>Dai un volto ai tuoi clienti.</h2>
-        <p>Due letture dello stesso parco: personas a regole, leggibili e stabili, e gruppi trovati dal modello (k-means) senza ipotesi di partenza.</p>
+        <h2>Customer personas</h2>
+        <p>Due metodi applicati allo stesso parco clienti. Le regole di segmentazione producono gruppi stabili e facili da spiegare. Il clustering (k-means) individua i gruppi senza ipotesi di partenza. Per ogni gruppo: dimensione, churn, valore e azione consigliata.</p>
       </div>
-      <div id="per-vuoto" class="attesa">Carica i dati per vedere le personas.</div>
+      <div id="per-vuoto" class="attesa">Disponibile dopo il caricamento dei dati.</div>
       <div id="per-corpo" hidden>
         <div class="azioni" style="margin-bottom:24px">
-          <div class="seg" id="per-modo"><button type="button" aria-pressed="true" data-v="regole">Segmentation rules</button><button type="button" aria-pressed="false" data-v="cluster">Clustering con modello</button></div>
+          <div class="seg" id="per-modo"><button type="button" aria-pressed="true" data-v="regole">Regole di segmentazione</button><button type="button" aria-pressed="false" data-v="cluster">Clustering k-means</button></div>
           <span class="label" id="per-nota"></span>
         </div>
         <div class="pcards" id="per-cards"></div>
         <div class="pannelli" style="margin-top:40px">
           <div class="pan c6"><h3 id="radar-tit">Profilo</h3><div class="chart alto"><canvas id="g-radar"></canvas></div>
-            <p class="nota">Assi da 0 a 100. Anzianità, valore e rischio: posizione media del gruppo nella classifica di tutti i clienti (50 = nella media). Gli altri: quota di clienti del gruppo.</p></div>
-          <div class="pan c6"><h3>Personas e fasce di rischio</h3><div class="tab" id="per-matrice"></div>
-            <p class="nota">Quota di clienti attivi di ogni gruppo in fascia Bassa, Media e Alta.</p></div>
+            <p class="nota">Scala 0-100. Anzianità, valore, ticket e rischio: posizione media del gruppo rispetto a tutti i clienti (50 = media). Gli altri assi: quota di clienti del gruppo con quella caratteristica.</p></div>
+          <div class="pan c6"><h3>Distribuzione per fascia di rischio</h3><div class="tab" id="per-matrice"></div>
+            <p class="nota">Quota di clienti attivi di ogni gruppo nelle fasce di rischio bassa, media e alta.</p></div>
         </div>
       </div>
     </div>
@@ -319,24 +320,24 @@
   <section class="section wrap" id="scoring">
     <div class="grid head">
       <p class="label">03 · Scoring of churn risk</p>
-      <h2>Chi sta per andarsene.</h2>
-      <p>Tre modelli addestrati sul 70% dei clienti e verificati sul restante 30%, mai visto in addestramento. Il migliore assegna a ogni cliente attivo la probabilità di abbandono nei prossimi 12 mesi.</p>
+      <h2>Probabilità di churn per cliente</h2>
+      <p>Regressione logistica, random forest e gradient boosting, addestrati sul 70% dei clienti e valutati sul 30% escluso dall'addestramento. Il modello con l'AUC più alta assegna a ogni cliente attivo la probabilità di churn nei 12 mesi successivi.</p>
     </div>
-    <div id="sco-vuoto" class="attesa">Carica i dati per vedere lo scoring.</div>
+    <div id="sco-vuoto" class="attesa">Disponibile dopo il caricamento dei dati.</div>
     <div id="sco-corpo" hidden>
       <div class="nums" id="sco-nums"></div>
       <p class="sub">Confronto dei modelli</p>
       <div class="pannelli">
-        <div class="pan c5"><h3>Risultati sul 30% di verifica</h3><div class="tab" id="sco-modelli"></div>
-          <p class="nota">AUC: 0,5 = a caso, 1 = perfetto. Lift: quante volte il 10% più a rischio supera il tasso medio.</p></div>
+        <div class="pan c5"><h3>Risultati sul campione di verifica (30%)</h3><div class="tab" id="sco-modelli"></div>
+          <p class="nota">AUC: 0,5 = previsione casuale, 1 = previsione perfetta. Lift: rapporto tra il tasso di churn del 10% di clienti con score più alto e il tasso medio.</p></div>
         <div class="pan c7"><h3>Curva ROC</h3><div class="chart"><canvas id="g-roc"></canvas></div></div>
         <div class="pan c6"><h3 id="lift-tit">Lift per decile</h3><div class="chart"><canvas id="g-lift"></canvas></div>
-          <p class="nota">Decile 1 = 10% di clienti con lo score più alto. Linea tratteggiata = media.</p></div>
-        <div class="pan c6"><h3 id="imp-tit">Variabili più importanti</h3><div class="chart"><canvas id="g-imp"></canvas></div></div>
+          <p class="nota">Decile 1 = 10% dei clienti con score più alto. Linea tratteggiata = tasso medio di churn.</p></div>
+        <div class="pan c6"><h3 id="imp-tit">Variabili più rilevanti</h3><div class="chart"><canvas id="g-imp"></canvas></div></div>
       </div>
-      <p class="sub">Clienti attivi più a rischio</p>
+      <p class="sub">Elenco di priorità</p>
       <p class="sub-p" id="sco-fasce"></p>
-      <div class="azioni" style="margin-bottom:16px"><button class="btn sec" id="scarica" type="button">Scarica tutti i clienti attivi con lo score (CSV)</button></div>
+      <div class="azioni" style="margin-bottom:16px"><button class="btn sec" id="scarica" type="button">Scarica l'elenco completo con score (CSV)</button></div>
       <div class="tab" id="sco-top"></div>
     </div>
   </section>
@@ -345,10 +346,10 @@
   <section class="section wrap" id="mappa-sez">
     <div class="grid head">
       <p class="label">04 · Honeycomb map</p>
-      <h2>Dove agire per primi.</h2>
-      <p>Il territorio diviso in esagoni da circa 0,7 km². Per ogni esagono quattro percentuali; l'indice le combina e ordina le zone da presidiare.</p>
+      <h2>Priorità di intervento sul territorio</h2>
+      <p>Il territorio è diviso in esagoni da circa 0,7 km². Per ogni esagono si calcolano quattro quote: clienti potenziali, clienti persi, clienti a rischio e clienti esposti a un concorrente vicino. Un indice le combina e ordina le zone.</p>
     </div>
-    <div id="map-vuoto" class="attesa">Carica i dati per vedere la mappa.</div>
+    <div id="map-vuoto" class="attesa">Disponibile dopo il caricamento dei dati.</div>
     <div id="map-corpo" hidden>
       <div class="mapwrap">
         <div class="mapmain">
@@ -358,7 +359,7 @@
         <aside class="mappanel">
           <div class="layers" id="layers"></div>
           <div id="legenda"></div>
-          <div class="mp-row"><span class="pv" style="justify-self:center"></span><span>I tuoi punti vendita</span><span id="n-pv"></span></div>
+          <div class="mp-row"><span class="pv" style="justify-self:center"></span><span>Punti vendita</span><span id="n-pv"></span></div>
           <div class="mp-row"><svg width="22" height="14" aria-hidden="true"><circle cx="11" cy="7" r="4.5" fill="#151412" stroke="#fff"/></svg><span>Concorrenti</span><span id="n-co"></span></div>
           <p class="mp-h" style="font-weight:600">Le 10 zone con l'indice più alto</p>
           <div class="classifica" id="classifica"></div>
@@ -370,7 +371,7 @@
 </main>
 
 <footer class="foot"><div class="wrap foot-inner">
-  lume. AntiChurn · elaborazione nel browser: i dati dei clienti non lasciano il computer.<br>
+  lume. AntiChurn · elaborazione nel browser: i dati dei clienti non vengono trasmessi a server esterni.<br>
   Famiglie: ISTAT, Basi territoriali e dati per sezione di censimento (CC BY 4.0) · Griglia esagonale H3 (Apache 2.0) · Mappa: Esri, HERE, Garmin, © OpenStreetMap.
 </div></footer>
 
@@ -442,10 +443,10 @@ async function avvia(buf, nome) {
   try {
     analizza(f)
     const avvisi = []
-    if (!f.Concorrenti) avvisi.push('senza foglio Concorrenti: niente distanze dai concorrenti')
-    if (!f.Prezzi_mercato || !f.Prodotti) avvisi.push('senza Prodotti/Prezzi_mercato: niente confronto prezzi')
+    if (!f.Concorrenti) avvisi.push('foglio Concorrenti assente: distanze dai concorrenti non calcolate')
+    if (!f.Prezzi_mercato || !f.Prodotti) avvisi.push('fogli Prodotti o Prezzi_mercato assenti: confronto prezzi non calcolato')
     const senzaPos = S.d.righe.filter(o => o.lat == null).length
-    if (senzaPos) avvisi.push(`${fmt(senzaPos)} clienti senza coordinate (la geocodifica degli indirizzi arriva in una fase successiva)`)
+    if (senzaPos) avvisi.push(`${fmt(senzaPos)} clienti senza coordinate (la geocodifica degli indirizzi sarà disponibile in una versione successiva)`)
     stato(`${nome}: ${fmt(f.Clienti.length)} righe lette, ${fmt(S.d.righe.length)} clienti nel perimetro.` + (avvisi.length ? '\n' + avvisi.join('\n') : ''))
     await caricaIstat()
     disegnaMappa()
@@ -459,7 +460,7 @@ drop.ondragover = e => { e.preventDefault(); drop.classList.add('over') }
 drop.ondragleave = () => drop.classList.remove('over')
 drop.ondrop = async e => { e.preventDefault(); drop.classList.remove('over'); const fl = e.dataTransfer.files[0]; if (fl) avvia(await fl.arrayBuffer(), fl.name) }
 $('#demo').onclick = async () => {
-  stato('Carico i dati demo…')
+  stato('Caricamento dei dati demo…')
   const r = await fetch('dati/lume_antichurn_dati_demo.xlsx')
   if (!r.ok) { stato('File demo non trovato sul server.', true); return }
   avvia(await r.arrayBuffer(), 'Dati demo')
@@ -477,25 +478,33 @@ function analizza(f) {
   const att = S.d.righe.filter(o => !o.churn)
   S.q70 = ML.quantile(att.map(o => o.score), 0.70); S.q95 = ML.quantile(att.map(o => o.score), 0.95)
   S.d.righe.forEach(o => o.fascia = o.score >= S.q95 ? 'Alto' : o.score >= S.q70 ? 'Medio' : 'Basso')
-  // posizione percentile (0-1) di anzianita', ricavo e score, per i radar
-  for (const k of ['anzianita_anni', 'ricavo', 'score']) {
+  // posizione percentile (0-1, pari merito al punto medio) per i radar
+  S.d.righe.forEach(o => { o.ticket = ML.num(o.n_ticket_12m) })
+  for (const k of ['anzianita_anni', 'ricavo', 'score', 'ticket']) {
     const ord = S.d.righe.map(o => o[k]).filter(v => v != null).sort((a, b) => a - b)
-    S.d.righe.forEach(o => { o['r_' + k] = o[k] == null ? null : bisect(ord, o[k]) / ord.length })
+    S.d.righe.forEach(o => { o['r_' + k] = o[k] == null ? null : (bisect(ord, o[k]) + bisect(ord, o[k], true)) / 2 / ord.length })
   }
+  S.base = S.d.y.reduce((a, b) => a + b, 0) / S.d.righe.length    // serve gia' alle personas
   personasRegole(); personasCluster()
   for (const s of ['var', 'per', 'sco', 'map']) { $(`#${s}-vuoto`).hidden = true; $(`#${s}-corpo`).hidden = false }
   disegnaVariabili(); disegnaPersonas(); disegnaScoring()
 }
-function bisect(a, v) { let lo = 0, hi = a.length; while (lo < hi) { const m = (lo + hi) >> 1; if (a[m] < v) lo = m + 1; else hi = m } return lo }
+function bisect(a, v, dopo) { let lo = 0, hi = a.length; while (lo < hi) { const m = (lo + hi) >> 1; if (dopo ? a[m] <= v : a[m] < v) lo = m + 1; else hi = m } return lo }
 
 // ───────────────────────── 01 variabili
+function conta(v, [a, b]) {     // classi per i conteggi: nessuno, a+1..b, oltre b
+  const x = ML.num(v); if (x == null) return null
+  if (x <= a) return 'nessuno'
+  if (x <= b) return b === a + 1 ? String(b) : `${a + 1}-${b}`
+  return `${b + 1} o più`
+}
 function disegnaVariabili() {
   const R = S.d.righe, n = R.length, nc = S.d.y.reduce((a, b) => a + b, 0), att = R.filter(o => !o.churn)
   S.base = nc / n
   $('#var-nums').innerHTML = [
     [fmt(n), 'Clienti nel perimetro', `attivi e cessati negli ultimi 12 mesi`],
     [fmt(nc), 'Cessati negli ultimi 12 mesi', `dal ${S.d.inizio.toLocaleDateString('it-IT')}`],
-    [pct(S.base), 'Tasso di abbandono annuo', 'cessati / perimetro', true],
+    [pct(S.base), 'Tasso di churn annuo', 'cessati / clienti nel perimetro', true],
     [eur(att.reduce((s, o) => s + (o.ricavo || 0), 0)), 'Ricavo mensile dei clienti attivi', `dati al ${S.d.rif.toLocaleDateString('it-IT')}`],
   ].map(([b, p, s, a]) => `<div class="num"><b class="${a ? 'acc' : ''}">${b}</b><p>${p}</p><small>${s}</small></div>`).join('')
 
@@ -507,10 +516,11 @@ function disegnaVariabili() {
     if (!isNaN(a)) pot.push({ l: c.l, g: Math.abs(2 * a - 1) * 100 })
   })
   pot.sort((a, b) => b.g - a.g)
-  const top = pot.slice(0, 12)
+  const top = pot.slice(0, 22)
+  document.getElementById('g-potere').parentNode.style.height = Math.max(360, top.length * 30 + 50) + 'px'
   grafico('g-potere', { type: 'bar', data: { labels: top.map(p => p.l), datasets: [{ data: top.map(p => p.g), backgroundColor: '#C2410C', borderRadius: 4, maxBarThickness: 16 }] },
     options: { indexAxis: 'y', maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => 'Gini ' + fmt(c.raw, 1) } } },
-      scales: { x: { beginAtZero: true, grid: { color: '#EEEBE5' } }, y: { grid: { display: false } } } } })
+      scales: { x: { beginAtZero: true, grid: { color: '#EEEBE5' } }, y: { grid: { display: false }, ticks: { autoSkip: false } } } } })
 
   // campi trovati
   const C = S.f.Clienti, campi = [
@@ -518,17 +528,25 @@ function disegnaVariabili() {
     ['ricavo_mensile', 'obbligatorio'], ['comune', 'obbligatorio'], ['lat', 'posizione'], ['lon', 'posizione'], ['indirizzo', 'posizione'],
     ['tipo_cliente', 'facoltativo'], ['fascia_eta', 'facoltativo'], ['canale_acquisizione', 'facoltativo'], ['sconto_pct', 'facoltativo'],
     ['data_scadenza_offerta', 'facoltativo'], ['metodo_pagamento', 'facoltativo'], ['fattura_digitale', 'facoltativo'], ['n_prodotti', 'facoltativo'],
-    ['n_reclami_12m', 'facoltativo'], ['insoluti_eur', 'facoltativo'], ['margine_mensile', 'facoltativo']]
+    ['n_reclami_12m', 'facoltativo'], ['n_ticket_12m', 'facoltativo'], ['n_cambi_prodotto', 'facoltativo'], ['n_fatture_rettificate_12m', 'facoltativo'],
+    ['insoluti_eur', 'facoltativo'], ['n_solleciti_12m', 'facoltativo'], ['var_consumo_pct', 'facoltativo'], ['area_clienti_web', 'facoltativo'],
+    ['consenso_marketing', 'facoltativo'], ['voto_nps', 'facoltativo'], ['margine_mensile', 'facoltativo']]
   const pieno = k => C.filter(r => r[k] != null && r[k] !== '').length / C.length
-  $('#var-campi').innerHTML = `<table><thead><tr><th class="l">Campo</th><th class="l">Tipo</th><th>Compilato</th></tr></thead><tbody>${
+  $('#var-campi').innerHTML = `<table class="compatta"><thead><tr><th class="l">Campo</th><th class="l">Tipo</th><th>Compilato</th></tr></thead><tbody>${
     campi.map(([k, t]) => `<tr><td class="l">${k}</td><td class="l"><span class="label">${t}</span></td><td>${!(k in C[0]) ? '<span class="label">assente</span>' : k === 'data_cessazione' ? pct(pieno(k), 0) + '<small>= quota di cessati</small>' : pct(pieno(k), 0)}</td></tr>`).join('')}</tbody></table>`
 
-  // tassi di abbandono per gruppo (small multiples)
+  // tasso di churn per gruppo (small multiples)
   const gruppi = [
     ['Tipo cliente', o => o.tipo_cliente], ['Fascia d\'età', o => o.fascia_eta], ['Canale di acquisizione', o => o.canale_acquisizione],
     ['Metodo di pagamento', o => o.metodo_pagamento], ['Prodotto', o => o.prodotto], ['Fattura digitale', o => o.fattura_digitale],
     ['Anzianità', o => o.anzianita_anni == null ? null : o.anzianita_anni < 1 ? 'meno di 1 anno' : o.anzianita_anni < 2 ? '1-2 anni' : o.anzianita_anni < 5 ? '2-5 anni' : 'oltre 5 anni', ['meno di 1 anno', '1-2 anni', '2-5 anni', 'oltre 5 anni']],
-    ['Reclami negli ultimi 12 mesi', o => o.n_reclami_12m == null ? null : +o.n_reclami_12m === 0 ? 'nessuno' : +o.n_reclami_12m === 1 ? '1' : '2 o più', ['nessuno', '1', '2 o più']],
+    ['Reclami negli ultimi 12 mesi', o => conta(o.n_reclami_12m, [0, 1]), ['nessuno', '1', '2 o più']],
+    ['Ticket all\'assistenza, 12 mesi', o => conta(o.n_ticket_12m, [0, 2]), ['nessuno', '1-2', '3 o più']],
+    ['Cambi di prodotto', o => conta(o.n_cambi_prodotto, [0, 1]), ['nessuno', '1', '2 o più']],
+    ['Solleciti di pagamento, 12 mesi', o => conta(o.n_solleciti_12m, [0, 1]), ['nessuno', '1', '2 o più']],
+    ['Variazione dei consumi', o => { const v = ML.num(o.var_consumo_pct); return v == null ? null : v < -20 ? 'calo oltre 20%' : v > 20 ? 'aumento oltre 20%' : 'entro ±20%' }, ['calo oltre 20%', 'entro ±20%', 'aumento oltre 20%']],
+    ['Area clienti web', o => o.area_clienti_web],
+    ['Voto NPS', o => { const v = ML.num(o.voto_nps); return v == null ? 'non ha risposto' : v <= 6 ? 'detrattori (0-6)' : v <= 8 ? 'passivi (7-8)' : 'promotori (9-10)' }, ['detrattori (0-6)', 'passivi (7-8)', 'promotori (9-10)', 'non ha risposto']],
     ['Concorrente più vicino', o => o.dist_concorrente == null ? null : o.dist_concorrente < 0.5 ? 'entro 500 m' : o.dist_concorrente < 1 ? '500 m - 1 km' : o.dist_concorrente < 2 ? '1-2 km' : 'oltre 2 km', ['entro 500 m', '500 m - 1 km', '1-2 km', 'oltre 2 km']],
   ]
   const box = $('#var-multi'); box.innerHTML = ''
@@ -569,23 +587,24 @@ function disegnaVariabili() {
     const b = [[`più economici (< ${fp(t1)})`, x => x < t1], [`in linea`, x => x >= t1 && x <= t2], [`più cari (> ${fp(t2)})`, x => x > t2]]
     const v = b.map(([, f]) => { const g = R.filter(o => o.gap_prezzo != null && f(o.gap_prezzo)); return g.length ? g.filter(o => o.churn).length / g.length * 100 : null })
     grafico('g-gap', { type: 'bar', data: { labels: b.map(x => x[0]), datasets: [{ data: v, backgroundColor: v.map(x => x > S.base * 100 ? '#C2410C' : '#B8B1A6'), borderRadius: 4, maxBarThickness: 40 }] },
-      options: { maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => fmt(c.raw, 1) + '% di abbandono' } } },
-        scales: { y: { beginAtZero: true, ticks: { callback: x => x + '%' } }, x: { grid: { display: false }, title: { display: true, text: 'terzi di clienti per prezzo effettivo, sconto incluso' } } } } })
+      options: { maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => fmt(c.raw, 1) + '% di churn' } } },
+        scales: { y: { beginAtZero: true, ticks: { callback: x => x + '%' } }, x: { grid: { display: false }, title: { display: true, text: 'clienti divisi in terzi per prezzo effettivo, sconto incluso' } } } } })
   }
 }
 
 // ───────────────────────── 02 personas
 const ETA = { '18-34': 26, '35-54': 45, '55-74': 64, '75+': 80 }
+const digitale = o => ML.si(o.fattura_digitale) || ML.si(o.area_clienti_web)
 function personasRegole() {
   const R = S.d.righe, att = R.filter(o => !o.churn)
   const p85 = ML.quantile(att.map(o => o.ricavo), 0.85), med = ML.median(att.map(o => o.anzianita_anni))
-  const dom = o => /domicil/i.test(o.metodo_pagamento || ''), dig = o => ML.si(o.fattura_digitale)
+  const dom = o => /domicil/i.test(o.metodo_pagamento || ''), dig = digitale
   const DEF = {
-    grande: ['Il Grande Cliente', 'Ricavo nel 15% più alto: vale molto e va presidiato a prescindere dal rischio.', 'Referente dedicato e revisione annuale del contratto.'],
-    storico: ['Lo Storico Fedele', 'Di lunga data, prezzo fisso e pagamento domiciliato: la base stabile.', 'Rinnovo anticipato e piccoli premi di fedeltà, senza sconti aggressivi.'],
-    volatile: ['Il Nuovo Volatile', 'Arrivato da poco e a prezzo variabile: il cliente più mobile.', 'Contatto di benvenuto nei primi 90 giorni e proposta a prezzo fisso.'],
-    digitale: ['Il Digitale', 'Riceve la fattura digitale: raggiungibile online a costo basso.', 'Campagne email e area clienti con offerte su misura.'],
-    main: ['Il Mainstream', 'Profilo intermedio senza tratti dominanti: il centro del parco.', 'Comunicazione standard; seguire chi sale di fascia di rischio.'],
+    grande: ['Il Grande Cliente', 'Ricavo nel 15% più alto del parco clienti. Il valore giustifica un presidio dedicato anche quando il rischio è basso.', 'Referente dedicato e revisione annuale delle condizioni.'],
+    storico: ['Lo Storico Fedele', 'Anzianità sopra la mediana, prezzo fisso e pagamento domiciliato. È la parte più stabile del parco clienti.', 'Rinnovo anticipato a condizioni invariate, senza sconti non richiesti.'],
+    volatile: ['Il Nuovo Volatile', 'Anzianità sotto la mediana e prezzo variabile. Il churn si concentra nei primi due anni di rapporto.', 'Contatto entro i primi 90 giorni e proposta di passaggio a prezzo fisso.'],
+    digitale: ['Il Digitale', 'Usa la fattura digitale o l\'area clienti web. Si raggiunge online a costo contenuto.', 'Comunicazioni via email e area clienti, con offerte legate al profilo.'],
+    main: ['Il Cliente Tipo', 'Nessuna delle caratteristiche precedenti. Rappresenta il profilo medio del parco clienti.', 'Comunicazione standard e controllo periodico dello score.'],
   }
   R.forEach(o => {
     o.per_regole = o.ricavo >= p85 ? 'grande'
@@ -594,11 +613,13 @@ function personasRegole() {
       : dig(o) ? 'digitale' : 'main'
   })
   S.regole = Object.entries(DEF).map(([k, [nome, descr, azione]], i) => ({ k, nome, descr, azione, colore: CAT[i], membri: R.filter(o => o.per_regole === k) }))
-  S.regoleNota = `Soglie: ricavo ≥ ${eur(p85)}/mese (85° percentile) · anzianità mediana ${fmt(med, 1)} anni`
+  S.regoleNota = `Soglie: ricavo da ${eur(p85)} al mese (85° percentile) · anzianità mediana ${fmt(med, 1)} anni`
 }
 const TRATTI = {
   anz: ['di lunga data', 'nuovi'], ric: ['alto valore', 'basso valore'], dig: ['digitali', 'non digitali'], dom: ['domiciliati', 'senza domiciliazione'],
   var: ['a prezzo variabile', 'a prezzo fisso'], prod: ['multi-prodotto', 'mono-prodotto'], rec: ['con reclami', 'senza reclami'], eta: ['senior', 'giovani'], bus: ['business', 'privati'],
+  tic: ['molti ticket', 'pochi ticket'], web: ['con area web', 'senza area web'],
+  sol: ['con solleciti', 'senza solleciti'], cam: ['con cambi di prodotto', 'senza cambi di prodotto'],
 }
 function personasCluster(k = 5) {
   const R = S.d.righe
@@ -606,6 +627,10 @@ function personasCluster(k = 5) {
     ['anz', o => Math.log1p(o.anzianita_anni ?? 0)], ['ric', o => Math.log1p(o.ricavo ?? 0)], ['dig', o => ML.si(o.fattura_digitale) ? 1 : 0],
     ['dom', o => /domicil/i.test(o.metodo_pagamento || '') ? 1 : 0], ['var', o => o.prezzo_variabile ?? 0], ['prod', o => ML.num(o.n_prodotti) ?? 1],
     ['rec', o => Math.min(ML.num(o.n_reclami_12m) ?? 0, 4)], ['eta', o => ETA[o.fascia_eta] ?? null], ['bus', o => /business/i.test(o.tipo_cliente || '') ? 1 : 0],
+    ['tic', o => o.n_ticket_12m == null || o.n_ticket_12m === '' ? null : Math.min(ML.num(o.n_ticket_12m), 6)],
+    ['web', o => o.area_clienti_web == null || o.area_clienti_web === '' ? null : ML.si(o.area_clienti_web) ? 1 : 0],
+    ['sol', o => o.n_solleciti_12m == null || o.n_solleciti_12m === '' ? null : Math.min(ML.num(o.n_solleciti_12m), 5)],
+    ['cam', o => o.n_cambi_prodotto == null || o.n_cambi_prodotto === '' ? null : Math.min(ML.num(o.n_cambi_prodotto), 3)],
   ]
   const usate = [], cols = []
   for (const [k, f] of feat) {
@@ -628,21 +653,24 @@ function personasCluster(k = 5) {
     membri.forEach(o => o.per_cluster = i)
     const ch = membri.filter(o => o.churn).length / membri.length
     const nome = `Gruppo ${String.fromCharCode(65 + i)} · ${g.tratti[0]}, ${g.tratti[1]}`
-    const azione = ch > S.base * 1.3 ? 'Priorità di retention: contatto proattivo sui clienti in fascia alta.'
-      : ML.mean(membri.map(o => o.r_ricavo ?? 0.5)) > 0.65 ? 'Presidiare il valore: servizio dedicato e rinnovi anticipati.'
-      : 'Mantenimento standard e monitoraggio dello score.'
-    const descr = 'Tratti più marcati rispetto alla media: ' + g.zm.slice(0, 3).map(t => TRATTI[t.u][t.z > 0 ? 0 : 1]).join(', ') + '.'
+    const azione = ch > S.base * 1.3 ? 'Gruppo prioritario: contattare per primi i clienti attivi in fascia alta.'
+      : ML.mean(membri.map(o => o.r_ricavo ?? 0.5)) > 0.65 ? 'Gruppo ad alto valore: servizio dedicato e rinnovo anticipato.'
+      : 'Comunicazione standard e controllo periodico dello score.'
+    const descr = 'Differenze principali rispetto alla media: ' + g.zm.slice(0, 3).map(t => TRATTI[t.u][t.z > 0 ? 0 : 1]).join(', ') + '.'
     return { k: i, nome, descr, azione, colore: CAT[i], membri }
   })
-  S.clusterNota = `k-means su ${usate.length} variabili standardizzate, 5 gruppi`
+  S.clusterNota = `k-means su ${usate.length} variabili standardizzate · 5 gruppi`
 }
-function radarValori(M) {
-  const quota = f => M.filter(f).length / M.length * 100
-  const rk = k => ML.mean(M.map(o => o['r_' + k]).filter(v => v != null)) * 100
-  return [rk('anzianita_anni'), rk('ricavo'), quota(o => ML.si(o.fattura_digitale)), quota(o => /domicil/i.test(o.metodo_pagamento || '')),
-          quota(o => o.prezzo_variabile === 0), quota(o => (ML.num(o.n_prodotti) ?? 1) > 1), rk('score')]
-}
-const ASSI = ['Anzianità', 'Valore', 'Fattura digitale', 'Domiciliazione', 'Prezzo fisso', 'Multi-prodotto', 'Rischio']
+const ASSI = [   // [etichetta, valore del gruppo M] — l'asse compare solo se il dato esiste
+  ['Anzianità', M => rk(M, 'anzianita_anni')], ['Valore', M => rk(M, 'ricavo')],
+  ['Canali digitali', M => quota(M, digitale)], ['Domiciliazione', M => quota(M, o => /domicil/i.test(o.metodo_pagamento || ''))],
+  ['Prezzo fisso', M => quota(M, o => o.prezzo_variabile === 0)], ['Multi-prodotto', M => quota(M, o => (ML.num(o.n_prodotti) ?? 1) > 1)],
+  ['Ticket', M => rk(M, 'ticket')], ['Rischio', M => rk(M, 'score')],
+]
+const quota = (M, f) => M.filter(f).length / (M.length || 1) * 100
+const rk = (M, k) => { const v = M.map(o => o['r_' + k]).filter(v => v != null); return v.length ? ML.mean(v) * 100 : null }
+const assiUsati = () => ASSI.filter(([, f]) => f(S.d.righe) != null)
+const radarValori = M => assiUsati().map(([, f]) => f(M))
 let modoPer = 'regole', selPer = 0
 function disegnaPersonas() {
   const G = modoPer === 'regole' ? S.regole : S.cluster, R = S.d.righe
@@ -654,18 +682,18 @@ function disegnaPersonas() {
     return `<button type="button" class="pcard" style="--c:${g.colore}" aria-pressed="${i === selPer}" data-i="${i}">
       <span class="quota">${fmt(n)} clienti · ${pct(n / R.length, 0)}</span>
       <h3>${esc(g.nome)}</h3>
-      <dl><dt>Abbandono 12 mesi</dt><dd style="color:${ch > S.base ? 'var(--accent)' : 'inherit'}">${pct(ch)}</dd>
+      <dl><dt>Churn 12 mesi</dt><dd style="color:${ch > S.base ? 'var(--accent)' : 'inherit'}">${pct(ch)}</dd>
         <dt>Score medio attivi</dt><dd>${pct(ML.mean(att.map(o => o.score)))}</dd>
-        <dt>Ricavo medio</dt><dd>${eur(ML.mean(M.map(o => o.ricavo || 0)))}</dd></dl>
+        <dt>Ricavo medio mensile</dt><dd>${eur(ML.mean(M.map(o => o.ricavo || 0)))}</dd></dl>
       <div><div class="fasce-bar">${fb.map((v, j) => `<span style="width:${v * 100}%;background:${Object.values(FASCE)[j]}"></span>`).join('')}</div>
         <span class="fasce-leg">rischio basso ${pct(fb[0], 0)} · medio ${pct(fb[1], 0)} · alto ${pct(fb[2], 0)}</span></div>
       <p>${esc(g.descr)}</p>
-      <p class="az"><b>Azione</b>${esc(g.azione)}</p></button>`
+      <p class="az"><b>Azione consigliata</b>${esc(g.azione)}</p></button>`
   }).join('')
   document.querySelectorAll('.pcard').forEach(b => b.onclick = () => { selPer = +b.dataset.i; disegnaPersonas() })
   const g = G[selPer]
   $('#radar-tit').textContent = 'Profilo · ' + g.nome
-  grafico('g-radar', { type: 'radar', data: { labels: ASSI, datasets: [
+  grafico('g-radar', { type: 'radar', data: { labels: assiUsati().map(a => a[0]), datasets: [
       { label: g.nome, data: radarValori(g.membri), borderColor: g.colore, backgroundColor: g.colore + '33', borderWidth: 2, pointRadius: 4, pointBackgroundColor: g.colore },
       { label: 'Tutti i clienti', data: radarValori(R), borderColor: '#8C867D', backgroundColor: 'transparent', borderDash: [5, 4], borderWidth: 1.5, pointRadius: 3, pointBackgroundColor: '#8C867D' }] },
     options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' }, tooltip: { callbacks: { label: c => `${c.dataset.label}: ${fmt(c.raw, 0)}` } } },
@@ -698,17 +726,17 @@ function disegnaScoring() {
   const att = righe.map((o, i) => [o, i]).filter(([o]) => !o.churn)
   const alti = att.filter(([o]) => o.fascia === 'Alto')
   $('#sco-nums').innerHTML = [
-    [fmt(best.auc, 3).replace('.', ','), 'AUC del modello migliore', best.nome],
-    [fmt(best.lift10, 1) + '×', 'Lift nel 10% più a rischio', 'rispetto al tasso medio'],
-    [pct(best.presi20, 0), 'Cessati intercettati', 'contattando il 20% più a rischio'],
+    [fmt(best.auc, 3), 'AUC del modello scelto', best.nome],
+    [fmt(best.lift10, 1) + '×', 'Lift nel primo decile', 'rispetto al tasso medio di churn'],
+    [pct(best.presi20, 0), 'Cessati intercettati', 'contattando il 20% dei clienti con score più alto'],
     [fmt(alti.length), 'Clienti attivi in fascia alta', eur(alti.reduce((s, [o]) => s + (o.ricavo || 0), 0)) + ' di ricavo mensile', true],
   ].map(([b, p, s, a]) => `<div class="num"><b class="${a ? 'acc' : ''}">${b}</b><p>${p}</p><small>${esc(s)}</small></div>`).join('')
-  $('#sco-modelli').innerHTML = `<table><thead><tr><th class="l">Modello</th><th>AUC</th><th>Lift 10%</th><th>Presi nel 20%</th><th>Secondi</th></tr></thead><tbody>${
+  $('#sco-modelli').innerHTML = `<table><thead><tr><th class="l">Modello</th><th>AUC</th><th>Lift 10%</th><th>Cessati nel 20%</th><th>Secondi</th></tr></thead><tbody>${
     R.modelli.map(m => `<tr class="${m === best ? 'best' : ''}"><td class="l">${m.nome}${m === best ? ' <span class="tag" style="color:var(--accent)">scelto</span>' : ''}</td><td class="${m === best ? 'pt' : ''}">${fmt(m.auc, 3)}</td><td>${fmt(m.lift10, 2)}×</td><td>${pct(m.presi20, 0)}</td><td>${fmt(m.secondi, 2)}</td></tr>`).join('')}</tbody></table>`
   const ordine = ['logistica', 'rf', 'gbm']
   grafico('g-roc', { type: 'line', data: { datasets: [
       ...ordine.map((id, i) => { const m = R.modelli.find(x => x.id === id); return { label: `${m.nome} (${fmt(m.auc, 3)})`, data: m.roc, borderColor: CAT[i], backgroundColor: CAT[i], borderWidth: 2, pointRadius: 0, tension: 0 } }),
-      { label: 'A caso', data: [{ x: 0, y: 0 }, { x: 1, y: 1 }], borderColor: '#B8B1A6', borderDash: [5, 4], borderWidth: 1, pointRadius: 0 }] },
+      { label: 'Previsione casuale', data: [{ x: 0, y: 0 }, { x: 1, y: 1 }], borderColor: '#B8B1A6', borderDash: [5, 4], borderWidth: 1, pointRadius: 0 }] },
     options: { maintainAspectRatio: false, parsing: false, interaction: { mode: 'nearest', intersect: false },
       plugins: { legend: { position: 'bottom' }, tooltip: { callbacks: { label: c => `${c.dataset.label}: veri positivi ${pct(c.raw.y, 0)} con falsi positivi ${pct(c.raw.x, 0)}` } } },
       scales: { x: { type: 'linear', min: 0, max: 1, title: { display: true, text: 'Falsi positivi' }, ticks: { callback: v => v * 100 + '%' } },
@@ -720,12 +748,13 @@ function disegnaScoring() {
     options: { maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.dataset.label === 'Media' ? 'media = 1' : `${fmt(c.raw, 2)}× · ${pct(best.decili[c.dataIndex].tasso)} di cessati` } } },
       scales: { y: { beginAtZero: true, title: { display: true, text: 'volte la media' } }, x: { grid: { display: false }, title: { display: true, text: 'decile di score' } } } } })
   const imp = best.importanza.map((v, j) => ({ l: S.d.cols[j].l, v })).sort((a, b) => b.v - a.v).slice(0, 10)
-  $('#imp-tit').textContent = 'Variabili più importanti · ' + best.nome
+  $('#imp-tit').textContent = 'Variabili più rilevanti · ' + best.nome
+  document.getElementById('g-imp').parentNode.style.height = imp.length * 30 + 60 + 'px'
   grafico('g-imp', { type: 'bar', data: { labels: imp.map(x => x.l), datasets: [{ data: imp.map(x => x.v), backgroundColor: '#008F87', borderRadius: 4, maxBarThickness: 14 }] },
     options: { indexAxis: 'y', maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => fmt(c.raw, 3) } } },
-      scales: { x: { beginAtZero: true, title: { display: true, text: best.id === 'logistica' ? 'peso standardizzato' : 'calo di AUC se la variabile viene rimescolata' } }, y: { grid: { display: false } } } } })
+      scales: { x: { beginAtZero: true, title: { display: true, text: best.id === 'logistica' ? 'coefficiente standardizzato (valore assoluto)' : 'calo di AUC se la variabile viene permutata' } }, y: { grid: { display: false }, ticks: { autoSkip: false } } } } })
   const nf = f => att.filter(([o]) => o.fascia === f).length
-  $('#sco-fasce').innerHTML = `Fasce sui clienti attivi: <b>basso</b> ${fmt(nf('Basso'))} (score sotto ${pct(S.q70)}), <b>medio</b> ${fmt(nf('Medio'))}, <b>alto</b> ${fmt(nf('Alto'))} (5% più a rischio, score da ${pct(S.q95)}). Lo score è la probabilità di abbandono a 12 mesi, riportata al tasso reale del parco.`
+  $('#sco-fasce').innerHTML = `I 25 clienti attivi con score più alto; il file CSV contiene l'elenco completo. Fasce di rischio sui clienti attivi: <b>bassa</b> ${fmt(nf('Basso'))} clienti (score sotto ${pct(S.q70)}), <b>media</b> ${fmt(nf('Medio'))}, <b>alta</b> ${fmt(nf('Alto'))} (il 5% con score più alto, da ${pct(S.q95)}). Lo score è la probabilità di churn a 12 mesi, ricalibrata sul tasso di churn osservato nel parco clienti.`
   const top = att.sort((a, b) => b[0].score - a[0].score).slice(0, 25)
   const nomeReg = k => S.regole.find(g => g.k === k)?.nome || ''
   $('#sco-top').innerHTML = `<table><thead><tr><th>#</th><th class="l">Cliente</th><th class="l">Persona</th><th class="l">Segnali principali</th><th class="l">Comune</th><th>Ricavo mese</th><th>Score</th><th>Fascia</th></tr></thead><tbody>${
@@ -758,11 +787,11 @@ async function caricaIstat() {        // famiglie ISTAT per esagono, a riquadri 
   } catch (e) { console.warn('ISTAT non disponibile', e) }
 }
 const STRATI = [
-  ['indice', 'Indice di priorità', 'media dei voti 0-100'],
-  ['potenziali', 'Clienti potenziali', 'famiglie non ancora clienti'],
+  ['indice', 'Indice di priorità', 'media dei punteggi 0-100'],
+  ['potenziali', 'Clienti potenziali', 'famiglie residenti non ancora clienti'],
   ['persi', 'Clienti persi', 'cessati negli ultimi 12 mesi'],
-  ['rischio', 'Clienti a rischio', 'attivi in fascia alta'],
-  ['switch', 'Possibile passaggio', 'concorrente più vicino del tuo punto, entro 1 km'],
+  ['rischio', 'Clienti a rischio', 'attivi in fascia di rischio alta'],
+  ['switch', 'Esposti a concorrenti', 'concorrente entro 1 km e più vicino del punto vendita'],
   ['clienti', 'Clienti attivi', 'numero per esagono'],
 ]
 let mappa, strati = {}, layerSel = 'indice'
@@ -790,7 +819,7 @@ function calcolaEsagoni() {
     e.comune = Object.entries(e.comuni).sort((a, b) => b[1] - a[1])[0]?.[0] || ''
     const [lat, lon] = h3.cellToLatLng(e.c); e.lat = lat; e.lon = lon
   })
-  // voti: valore / massimo tra le zone con abbastanza clienti x 100
+  // punteggi: valore / massimo tra le zone con abbastanza clienti x 100
   const metr = ['persi', 'rischio', 'switch', ...(S.istat ? ['potenziali'] : [])]
   const ok = E.filter(e => e.ok)
   const max = Object.fromEntries(metr.map(m => [m, Math.max(...ok.map(e => e[m] ?? 0)) || 1]))
@@ -850,8 +879,8 @@ function disegnaMappa() {
   }).join('') + `<div class="mp-row"><span class="sw" style="background:#E4E0D9"></span><span>meno di ${MIN_CLIENTI} clienti</span><span></span></div>`
   $('#classifica').innerHTML = S.top.map((e, i) => `<button type="button" data-i="${i}"><span class="pick" style="width:22px;height:22px;line-height:18px;font-size:10px">${i + 1}</span><span>${esc(e.comune)}<br><span class="label">${fmt(e.attivi)} attivi · persi ${pct(e.persi, 0)} · rischio ${pct(e.rischio, 0)}</span></span><b>${fmt(e.indice * 100)}</b></button>`).join('')
   document.querySelectorAll('#classifica button').forEach(b => b.onclick = () => { const e = S.top[+b.dataset.i]; mappa.setView([e.lat, e.lon], 14); L.popup().setLatLng([e.lat, e.lon]).setContent(popup(e)).openOn(mappa) })
-  $('#map-nota').innerHTML = `Esagoni H3 di risoluzione 8 (circa 0,74 km²). L'indice è la media dei voti di ${S.metr.length} percentuali (${S.metr.map(m => STRATI.find(s => s[0] === m)[1].toLowerCase()).join(', ')}); ogni voto = valore dell'esagono ÷ valore massimo × 100, solo sugli esagoni con almeno ${MIN_CLIENTI} clienti.` +
-    (S.istat ? ` Famiglie: ${esc(S.istat.fonte)} ${esc(S.istat.anno)}.` : ' <b>Famiglie ISTAT non ancora caricate: lo strato dei clienti potenziali è spento.</b>')
+  $('#map-nota').innerHTML = `Esagoni H3 di risoluzione 8 (circa 0,74 km²). L'indice è la media dei punteggi di ${S.metr.length} quote (${S.metr.map(m => STRATI.find(s => s[0] === m)[1].toLowerCase()).join(', ')}). Punteggio = valore dell'esagono ÷ valore massimo × 100, calcolato sugli esagoni con almeno ${MIN_CLIENTI} clienti.` +
+    (S.istat ? ` Famiglie: ${esc(S.istat.fonte)} ${esc(S.istat.anno)}.` : ' <b>Dati ISTAT sulle famiglie non ancora caricati: lo strato dei clienti potenziali non è disponibile.</b>')
   if (!mappa._fatto) {
     const pts = S.d.righe.filter(o => o.lat != null).map(o => [o.lat, o.lon])
     if (pts.length) mappa.fitBounds(L.latLngBounds(pts).pad(0.05))
@@ -865,9 +894,9 @@ function popup(e) {
   return `<b>${esc(e.comune || 'Zona senza clienti')}</b><br><span style="font-family:var(--mono);font-size:11px;color:#8C867D">${e.c}</span><br>` +
     (e.indice != null ? r('Indice di priorità', fmt(e.indice * 100)) : '') +
     r('Clienti attivi', fmt(e.attivi)) + r('Cessati 12 mesi', `${fmt(e.cessati)} (${pct(e.persi, 0)})`) +
-    r('A rischio alto', `${fmt(e.alti)} (${pct(e.rischio, 0)})`) + r('Possibile passaggio', `${fmt(e.sw)} (${pct(e.switch, 0)})`) +
+    r('A rischio alto', `${fmt(e.alti)} (${pct(e.rischio, 0)})`) + r('Esposti a concorrenti', `${fmt(e.sw)} (${pct(e.switch, 0)})`) +
     (e.fam != null ? r('Famiglie ISTAT', fmt(e.fam)) + r('Potenziali', pct(e.potenziali, 0)) : '') +
-    r('Tuo punto più vicino', vicini(S.d.pv, 'nome')) + r('Concorrente più vicino', vicini(S.d.co, 'marchio')) +
+    r('Punto vendita più vicino', vicini(S.d.pv, 'nome')) + r('Concorrente più vicino', vicini(S.d.co, 'marchio')) +
     `<a href="https://www.google.com/maps?q=${e.lat.toFixed(5)},${e.lon.toFixed(5)}" target="_blank" rel="noopener">Apri in Google Maps</a>`
 }
 </script>

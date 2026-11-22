@@ -120,8 +120,16 @@
       { k: 'giorni_scadenza', l: 'Giorni al rinnovo', f: o => o.giorni_scadenza },
       { k: 'n_prodotti', l: 'N. prodotti', f: o => num(o.n_prodotti) },
       { k: 'reclami', l: 'Reclami 12 mesi', f: o => num(o.n_reclami_12m) },
+      { k: 'ticket', l: 'Ticket assistenza 12 mesi', f: o => num(o.n_ticket_12m) },
+      { k: 'cambi_prodotto', l: 'Cambi di prodotto', f: o => num(o.n_cambi_prodotto) },
+      { k: 'rettifiche', l: 'Fatture rettificate 12 mesi', f: o => num(o.n_fatture_rettificate_12m) },
       { k: 'insoluti', l: 'Ha insoluti', f: o => o.insoluti_eur == null || o.insoluti_eur === '' ? null : (num(o.insoluti_eur) > 0 ? 1 : 0), bin: 1 },
+      { k: 'solleciti', l: 'Solleciti 12 mesi', f: o => num(o.n_solleciti_12m) },
+      { k: 'var_consumo', l: 'Variazione consumo (%)', f: o => num(o.var_consumo_pct) },
+      { k: 'nps', l: 'Voto NPS', f: o => num(o.voto_nps), minQuota: 0.2 },   // risponde solo una parte dei clienti
       { k: 'digitale', l: 'Fattura digitale', f: o => o.fattura_digitale == null || o.fattura_digitale === '' ? null : (si(o.fattura_digitale) ? 1 : 0), bin: 1 },
+      { k: 'area_web', l: 'Area clienti web', f: o => o.area_clienti_web == null || o.area_clienti_web === '' ? null : (si(o.area_clienti_web) ? 1 : 0), bin: 1 },
+      { k: 'consenso', l: 'Consenso marketing', f: o => o.consenso_marketing == null || o.consenso_marketing === '' ? null : (si(o.consenso_marketing) ? 1 : 0), bin: 1 },
       { k: 'domiciliato', l: 'Pagamento domiciliato', f: o => o.metodo_pagamento == null || o.metodo_pagamento === '' ? null : (/domicil/i.test(o.metodo_pagamento) ? 1 : 0), bin: 1 },
       { k: 'business', l: 'Cliente business', f: o => o.tipo_cliente == null || o.tipo_cliente === '' ? null : (/business|azienda|impresa/i.test(o.tipo_cliente) ? 1 : 0), bin: 1 },
       { k: 'dist_concorrente', l: 'Distanza concorrente (km)', f: o => o.dist_concorrente ?? null },
@@ -137,7 +145,7 @@
       if (d.k === 'sconto' && conGap) continue          // lo sconto e' gia' dentro lo scarto di prezzo
       const v = righe.map(d.f)
       const ok = v.filter(x => x != null && !isNaN(x))
-      if (ok.length < righe.length * 0.5 || new Set(ok).size < 2) continue
+      if (ok.length < righe.length * (d.minQuota ?? 0.5) || new Set(ok).size < 2) continue
       const med = median(ok)
       const manca = v.some(x => x == null || isNaN(x))
       v.forEach((x, i) => X[i].push(x == null || isNaN(x) ? (d.k === 'giorni_scadenza' ? 365 : med) : x))
@@ -155,7 +163,7 @@
       for (const lv of livelli.slice(1)) {        // il livello piu' frequente fa da riferimento
         if (freq[lv] < 20) continue
         v.forEach((x, i) => X[i].push(x === lv ? 1 : 0))
-        cols.push({ k: `${c.k}=${lv}`, l: `${c.l}: ${lv}`, tipo: 'binaria', rif: livelli[0] })
+        cols.push({ k: `${c.k}=${lv}`, l: `${c.l}: ${lv === 'ND' ? 'non indicato' : lv}`, tipo: 'binaria', rif: livelli[0] })
       }
     }
     return { righe, X, y: righe.map(o => o.churn), cols, rif, inizio, esclusi, pv, co }

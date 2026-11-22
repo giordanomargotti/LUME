@@ -1,6 +1,6 @@
 # Lume · AntiChurn
 
-"Conosci i tuoi clienti": scoring del rischio di abbandono, customer personas e mappa a esagoni.
+"Conosci i tuoi clienti": scoring del rischio di churn, customer personas e mappa a esagoni.
 Login con Supabase (`index.html`), app in `app.html`. Tutti i calcoli girano nel browser: i dati dei clienti non vengono inviati a nessun server.
 
 ## File

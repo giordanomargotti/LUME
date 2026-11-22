@@ -91,17 +91,17 @@
   </div>
 
   <div class="punti">
-    <div><span class="label">01</span><b>Scoring</b><p>Chi sta per andarsene, prima che succeda.</p></div>
-    <div><span class="label">02</span><b>Personas</b><p>Un volto per ogni gruppo di clienti.</p></div>
-    <div><span class="label">03</span><b>Mappa</b><p>Clienti e concorrenti, esagono per esagono.</p></div>
+    <div><span class="label">01</span><b>Scoring</b><p>Probabilità di churn a 12 mesi per ogni cliente attivo.</p></div>
+    <div><span class="label">02</span><b>Personas</b><p>Gruppi di clienti omogenei, ciascuno con un'azione consigliata.</p></div>
+    <div><span class="label">03</span><b>Mappa</b><p>Clienti persi, clienti a rischio e concorrenti sul territorio.</p></div>
   </div>
 </section>
 
 <main class="dx">
   <div class="box">
-    <p class="label">Accesso</p>
-    <h2 id="titolo">Bentornato.</h2>
-    <p class="sub" id="sottotitolo">Entra con la tua email o con Google.</p>
+    <p class="label">Area riservata</p>
+    <h2 id="titolo">Accedi</h2>
+    <p class="sub" id="sottotitolo">Con email e password o con un account Google.</p>
 
     <div class="seg" role="group" aria-label="Accesso o registrazione">
       <button type="button" aria-pressed="true" data-t="login">Accedi</button>
@@ -129,7 +129,7 @@
       Continua con Google
     </button>
 
-    <p class="nota">I dati dei clienti si elaborano nel tuo browser e non vengono inviati a nessun server.</p>
+    <p class="nota">I file dei clienti vengono elaborati nel browser e non sono trasmessi a server esterni.</p>
   </div>
 </main>
 
@@ -164,8 +164,8 @@ document.querySelectorAll('.seg button').forEach(b => b.onclick = () => {
   const reg = b.dataset.t === 'register'
   document.querySelectorAll('.seg button').forEach(x => x.setAttribute('aria-pressed', x === b))
   $('loginForm').hidden = reg; $('registerForm').hidden = !reg
-  $('titolo').textContent = reg ? 'Crea il tuo account.' : 'Bentornato.'
-  $('sottotitolo').textContent = reg ? 'Ti mandiamo una email per confermare l\'indirizzo.' : 'Entra con la tua email o con Google.'
+  $('titolo').textContent = reg ? 'Crea un account' : 'Accedi'
+  $('sottotitolo').textContent = reg ? 'Riceverai una email per confermare l\'indirizzo.' : 'Con email e password o con un account Google.'
   nascondi()
 })
 
