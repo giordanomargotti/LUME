@@ -336,7 +336,7 @@
       <a class="tappa" href="#variabili"><span class="label">01</span><b>Variabili</b><p>Quali caratteristiche dei clienti sono legate al churn e come si posizionano i prezzi rispetto al mercato.</p></a>
       <a class="tappa" href="#personas"><span class="label">02</span><b>Personas</b><p>Cinque gruppi di clienti, costruiti con regole di segmentazione o con un algoritmo di clustering.</p></a>
       <a class="tappa" href="#scoring"><span class="label">03</span><b>Scoring</b><p>Tre modelli di machine learning a confronto. Il più accurato assegna uno score a ogni cliente attivo.</p></a>
-      <a class="tappa" href="#mappa-sez"><span class="label">04</span><b>Mappa</b><p>Il territorio in esagoni da 0,7 km², ordinati per priorità di intervento.</p></a>
+      <a class="tappa" href="#mappa-sez"><span class="label">04</span><b>Mappa</b><p>Il territorio in esagoni da <span class="area-esa">0,7 km²</span>, ordinati per priorità di intervento.</p></a>
     </nav>
   </section>
 
@@ -465,7 +465,7 @@
     <div class="grid head">
       <p class="label">04 · Honeycomb map</p>
       <h2>Priorità di intervento sul territorio</h2>
-      <p>Il territorio è diviso in esagoni da circa 0,7 km². Per ogni esagono si calcolano quattro quote: clienti potenziali, clienti persi, clienti a rischio e clienti esposti a un concorrente vicino. Un indice le combina e ordina le zone.</p>
+      <p>Il territorio è diviso in esagoni da circa <span class="area-esa">0,7 km²</span>. Per ogni esagono si calcolano quattro quote: clienti potenziali, clienti persi, clienti a rischio e clienti esposti a un concorrente vicino. Un indice le combina e ordina le zone.</p>
     </div>
     <div id="map-vuoto" class="attesa">Disponibile dopo il caricamento dei dati.</div>
     <div id="map-corpo" hidden>
@@ -499,7 +499,7 @@
           <div><dt>Esposti a concorrenti</dt><dd class="formula">attivi con un concorrente entro 1 km e più vicino del punto vendita ÷ attivi</dd><dd>Possibilità di passaggio a un concorrente vicino.</dd></div>
         </dl>
         <div class="scala">
-          <p><b>Zone.</b> Il territorio è diviso in esagoni di circa 0,7 km² e ogni cliente è assegnato all'esagono in cui si trova. Si valutano solo gli esagoni con almeno 8 clienti.</p>
+          <p><b>Zone.</b> Il territorio è diviso in esagoni di circa <span class="area-esa">0,7 km²</span> e ogni cliente è assegnato all'esagono in cui si trova. Si valutano solo gli esagoni con almeno 8 clienti. La dimensione degli esagoni si adatta alla densità dei clienti: 0,7 km² per un parco clienti concentrato, 5 o 36 km² per uno distribuito su tutta Italia.</p>
           <p><b>Punteggio 0-100.</b> Ogni quota è confrontata con la zona che ha il valore più alto: punteggio = quota della zona ÷ quota massima × 100.</p>
           <p><b>Indice.</b> Media semplice dei punteggi, con lo stesso peso per ogni variabile. Le 10 zone con l'indice più alto sono numerate sulla mappa.</p>
         </div>
@@ -623,6 +623,7 @@ async function avvia(buf, nome) {
     const senzaPos = S.d.righe.filter(o => o.lat == null).length
     if (senzaPos) avvisi.push(`${fmt(senzaPos)} clienti senza coordinate (la geocodifica degli indirizzi sarà disponibile in una versione successiva)`)
     stato(`${nome}: ${fmt(f.Clienti.length)} righe lette, ${fmt(S.d.righe.length)} clienti nel perimetro.` + (avvisi.length ? '\n' + avvisi.join('\n') : ''))
+    scegliRisoluzione()
     await caricaIstat()
     disegnaMappa()
     location.hash = ''; document.getElementById('variabili').scrollIntoView()
@@ -1033,23 +1034,38 @@ $('#scarica').onclick = () => {      // file Excel: clienti attivi ordinati per 
   const wb = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(wb, ws, 'Score clienti')
   XLSX.utils.book_append_sheet(wb, leg, 'Legenda')
-  XLSX.writeFile(wb, 'lume_score_clienti_attivi.xlsx')
+  XLSX.writeFile(wb, 'lume_score_clienti_attivi.xlsx', { compression: true })
 }
 
 // ───────────────────────── 04 mappa a esagoni
-const RES = 8, MIN_CLIENTI = 8, MIN_FAMIGLIE = 20
+const MIN_CLIENTI = 8, MIN_FAMIGLIE = 20
+let RES = 8
 S.istat = null
+// risoluzione degli esagoni in base alla densita': la piu' fine (8, poi 7, poi 6) in cui almeno
+// meta' dei clienti cade in esagoni con almeno MIN_CLIENTI clienti
+function scegliRisoluzione() {
+  const pts = S.d.righe.filter(o => o.lat != null)
+  for (const r of [8, 7, 6]) {
+    const n = new Map(); pts.forEach(o => { const c = h3.latLngToCell(o.lat, o.lon, r); n.set(c, (n.get(c) || 0) + 1) })
+    S.copertura = [...n.values()].filter(v => v >= MIN_CLIENTI).reduce((a, b) => a + b, 0) / (pts.length || 1)
+    RES = r
+    if (S.copertura >= 0.5) break
+  }
+  const km2 = h3.getHexagonAreaAvg(RES, 'km2')
+  document.querySelectorAll('.area-esa').forEach(el => el.textContent = fmt(km2, km2 < 10 ? 1 : 0) + ' km²')
+}
 async function caricaIstat() {        // famiglie ISTAT per esagono, a riquadri H3 di risoluzione 4
   S.istat = null
   try {
     const r = await fetch('dati/istat/h3r8/indice.json'); if (!r.ok) return
     const ind = await r.json(), disp = new Set(ind.riquadri)
-    const servono = new Set(S.d.righe.filter(o => o.lat != null).map(o => h3.cellToParent(h3.latLngToCell(o.lat, o.lon, RES), 4)))
+    const servono = new Set(S.d.righe.filter(o => o.lat != null).map(o => h3.cellToParent(h3.latLngToCell(o.lat, o.lon, 8), 4)))
     const fam = new Map()
     for (const q of servono) {
       if (!disp.has(q)) continue
       const rr = await fetch(`dati/istat/h3r8/${q}.json`); if (!rr.ok) continue
-      const js = await rr.json(); for (const c in js) fam.set(c, js[c])
+      const js = await rr.json()
+      for (const c in js) { const k = RES < 8 ? h3.cellToParent(c, RES) : c; fam.set(k, (fam.get(k) || 0) + js[c]) }   // i file sono a risoluzione 8
     }
     if (fam.size) S.istat = { fam, anno: ind.anno, fonte: ind.fonte }
   } catch (e) { console.warn('ISTAT non disponibile', e) }
@@ -1147,7 +1163,7 @@ function disegnaMappa() {
   }).join('') + `<div class="mp-row"><span class="sw" style="background:#E4E0D9"></span><span>meno di ${MIN_CLIENTI} clienti</span><span></span></div>`
   $('#classifica').innerHTML = S.top.map((e, i) => `<button type="button" data-i="${i}"><span class="pick" style="width:22px;height:22px;line-height:18px;font-size:10px">${i + 1}</span><span>${esc(e.comune)}<br><span class="label">${fmt(e.attivi)} attivi · persi ${pct(e.persi, 0)} · rischio ${pct(e.rischio, 0)} · esposti ${pct(e.switch, 0)}</span></span><b>${fmt(e.indice * 100)}</b></button>`).join('')
   document.querySelectorAll('#classifica button').forEach(b => b.onclick = () => { const e = S.top[+b.dataset.i]; mappa.setView([e.lat, e.lon], 14); L.popup().setLatLng([e.lat, e.lon]).setContent(popup(e)).openOn(mappa) })
-  $('#map-nota').innerHTML = `In questa analisi l'indice usa ${S.metr.length} quote: ${S.metr.map(m => STRATI.find(s => s[0] === m)[1].toLowerCase()).join(', ')}.` +
+  $('#map-nota').innerHTML = `Esagoni H3 di risoluzione ${RES}, circa ${fmt(h3.getHexagonAreaAvg(RES, 'km2'), RES >= 7 ? 1 : 0)} km² (il ${pct(S.copertura, 0)} dei clienti cade in esagoni con almeno ${MIN_CLIENTI} clienti). In questa analisi l'indice usa ${S.metr.length} quote: ${S.metr.map(m => STRATI.find(s => s[0] === m)[1].toLowerCase()).join(', ')}.` +
     (S.istat ? ` Famiglie: ${esc(S.istat.fonte)} ${esc(S.istat.anno)}.` : ` I dati ISTAT sulle famiglie non sono caricati, quindi i clienti potenziali non sono conteggiati.`) + ` ${fmt(S.E.filter(e => e.ok).length)} esagoni valutati. Lo strato Clienti attivi mostra il numero di clienti per esagono e non entra nell'indice.`
   if (!mappa._fatto) {
     const pts = S.d.righe.filter(o => o.lat != null).map(o => [o.lat, o.lon])

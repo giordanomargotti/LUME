@@ -1,8 +1,14 @@
-"""Genera il dataset ipotetico di Lume AntiChurn (azienda fittizia, area Rimini).
+"""Genera il dataset ipotetico di Lume AntiChurn (azienda fittizia).
 
-Nessun dato reale: clienti, punti vendita, concorrenti e prezzi sono inventati.
+    python strumenti/genera_demo.py                 # tutta Italia, 10.000 clienti (demo dell'app)
+    python strumenti/genera_demo.py --area rimini   # area di Rimini, 3.000 clienti
+
+Nessun dato reale sui clienti: clienti, punti vendita, concorrenti e prezzi sono inventati.
+Per l'Italia le posizioni partono dai centri delle citta' con almeno 40.000 abitanti
+(GeoNames, CC BY 4.0, pacchetto geonamescache) e scartano i punti in mare (global-land-mask).
 Il churn e' simulato con un modello logistico noto, cosi' l'app ha un segnale da ritrovare.
 """
+import argparse
 import numpy as np
 import pandas as pd
 from datetime import date, timedelta
@@ -10,62 +16,117 @@ from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 
+ap = argparse.ArgumentParser()
+ap.add_argument("--area", choices=["italia", "rimini"], default="italia")
+ap.add_argument("--n", type=int, default=None)
+ARG = ap.parse_args()
+AREA = ARG.area
+N = ARG.n or (10000 if AREA == "italia" else 3000)
+OUT_NOME = "lume_antichurn_dati_demo.xlsx" if AREA == "italia" else "lume_antichurn_dati_demo_rimini.xlsx"
+
 rng = np.random.default_rng(2026)
 RIF = date(2026, 10, 31)          # data dell'estrazione
 INIZIO_FINESTRA = RIF - timedelta(days=365)
-N = 3000
 AZIENDA = "Azienda Demo"
-INTERCETTA = -3.40
+INTERCETTA = -3.40                # area Rimini; per l'Italia l'intercetta si ricalibra sul tasso obiettivo
+CHURN_OBIETTIVO = 0.095
 
 # ---------------------------------------------------------------- territorio
-def costa(lon):  # latitudine approssimata della linea di costa (Bellaria-Riccione)
-    return 44.093 - 0.809 * (lon - 12.545)
-
-def in_terra(lat, lon):
-    return (lat < costa(lon) - 0.003) & (lat > 43.955) & (lon > 12.40) & (lon < 12.70)
-
-COMUNI = [  # nome, cap, lat, lon (centri indicativi)
-    ("Rimini", "47921", 44.055, 12.570), ("Riccione", "47838", 43.997, 12.645),
-    ("Santarcangelo di Romagna", "47822", 44.063, 12.447), ("Bellaria-Igea Marina", "47814", 44.143, 12.470),
-    ("Coriano", "47853", 43.968, 12.600), ("Verucchio", "47826", 43.983, 12.420),
-]
-CENTRI = [(44.058, 12.565, .018, .45), (44.085, 12.540, .010, .10), (43.997, 12.645, .010, .15),
-          (44.063, 12.447, .009, .10), (44.140, 12.470, .008, .08), (44.030, 12.590, .015, .07)]
-
-def punti(n, centri):
-    out = []
-    pesi = np.array([c[3] for c in centri]); pesi = pesi / pesi.sum()
-    while len(out) < n:
-        k = rng.choice(len(centri), p=pesi)
-        la, lo, sd, _ = centri[k]
-        lat, lon = rng.normal(la, sd), rng.normal(lo, sd * 1.35)
-        if rng.random() < 0.08:  # quota diffusa nell'entroterra
-            lat, lon = rng.uniform(43.96, 44.12), rng.uniform(12.41, 12.62)
-        if in_terra(lat, lon):
-            out.append((lat, lon))
-    return np.array(out)
-
-def comune_di(lat, lon):
-    d = [(lat - c[2]) ** 2 + ((lon - c[3]) * 0.72) ** 2 for c in COMUNI]
-    return COMUNI[int(np.argmin(d))]
-
 def km(lat1, lon1, lat2, lon2):
-    return np.hypot((lat1 - lat2) * 111.2, (lon1 - lon2) * 111.2 * np.cos(np.radians(44.05)))
-
-# ---------------------------------------------------------------- punti vendita e concorrenti
-PV = pd.DataFrame([
-    ("PV01", f"{AZIENDA} · Rimini Centro", "Rimini", 44.0605, 12.5662),
-    ("PV02", f"{AZIENDA} · Viserba", "Rimini", 44.0830, 12.5330),
-    ("PV03", f"{AZIENDA} · Riccione", "Riccione", 43.9960, 12.6420),
-    ("PV04", f"{AZIENDA} · Santarcangelo", "Santarcangelo di Romagna", 44.0630, 12.4480),
-], columns=["id_punto", "nome", "comune", "lat", "lon"])
+    return np.hypot((lat1 - lat2) * 111.2, (lon1 - lon2) * 111.2 * np.cos(np.radians((lat1 + lat2) / 2)))
 
 MARCHI = ["Concorrente Alfa", "Concorrente Beta", "Concorrente Gamma", "Concorrente Delta"]
 TIPI = ["Sportello energia", "Negozio telefonia con luce e gas", "Agenzia"]
-cp = punti(26, [(44.050, 12.575, .012, .55), (43.998, 12.648, .008, .2), (44.140, 12.470, .006, .1),
-                (44.030, 12.600, .010, .15)])
+
+if AREA == "italia":
+    import geonamescache
+    from global_land_mask import globe
+    NOMI_IT = {"Rome": "Roma", "Milan": "Milano", "Naples": "Napoli", "Turin": "Torino", "Genoa": "Genova",
+               "Florence": "Firenze", "Padua": "Padova", "Venice": "Venezia", "Mestre": "Venezia",
+               "Reggio nell'Emilia": "Reggio Emilia", "Nicastro": "Lamezia Terme"}
+    ESCLUSI = {"Filadelfia"}
+    citta = sorted((c for c in geonamescache.GeonamesCache().get_cities().values()
+                    if c["countrycode"] == "IT" and c["population"] >= 40000 and c["name"] not in ESCLUSI
+                    and not c["name"].startswith("Circoiscrizione")), key=lambda c: -c["population"])
+    tenute = []   # i quartieri delle grandi citta' confluiscono nella citta' principale
+    for c in citta:
+        if all(km(c["latitude"], c["longitude"], t["latitude"], t["longitude"]) > 3 + 2.5 * np.sqrt(t["population"] / 1e5) for t in tenute):
+            tenute.append(c)
+    CITTA = pd.DataFrame({"nome": [NOMI_IT.get(c["name"], c["name"]) for c in tenute],
+                          "pop": [c["population"] for c in tenute],
+                          "lat": [c["latitude"] for c in tenute], "lon": [c["longitude"] for c in tenute]})
+    CITTA["sd"] = 0.006 + 0.0035 * np.sqrt(CITTA["pop"] / 1e4)       # gradi: ~1,5 km per 40.000 ab., ~6 km per Roma
+
+    def punti(n, peso_esp=1.0, scala=1.0, peso_pv=1.0):
+        w = CITTA["pop"].values ** peso_esp * np.where(CITTA.index < 30, peso_pv, 1.0); w = w / w.sum()
+        out = []
+        while len(out) < n:
+            k = rng.choice(len(CITTA), p=w)
+            c = CITTA.iloc[k]
+            lat, lon = rng.normal(c.lat, c.sd * scala), rng.normal(c.lon, c.sd * scala * 1.3)
+            if globe.is_land(lat, lon):
+                out.append((lat, lon))
+        return np.array(out)
+
+    def comune_di(lat, lon):
+        d = km(lat, lon, CITTA.lat.values, CITTA.lon.values)
+        return (CITTA.nome.iloc[int(np.argmin(d))], None)
+
+    # punti vendita: uno nelle 30 citta' piu' grandi, due a Roma, Milano, Napoli e Torino
+    pv = []
+    for _, c in CITTA.head(30).iterrows():
+        for j in range(2 if c["pop"] > 8e5 else 1):
+            while True:
+                lat, lon = rng.normal(c.lat, c.sd * .35), rng.normal(c.lon, c.sd * .45)
+                if globe.is_land(lat, lon): break
+            pv.append((f"PV{len(pv)+1:02d}", f"{AZIENDA} · {c.nome}{' ' + str(j + 1) if c["pop"] > 8e5 else ''}", c.nome, round(lat, 5), round(lon, 5)))
+    PV = pd.DataFrame(pv, columns=["id_punto", "nome", "comune", "lat", "lon"])
+    cp = punti(320, peso_esp=0.9, scala=0.7)
+else:
+    def costa(lon):  # latitudine approssimata della linea di costa (Bellaria-Riccione)
+        return 44.093 - 0.809 * (lon - 12.545)
+
+    def in_terra(lat, lon):
+        return (lat < costa(lon) - 0.003) & (lat > 43.955) & (lon > 12.40) & (lon < 12.70)
+
+    COMUNI = [  # nome, cap, lat, lon (centri indicativi)
+        ("Rimini", "47921", 44.055, 12.570), ("Riccione", "47838", 43.997, 12.645),
+        ("Santarcangelo di Romagna", "47822", 44.063, 12.447), ("Bellaria-Igea Marina", "47814", 44.143, 12.470),
+        ("Coriano", "47853", 43.968, 12.600), ("Verucchio", "47826", 43.983, 12.420),
+    ]
+    CENTRI = [(44.058, 12.565, .018, .45), (44.085, 12.540, .010, .10), (43.997, 12.645, .010, .15),
+              (44.063, 12.447, .009, .10), (44.140, 12.470, .008, .08), (44.030, 12.590, .015, .07)]
+
+    def punti(n, centri):
+        out = []
+        pesi = np.array([c[3] for c in centri]); pesi = pesi / pesi.sum()
+        while len(out) < n:
+            k = rng.choice(len(centri), p=pesi)
+            la, lo, sd, _ = centri[k]
+            lat, lon = rng.normal(la, sd), rng.normal(lo, sd * 1.35)
+            if rng.random() < 0.08:  # quota diffusa nell'entroterra
+                lat, lon = rng.uniform(43.96, 44.12), rng.uniform(12.41, 12.62)
+            if in_terra(lat, lon):
+                out.append((lat, lon))
+        return np.array(out)
+
+    def comune_di(lat, lon):
+        d = [(lat - c[2]) ** 2 + ((lon - c[3]) * 0.72) ** 2 for c in COMUNI]
+        return COMUNI[int(np.argmin(d))]
+
+
+    PV = pd.DataFrame([
+        ("PV01", f"{AZIENDA} · Rimini Centro", "Rimini", 44.0605, 12.5662),
+        ("PV02", f"{AZIENDA} · Viserba", "Rimini", 44.0830, 12.5330),
+        ("PV03", f"{AZIENDA} · Riccione", "Riccione", 43.9960, 12.6420),
+        ("PV04", f"{AZIENDA} · Santarcangelo", "Santarcangelo di Romagna", 44.0630, 12.4480),
+    ], columns=["id_punto", "nome", "comune", "lat", "lon"])
+
+    cp = punti(26, [(44.050, 12.575, .012, .55), (43.998, 12.648, .008, .2), (44.140, 12.470, .006, .1),
+                    (44.030, 12.600, .010, .15)])
+
 CO = pd.DataFrame({
-    "id_concorrente": [f"CO{i+1:02d}" for i in range(len(cp))],
+    "id_concorrente": [f"CO{i+1:03d}" for i in range(len(cp))],
     "marchio": rng.choice(MARCHI, len(cp), p=[.35, .3, .2, .15]),
     "tipo_punto": rng.choice(TIPI, len(cp), p=[.5, .35, .15]),
     "lat": cp[:, 0].round(5), "lon": cp[:, 1].round(5),
@@ -91,7 +152,7 @@ PM = pd.DataFrame(righe, columns=["marchio", "categoria", "tipo_prezzo", "prezzo
 media_mkt = PM.groupby(["categoria", "tipo_prezzo"]).prezzo_unitario.mean()
 
 # ---------------------------------------------------------------- clienti
-pos = punti(N, CENTRI)
+pos = punti(N, scala=0.8, peso_pv=2.5) if AREA == "italia" else punti(N, CENTRI)   # piu' clienti nelle citta' con punto vendita
 lat, lon = pos[:, 0], pos[:, 1]
 business = rng.random(N) < 0.14
 prod = np.where(business, "Business Luce",
@@ -150,6 +211,12 @@ logit = (INTERCETTA + 0.85 * variabile + 0.75 * (anni < 1) + 0.35 * ((anni >= 1)
          + 0.18 * np.minimum(ticket, 6) + 0.28 * np.minimum(cambi, 3) + 0.35 * np.minimum(rettifiche, 3)
          + 0.15 * np.minimum(solleciti, 5) - 1.6 * np.clip(var_cons, -.8, .3) - 0.40 * area_web
          - 0.15 * consenso - 0.12 * (nps_lat - 7.5))
+if AREA == "italia":     # stessa struttura, intercetta ricalibrata sul tasso di churn obiettivo
+    lin, lo, hi = logit - INTERCETTA, -10.0, 2.0
+    for _ in range(60):
+        mid = (lo + hi) / 2
+        lo, hi = (mid, hi) if (1 / (1 + np.exp(-(lin + mid)))).mean() < CHURN_OBIETTIVO / 0.97 else (lo, mid)
+    logit = lin + mid
 p = 1 / (1 + np.exp(-logit))
 churn = (rng.random(N) < p) & (gg_att > 45)
 
@@ -208,7 +275,7 @@ fill_opt = PatternFill("solid", fgColor=CREAM)
 bordo = Border(bottom=Side(style="thin", color=LINE))
 
 OBBL = {"Clienti": ["id_cliente", "data_attivazione", "data_cessazione", "prodotto", "ricavo_mensile", "comune",
-                    "cap", "indirizzo", "civico", "lat", "lon"],
+                    "indirizzo", "civico", "lat", "lon"],
         "Punti_vendita": ["id_punto", "nome", "comune", "lat", "lon"],
         "Concorrenti": ["id_concorrente", "marchio", "tipo_punto", "comune", "lat", "lon"],
         "Prodotti": ["prodotto", "categoria", "tipo_prezzo", "prezzo_unitario", "unita"],
@@ -251,7 +318,8 @@ ws = wb.create_sheet("Istruzioni")
 ws.column_dimensions["A"].width = 18; ws.column_dimensions["B"].width = 26
 ws.column_dimensions["C"].width = 14; ws.column_dimensions["D"].width = 16; ws.column_dimensions["E"].width = 70
 ws["A1"] = "Lume AntiChurn · dati ipotetici"; ws["A1"].font = Font(name=ARIAL, size=16, bold=True, color=INK)
-ws["A2"] = (f"Azienda fittizia ({AZIENDA}), area di Rimini. Nessun dato reale. Data dell'estrazione: "
+ws["A2"] = (f"Azienda fittizia ({AZIENDA}), {'tutta Italia' if AREA == 'italia' else 'area di Rimini'}. Nessun dato reale: "
+            f"clienti, punti vendita, marchi concorrenti e prezzi sono inventati. Data dell'estrazione: "
             f"{RIF.strftime('%d/%m/%Y')}. Una riga = un cliente.")
 ws["A2"].font = Font(name=ARIAL, size=10, color="57524B")
 ws["A4"] = "Legenda"; ws["A4"].font = Font(name=ARIAL, size=11, bold=True, color=INK)
@@ -268,7 +336,8 @@ CAMPI = [
     ("Clienti", "data_cessazione", "Sì", "data o vuoto", "Vuoto se il cliente è attivo. I cessati negli ultimi 12 mesi definiscono il churn."),
     ("Clienti", "prodotto", "Sì", "testo", "Deve corrispondere a un prodotto del foglio Prodotti."),
     ("Clienti", "ricavo_mensile", "Sì", "€", "Valore del cliente e ricavo esposto al churn."),
-    ("Clienti", "comune, cap", "Sì", "testo", "Mappa e confronti per zona."),
+    ("Clienti", "comune", "Sì", "testo", "Mappa e confronti per zona."),
+    ("Clienti", "cap", "No", "testo", "Serve solo se la posizione è data come indirizzo."),
     ("Clienti", "indirizzo, civico / lat, lon", "Sì (uno dei due)", "testo / gradi", "Posizione del cliente sulla mappa a esagoni."),
     ("Clienti", "tipo_cliente", "No", "Privato / Business", "Segmentazione."),
     ("Clienti", "fascia_eta", "No", "18-34 … 75+", "Personas e scoring (solo clienti privati)."),
@@ -308,6 +377,6 @@ foglio("Concorrenti", CO)
 foglio("Prodotti", PRODOTTI)
 foglio("Prezzi_mercato", PM)
 
-OUT = str(__import__("pathlib").Path(__file__).resolve().parents[1] / "dati" / "lume_antichurn_dati_demo.xlsx")
+OUT = str(__import__("pathlib").Path(__file__).resolve().parents[1] / "dati" / OUT_NOME)
 wb.save(OUT)
 print(OUT, CTRL)
