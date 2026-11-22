@@ -164,6 +164,14 @@
   .comp { display: flex; height: 14px; width: 100%; min-width: 140px; background: var(--cream); }
   .comp span { height: 100%; border-right: 2px solid var(--white); }
   .comp span:last-child { border-right: 0; }
+  .curiosita { margin-top: clamp(32px, 4vw, 48px); }
+  .curiosita-corpo { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(24px, 4vw, 56px); align-items: center; }
+  .curiosita-corpo p { font-size: var(--t-s); color: var(--ink-2); line-height: 1.55; max-width: 72ch; margin-bottom: 12px; }
+  .forme { width: 100%; height: auto; }
+  .forme text { font-family: var(--mono); font-size: 12px; fill: var(--ink-2); }
+  .forme text.acc { fill: var(--accent); font-weight: 600; }
+  .forme text.nota { fill: var(--ink-3); font-size: 11px; }
+  @media (max-width: 860px) { .curiosita-corpo { grid-template-columns: 1fr; } }
   .top5 .formula-zona { font-family: var(--mono); font-size: var(--t-xs); color: var(--ink-2); }
   @media (max-width: 860px) { .quote { grid-template-columns: 1fr 1fr; } }
   details.apri { border-top: 1px solid var(--ink); }
@@ -381,7 +389,7 @@
           <div class="azioni">
             <button class="btn" id="demo" type="button">Prova con i dati demo</button>
             <a class="link" href="dati/lume_antichurn_dati_demo_rimini.xlsx" download>Scarica il modello Excel</a>
-            <a class="link" href="dati/lume_antichurn_dati_demo.xlsx" download>Dati demo in Excel (200.000 clienti, 25 MB)</a>
+            <a class="link" href="dati/lume_antichurn_dati_demo.xlsx" download>Dati demo in Excel (50.000 clienti, 6 MB)</a>
           </div>
           <p>Campi obbligatori per ogni cliente: codice, data di attivazione, data di cessazione (vuota se attivo), prodotto, ricavo mensile, comune e posizione. I campi facoltativi, come ticket all'assistenza, cambi di prodotto, solleciti, variazione dei consumi e voto NPS, aumentano l'accuratezza del modello.</p>
           <p class="stato" id="stato"></p>
@@ -536,6 +544,26 @@
         <p class="mp-nota" id="map-nota"></p>
         <div class="top5" id="top5"></div>
       </div>
+      <details class="apri curiosita">
+        <summary>Curiosità: perché gli esagoni</summary>
+        <div class="curiosita-corpo">
+          <div>
+            <p>Solo tre poligoni regolari coprono una superficie senza lasciare spazi: triangolo, quadrato ed esagono. A parità di area l'esagono ha il bordo più corto: circa il 7% in meno del quadrato e il 18% in meno del triangolo. È la stessa ragione per cui le api costruiscono celle esagonali.</p>
+            <p>Meno bordo significa meno clienti vicini al confine tra due zone. Se la posizione di un indirizzo è imprecisa di qualche metro, è meno probabile che finisca nell'esagono sbagliato: si riducono gli errori di allocazione e i punti contesi tra zone.</p>
+            <p>Ogni esagono ha sei vicini, tutti con un lato in comune e tutti alla stessa distanza dal centro. Un quadrato ha quattro vicini di lato e quattro d'angolo, a distanze diverse. Con gli esagoni il confronto tra zone vicine è coerente in ogni direzione.</p>
+            <p class="fonte">Griglia H3, sviluppata da Uber e rilasciata in open source.</p>
+          </div>
+          <svg viewBox="0 0 420 170" class="forme" role="img" aria-label="Triangolo, quadrato ed esagono con la stessa area: bordo 4,56, 4,00 e 3,72">
+            <polygon points="70.0,20.1 114.1,96.4 25.9,96.4" fill="#E8E2D7" stroke="#151412" stroke-width="1.5"/>
+            <polygon points="239.0,91.0 181.0,91.0 181.0,33.0 239.0,33.0" fill="#E8E2D7" stroke="#151412" stroke-width="1.5"/>
+            <polygon points="386.0,62.0 368.0,93.2 332.0,93.2 314.0,62.0 332.0,30.8 368.0,30.8" fill="#F6D9C6" stroke="#C2410C" stroke-width="2"/>
+            <text x="70" y="128" text-anchor="middle">triangolo</text><text x="70" y="144" text-anchor="middle">bordo 4,56</text>
+            <text x="210" y="128" text-anchor="middle">quadrato</text><text x="210" y="144" text-anchor="middle">bordo 4,00</text>
+            <text x="350" y="128" text-anchor="middle" class="acc">esagono</text><text x="350" y="144" text-anchor="middle" class="acc">bordo 3,72</text>
+            <text x="210" y="166" text-anchor="middle" class="nota">stessa area per tutte e tre le forme</text>
+          </svg>
+        </div>
+      </details>
     </div>
   </section>
 </main>

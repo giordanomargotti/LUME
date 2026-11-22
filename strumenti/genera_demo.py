@@ -1,6 +1,6 @@
 """Genera il dataset ipotetico di Lume AntiChurn (azienda fittizia).
 
-    python strumenti/genera_demo.py                 # tutta Italia, 10.000 clienti (demo dell'app)
+    python strumenti/genera_demo.py                 # tutta Italia, 50.000 clienti (demo dell'app)
     python strumenti/genera_demo.py --area rimini   # area di Rimini, 3.000 clienti
 
 Nessun dato reale sui clienti: clienti, punti vendita, concorrenti e prezzi sono inventati.
@@ -21,7 +21,7 @@ ap.add_argument("--area", choices=["italia", "rimini"], default="italia")
 ap.add_argument("--n", type=int, default=None)
 ARG = ap.parse_args()
 AREA = ARG.area
-N = ARG.n or (200000 if AREA == "italia" else 3000)
+N = ARG.n or (50000 if AREA == "italia" else 3000)
 OUT_NOME = "lume_antichurn_dati_demo.xlsx" if AREA == "italia" else "lume_antichurn_dati_demo_rimini.xlsx"
 
 rng = np.random.default_rng(2026)
