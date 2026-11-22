@@ -128,18 +128,20 @@
   .sub { font-size: var(--t-l); font-weight: 500; margin: clamp(40px, 5vw, 64px) 0 8px; }
   .sub-p { color: var(--ink-2); font-size: var(--t-s); max-width: 70ch; margin-bottom: 20px; }
   .come { margin-top: 28px; display: grid; gap: 14px; border-top: 1px solid var(--ink); padding-top: 16px; }
-  .passi { list-style: none; counter-reset: p; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; margin: 0; padding: 0; }
   .come-testa { display: grid; gap: 6px; }
-  .come-intro { font-size: var(--t-m); color: var(--ink); max-width: none; }
+  .come-intro { font-size: var(--t-m); color: var(--ink); }
+  .quote { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px 24px; margin: 0; }
+  .quote div { border-top: 1px solid var(--line); padding-top: 10px; display: grid; gap: 4px; align-content: start; }
+  .quote dt { font-weight: 600; font-size: var(--t-s); }
+  .quote dd { margin: 0; font-size: var(--t-s); color: var(--ink-2); line-height: 1.45; }
+  .quote dd.formula { font-family: var(--mono); font-size: var(--t-xs); color: var(--ink); background: var(--cream); padding: 6px 8px; line-height: 1.5; }
+  .scala { display: grid; gap: 10px; margin: 10px 0 4px; }
+  .scala p { font-size: var(--t-s); color: var(--ink-2); line-height: 1.5; border-left: 2px solid var(--accent); padding: 2px 0 2px 14px; max-width: 78ch; }
+  .scala p:nth-child(2) { margin-left: clamp(16px, 4vw, 56px); }
+  .scala p:nth-child(3) { margin-left: clamp(32px, 8vw, 112px); }
+  .scala b { color: var(--ink); }
   .come .esempio { max-width: 90ch; }
-  .passi li { counter-increment: p; font-size: var(--t-s); color: var(--ink-2); line-height: 1.5; }
-  .passi li::before { content: '0' counter(p); display: block; font-family: var(--mono); font-size: var(--t-xs); color: var(--ink-3); margin-bottom: 4px; }
-  .passi b { color: var(--ink); font-weight: 600; }
-  .strati-def { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 24px; margin: 0; }
-  .strati-def div { border-top: 1px solid var(--line); padding-top: 8px; }
-  .strati-def dt { font-weight: 600; font-size: var(--t-s); }
-  .strati-def dd { margin: 2px 0 0; font-size: var(--t-s); color: var(--ink-2); line-height: 1.45; }
-  @media (max-width: 860px) { .passi, .strati-def { grid-template-columns: 1fr; } }
+  @media (max-width: 860px) { .quote { grid-template-columns: 1fr 1fr; } }
   details.apri { border-top: 1px solid var(--ink); }
   details.apri + details.apri { margin-top: 0; }
   details.apri:last-of-type { border-bottom: 1px solid var(--ink); }
@@ -448,8 +450,8 @@
         <div class="pan c6"><h3 id="imp-tit">Variabili più rilevanti</h3><div class="chart"><canvas id="g-imp"></canvas></div></div>
       </div>
       <p class="sub">Score per cliente</p>
-      <p class="sub-p">File CSV con tutti i clienti attivi ordinati per score: probabilità di churn, fascia di rischio, persona, gruppo di clustering, segnali principali, prodotto, comune e ricavo mensile. Si apre con Excel.</p>
-      <div class="azioni"><button class="btn" id="scarica" type="button">Scarica lo score per cliente (CSV)</button></div>
+      <p class="sub-p">File Excel con tutti i clienti attivi ordinati per score: probabilità di churn, fascia di rischio, persona, gruppo di clustering, segnali principali, prodotto, comune e ricavo mensile. Un secondo foglio spiega ogni colonna.</p>
+      <div class="azioni"><button class="btn" id="scarica" type="button">Scarica lo score per cliente (Excel)</button></div>
       <div id="sco-elenco" hidden>  <!-- elenco di priorita': nascosto per ora -->
       <p class="sub">Elenco di priorità</p>
       <p class="sub-p" id="sco-fasce"></p>
@@ -489,23 +491,20 @@
           <p class="label">Come si calcola l'indice di priorità</p>
           <p class="come-intro">L'indice è un algoritmo a punteggio: per ogni zona valuta le altre quattro variabili della mappa e le riassume in un numero da 0 a 100. Più è alto, prima conviene intervenire.</p>
         </div>
-        <ol class="passi">
-          <li><b>Zone.</b> Il territorio è diviso in esagoni di circa 0,7 km² e ogni cliente è assegnato all'esagono in cui si trova. Si valutano solo gli esagoni con almeno 8 clienti.</li>
-          <li><b>Quattro quote.</b> Per ogni zona si calcolano clienti potenziali, clienti persi, clienti a rischio e clienti esposti a concorrenti, definiti qui sotto.</li>
-          <li><b>Punteggio 0-100.</b> Ogni quota è confrontata con la zona che ha il valore più alto: punteggio = quota della zona ÷ quota massima × 100.</li>
-          <li><b>Indice.</b> Media semplice dei punteggi, con lo stesso peso per ogni variabile. Le 10 zone con l'indice più alto sono numerate sulla mappa.</li>
-        </ol>
+        <p class="label" style="margin-top:8px">Le quattro quote</p>
+        <dl class="quote">
+          <div><dt>Clienti potenziali</dt><dd class="formula">(famiglie residenti − clienti attivi) ÷ famiglie residenti</dd><dd>Spazio di crescita nella zona. Famiglie dal censimento ISTAT.</dd></div>
+          <div><dt>Clienti persi</dt><dd class="formula">cessati negli ultimi 12 mesi ÷ (attivi + cessati)</dd><dd>Churn già avvenuto nella zona.</dd></div>
+          <div><dt>Clienti a rischio</dt><dd class="formula">attivi in fascia di rischio alta ÷ attivi</dd><dd>Churn atteso secondo lo score.</dd></div>
+          <div><dt>Esposti a concorrenti</dt><dd class="formula">attivi con un concorrente entro 1 km e più vicino del punto vendita ÷ attivi</dd><dd>Possibilità di passaggio a un concorrente vicino.</dd></div>
+        </dl>
+        <div class="scala">
+          <p><b>Zone.</b> Il territorio è diviso in esagoni di circa 0,7 km² e ogni cliente è assegnato all'esagono in cui si trova. Si valutano solo gli esagoni con almeno 8 clienti.</p>
+          <p><b>Punteggio 0-100.</b> Ogni quota è confrontata con la zona che ha il valore più alto: punteggio = quota della zona ÷ quota massima × 100.</p>
+          <p><b>Indice.</b> Media semplice dei punteggi, con lo stesso peso per ogni variabile. Le 10 zone con l'indice più alto sono numerate sulla mappa.</p>
+        </div>
         <p class="esempio"><b>Esempio.</b> Una zona con il 20% di clienti persi (massimo 40%: 50 punti), il 10% a rischio (massimo 20%: 50 punti) e il 30% di esposti (massimo 30%: 100 punti) ha indice (50 + 50 + 100) ÷ 3 = 67.</p>
         <p class="mp-nota" id="map-nota"></p>
-        <p class="label" style="margin-top:12px">Cosa mostra ogni strato</p>
-        <dl class="strati-def">
-          <div><dt>Indice di priorità</dt><dd>Media dei punteggi delle quattro quote, da 0 a 100.</dd></div>
-          <div><dt>Clienti potenziali</dt><dd>Famiglie residenti (censimento ISTAT) non ancora clienti, in % delle famiglie dell'esagono.</dd></div>
-          <div><dt>Clienti persi</dt><dd>Clienti cessati negli ultimi 12 mesi, in % dei clienti dell'esagono.</dd></div>
-          <div><dt>Clienti a rischio</dt><dd>Clienti attivi in fascia di rischio alta, in % dei clienti attivi.</dd></div>
-          <div><dt>Esposti a concorrenti</dt><dd>Clienti attivi con un concorrente entro 1 km e più vicino del punto vendita più vicino, in % dei clienti attivi.</dd></div>
-          <div><dt>Clienti attivi</dt><dd>Numero di clienti attivi per esagono. Non entra nell'indice.</dd></div>
-        </dl>
       </div>
     </div>
   </section>
@@ -1007,12 +1006,34 @@ function disegnaModello() {      // tabella, ROC e lift del modello selezionato
     options: { maintainAspectRatio: false, animation: { duration: 250 }, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.dataset.label === 'Media' ? 'media = 1' : `${fmt(c.raw, 2)}× · ${pct(sel.decili[c.dataIndex].tasso)} di cessati` } } },
       scales: { y: { beginAtZero: true, title: { display: true, text: 'volte la media' } }, x: { grid: { display: false }, title: { display: true, text: 'decile di score' } } } } })
 }
-$('#scarica').onclick = () => {
-  const rows = [['id_cliente', 'score_churn', 'fascia', 'persona_regole', 'gruppo_cluster', 'segnali', 'prodotto', 'comune', 'ricavo_mensile']]
-  S.d.righe.forEach((o, i) => { if (!o.churn) rows.push([o.id_cliente, o.score.toFixed(4).replace('.', ','), o.fascia, S.regole.find(g => g.k === o.per_regole)?.nome, S.cluster[o.per_cluster]?.nome, motivi(i), o.prodotto, o.comune, String(o.ricavo ?? '').replace('.', ',')]) })
-  rows.splice(1, rows.length - 1, ...rows.slice(1).sort((a, b) => parseFloat(b[1].replace(',', '.')) - parseFloat(a[1].replace(',', '.'))))
-  const csv = '﻿' + rows.map(r => r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(';')).join('\n')
-  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'lume_score_clienti_attivi.csv'; a.click()
+$('#scarica').onclick = () => {      // file Excel: clienti attivi ordinati per score + foglio legenda
+  const att = S.d.righe.map((o, i) => [o, i]).filter(([o]) => !o.churn).sort((a, b) => b[0].score - a[0].score)
+  const testa = ['Posizione', 'id_cliente', 'Score churn', 'Fascia di rischio', 'Persona (regole)', 'Gruppo (clustering)', 'Segnali principali', 'Prodotto', 'Comune', 'Ricavo mensile (€)']
+  const righe = att.map(([o, i], r) => [r + 1, o.id_cliente, o.score, o.fascia, S.regole.find(g => g.k === o.per_regole)?.nome || '', S.cluster[o.per_cluster]?.nome || '', motivi(i), o.prodotto, o.comune, o.ricavo ?? null])
+  const ws = XLSX.utils.aoa_to_sheet([testa, ...righe])
+  for (let r = 1; r <= righe.length; r++) {
+    ws[XLSX.utils.encode_cell({ r, c: 2 })].z = '0.0%'
+    const c = ws[XLSX.utils.encode_cell({ r, c: 9 })]; if (c) c.z = '#,##0.00'
+  }
+  ws['!cols'] = [9, 12, 12, 15, 24, 26, 52, 16, 22, 17].map(w => ({ wch: w }))
+  ws['!autofilter'] = { ref: ws['!ref'] }
+  const best = S.R.migliore, rif = S.d.rif instanceof Date ? S.d.rif.toLocaleDateString('it-IT') : String(S.d.rif ?? '')
+  const leg = XLSX.utils.aoa_to_sheet([
+    ['Campo', 'Significato'],
+    ['Score churn', 'Probabilità di churn nei 12 mesi successivi, ricalibrata sul tasso di churn osservato nel parco clienti.'],
+    ['Fascia di rischio', `Alta: il 5% dei clienti attivi con score più alto (da ${pct(S.q95)}). Media: dal 70° al 95° percentile. Bassa: score sotto ${pct(S.q70)}.`],
+    ['Persona (regole)', 'Gruppo assegnato con le regole di segmentazione.'],
+    ['Gruppo (clustering)', 'Gruppo assegnato dal k-means, con il nome scelto in base ai tratti del gruppo.'],
+    ['Segnali principali', 'Le due variabili che spingono di più lo score del cliente verso l\'alto (regressione logistica).'],
+    ['Modello', `${best.nome}, AUC ${fmt(best.auc, 3)} sul campione di verifica (30% dei clienti).`],
+    ['Data di riferimento', rif],
+    ['Clienti nel file', String(righe.length)],
+  ])
+  leg['!cols'] = [{ wch: 22 }, { wch: 110 }]
+  const wb = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(wb, ws, 'Score clienti')
+  XLSX.utils.book_append_sheet(wb, leg, 'Legenda')
+  XLSX.writeFile(wb, 'lume_score_clienti_attivi.xlsx')
 }
 
 // ───────────────────────── 04 mappa a esagoni
@@ -1127,7 +1148,7 @@ function disegnaMappa() {
   $('#classifica').innerHTML = S.top.map((e, i) => `<button type="button" data-i="${i}"><span class="pick" style="width:22px;height:22px;line-height:18px;font-size:10px">${i + 1}</span><span>${esc(e.comune)}<br><span class="label">${fmt(e.attivi)} attivi · persi ${pct(e.persi, 0)} · rischio ${pct(e.rischio, 0)} · esposti ${pct(e.switch, 0)}</span></span><b>${fmt(e.indice * 100)}</b></button>`).join('')
   document.querySelectorAll('#classifica button').forEach(b => b.onclick = () => { const e = S.top[+b.dataset.i]; mappa.setView([e.lat, e.lon], 14); L.popup().setLatLng([e.lat, e.lon]).setContent(popup(e)).openOn(mappa) })
   $('#map-nota').innerHTML = `In questa analisi l'indice usa ${S.metr.length} quote: ${S.metr.map(m => STRATI.find(s => s[0] === m)[1].toLowerCase()).join(', ')}.` +
-    (S.istat ? ` Famiglie: ${esc(S.istat.fonte)} ${esc(S.istat.anno)}.` : ` I dati ISTAT sulle famiglie non sono caricati, quindi i clienti potenziali non sono conteggiati. ${fmt(S.E.filter(e => e.ok).length)} esagoni valutati.`)
+    (S.istat ? ` Famiglie: ${esc(S.istat.fonte)} ${esc(S.istat.anno)}.` : ` I dati ISTAT sulle famiglie non sono caricati, quindi i clienti potenziali non sono conteggiati.`) + ` ${fmt(S.E.filter(e => e.ok).length)} esagoni valutati. Lo strato Clienti attivi mostra il numero di clienti per esagono e non entra nell'indice.`
   if (!mappa._fatto) {
     const pts = S.d.righe.filter(o => o.lat != null).map(o => [o.lat, o.lon])
     if (pts.length) mappa.fitBounds(L.latLngBounds(pts).pad(0.05), { paddingTopLeft: [270, 10] })
