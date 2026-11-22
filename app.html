@@ -66,6 +66,14 @@
   .hero { padding-block: clamp(48px, 7vw, 104px) clamp(32px, 5vw, 56px); }
   .hero h1 { font-size: var(--t-xxl); letter-spacing: -0.04em; line-height: 0.98; grid-column: 1 / span 11; }
   .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero h1 .sott { display: block; font-size: 0.56em; letter-spacing: -0.03em; margin-top: 0.22em; }
+  .tesi { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(32px, 4vw, 72px); margin-top: clamp(48px, 6vw, 80px); }
+  .tesi article { display: grid; gap: 18px; align-content: start; }
+  .tesi h3 { font-size: var(--t-l); font-weight: 500; letter-spacing: -0.02em; line-height: 1.15; }
+  .tesi > article > p { color: var(--ink-2); font-size: var(--t-m); line-height: 1.5; }
+  .tesi .nums { grid-template-columns: 1fr 1fr; margin-top: 6px; }
+  .tesi .fonte { font-family: var(--mono); font-size: var(--t-xs); color: var(--ink-3); line-height: 1.6; }
+  @media (max-width: 860px) { .tesi { grid-template-columns: 1fr; } }
   .hero-text { grid-column: 1 / span 8; margin-top: clamp(28px, 4vw, 48px); font-size: clamp(1.125rem, 0.8rem + 1.1vw, 1.5rem); line-height: 1.4; letter-spacing: -0.01em; color: var(--ink-2); max-width: 52ch; }
   .hero-text b { color: var(--ink); font-weight: 600; }
   @media (max-width: 860px) { .hero h1, .hero-text { grid-column: 1 / -1; } }
@@ -221,9 +229,29 @@
 <main id="inizio">
   <!-- TITLE PAGE -->
   <section class="wrap hero">
-    <div class="grid"><h1>Conosci i tuoi <em>clienti.</em></h1></div>
+    <div class="grid"><h1>Conosci i tuoi clienti: <em class="sott">Trattenere vale più che Acquisire.</em></h1></div>
     <div class="grid">
-      <p class="hero-text">Tre analisi sullo stesso parco clienti. Lo <b>scoring</b> indica chi ha la probabilità di churn più alta nei prossimi 12 mesi. Le <b>personas</b> descrivono gruppi omogenei a cui riservare azioni diverse. La <b>mappa</b> mostra dove si concentrano clienti persi, clienti a rischio e concorrenti.</p>
+      <p class="hero-text">Ogni anno una quota della vostra base clienti smette di rinnovare, di consumare, di tornare. Il dato arriva a consuntivo, quando il cliente è già andato e il margine è perso.</p>
+    </div>
+    <div class="tesi">
+      <article>
+        <h3>L'asimmetria economica tra Retention ed Acquisition</h3>
+        <p>Acquisire un cliente consuma capitale a monte e produce un costo noto, il CAC. Quell'investimento rientra solo se il cliente resta abbastanza a lungo. Trattenerlo, invece, lavora su un costo già sostenuto: ogni mese in più di permanenza è margine quasi netto, dopo il CAC payback period.</p>
+        <div class="nums">
+          <div class="num"><b>5×</b><p>Acquisire un nuovo cliente può costare fino a cinque volte più che mantenerne uno esistente.</p></div>
+          <div class="num"><b class="acc">+25-85%</b><p>Aumento dei profitti con una riduzione del 5% del tasso di churn, a seconda del settore.</p></div>
+        </div>
+        <p class="fonte">Kotler, P. &amp; Keller, K. L. (2016). Marketing Management, 15ª ed. Pearson · Reichheld, F. F. &amp; Sasser, W. E. (1990). Zero Defections: Quality Comes to Services. Harvard Business Review, 68(5), 105–111.</p>
+      </article>
+      <article>
+        <h3>Perché la retention generica non basta</h3>
+        <p>Effettuare azioni di retention considerando tutti i clienti come se avessero la stessa probabilità di lasciarci significa sostenere un costo commerciale e di retention, concedendo sconti o regalando servizi aggiuntivi, anche per i clienti che sarebbero rimasti comunque, invece di intercettare chi sta davvero per andarsene.</p>
+        <div class="nums">
+          <div class="num"><b class="acc">10%</b><p>Churn a tre mesi tra i clienti raggiunti da una campagna di retention non mirata.</p></div>
+          <div class="num"><b>6%</b><p>Churn nello stesso periodo tra i clienti non contattati. Esperimento su 65.000 clienti di un operatore mobile.</p></div>
+        </div>
+        <p class="fonte">Ascarza, E., Iyengar, R. &amp; Schleicher, M. (2016). The Perils of Proactive Churn Prevention Using Plan Recommendations: Evidence from a Field Experiment. Journal of Marketing Research, 53(1), 46–60.</p>
+      </article>
     </div>
     <nav class="percorso" aria-label="Percorso dell'analisi">
       <a class="tappa" href="#variabili"><span class="label">01</span><b>Variabili</b><p>Quali caratteristiche dei clienti sono legate al churn e come si posizionano i prezzi rispetto al mercato.</p></a>

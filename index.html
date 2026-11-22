@@ -30,7 +30,10 @@
   .brand span { font-family: var(--mono); font-size: 0.75rem; color: var(--on-night-2); margin-left: 6px; }
   .sx h1 { font-size: clamp(2.75rem, 1.6rem + 4vw, 5.5rem); font-weight: 600; letter-spacing: -0.04em; line-height: 0.98; position: relative; z-index: 1; }
   .sx h1 em { font-style: normal; color: var(--accent); }
-  .sx .lead { margin-top: 28px; font-size: 1.125rem; line-height: 1.45; color: var(--on-night-2); max-width: 40ch; position: relative; z-index: 1; }
+  .sx .lead { margin-top: 28px; font-size: 1.125rem; line-height: 1.45; color: var(--on-night-2); max-width: 44ch; position: relative; z-index: 1; }
+  .sx .lead b { display: block; color: var(--on-night); font-weight: 500; margin-bottom: 10px; }
+  .metodi { position: relative; z-index: 1; display: grid; gap: 16px; }
+  .metodi .intro { font-size: 0.9375rem; color: var(--on-night); }
   .punti { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; position: relative; z-index: 1; }
   .punti div { border-top: 1px solid var(--night-line); padding-top: 12px; display: grid; gap: 6px; align-content: start; }
   .punti .label { color: var(--on-night-2); }
@@ -68,7 +71,7 @@
   @media (max-width: 900px) {
     body { grid-template-columns: 1fr; }
     .sx { gap: 28px; }
-    .punti, .favo { display: none; }
+    .metodi, .favo { display: none; }
   }
 </style>
 </head>
@@ -87,13 +90,16 @@
 
   <div>
     <h1>Conosci i tuoi <em>clienti.</em></h1>
-    <p class="lead">Salvaguarda la retention e limita il churn con metodi quantitativi.</p>
+    <p class="lead"><b>Trattenere con azioni di retention vale più che acquisire nuovi clienti.</b> I dati ti dicono chi sono i tuoi clienti, servono solo i metodi giusti per riuscire ad estrarre le corrette informazioni.</p>
   </div>
 
-  <div class="punti">
-    <div><span class="label">01</span><b>Scoring</b><p>Probabilità di churn a 12 mesi per ogni cliente attivo.</p></div>
-    <div><span class="label">02</span><b>Personas</b><p>Gruppi di clienti omogenei, ciascuno con un'azione consigliata.</p></div>
-    <div><span class="label">03</span><b>Mappa</b><p>Clienti persi, clienti a rischio e concorrenti sul territorio.</p></div>
+  <div class="metodi">
+    <p class="intro">Aumenta la retention e limita il churn con metodi quantitativi:</p>
+    <div class="punti">
+      <div><span class="label">01</span><b>Churn Scoring</b><p>Modelli di machine learning per definire il rischio di churn.</p></div>
+      <div><span class="label">02</span><b>Personas</b><p>Segmentazione e clustering del parco clienti per azioni commerciali e di retention.</p></div>
+      <div><span class="label">03</span><b>Honeycomb Map</b><p>Analisi territoriale dei clienti, dei prospect e dei concorrenti.</p></div>
+    </div>
   </div>
 </section>
 
