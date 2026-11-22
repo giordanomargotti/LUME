@@ -150,6 +150,21 @@
   .scala p:nth-child(3) { margin-left: clamp(32px, 8vw, 112px); }
   .scala b { color: var(--ink); }
   .come .esempio { max-width: 90ch; }
+  .top5 { margin-top: 18px; display: grid; gap: 10px; }
+  .top5 h3 { font-size: var(--t-l); font-weight: 500; letter-spacing: -0.02em; }
+  .top5 .sub-p { margin: 0; max-width: 90ch; }
+  .top5 table { width: 100%; border-collapse: collapse; font-size: var(--t-s); font-variant-numeric: tabular-nums; }
+  .top5 th { font-family: var(--mono); font-size: var(--t-xs); font-weight: 400; color: var(--ink-2); text-align: right; padding: 6px 10px; border-bottom: 1px solid var(--ink); vertical-align: bottom; }
+  .top5 th.l, .top5 td.l { text-align: left; }
+  .top5 th i { display: inline-block; width: 10px; height: 10px; margin-right: 6px; vertical-align: -1px; }
+  .top5 th small { display: block; color: var(--ink-3); margin-top: 2px; }
+  .top5 td { padding: 10px; border-bottom: 1px solid var(--line); text-align: right; vertical-align: middle; }
+  .top5 td small { display: block; font-family: var(--mono); font-size: var(--t-xs); color: var(--ink-3); margin-top: 2px; }
+  .top5 td.ind { font-size: var(--t-l); font-weight: 600; color: var(--accent); }
+  .comp { display: flex; height: 14px; width: 100%; min-width: 140px; background: var(--cream); }
+  .comp span { height: 100%; border-right: 2px solid var(--white); }
+  .comp span:last-child { border-right: 0; }
+  .top5 .formula-zona { font-family: var(--mono); font-size: var(--t-xs); color: var(--ink-2); }
   @media (max-width: 860px) { .quote { grid-template-columns: 1fr 1fr; } }
   details.apri { border-top: 1px solid var(--ink); }
   details.apri + details.apri { margin-top: 0; }
@@ -507,7 +522,7 @@
         </div>
         <p class="label" style="margin-top:8px">Le quattro quote</p>
         <dl class="quote">
-          <div><dt>Clienti potenziali</dt><dd class="formula">(famiglie residenti − clienti attivi) ÷ famiglie residenti</dd><dd>Spazio di crescita nella zona. Famiglie dal censimento ISTAT.</dd></div>
+          <div><dt>Clienti potenziali</dt><dd class="formula">(famiglie stimate sui numeri civici − clienti attivi agli stessi indirizzi) ÷ famiglie stimate</dd><dd>Spazio di crescita nella zona. Famiglie ISTAT per sezione di censimento, distribuite sui numeri civici ANNCSU; i clienti si tolgono isolato per isolato.</dd></div>
           <div><dt>Clienti persi</dt><dd class="formula">cessati negli ultimi 12 mesi ÷ (attivi + cessati)</dd><dd>Churn già avvenuto nella zona.</dd></div>
           <div><dt>Clienti a rischio</dt><dd class="formula">attivi in fascia di rischio alta ÷ attivi</dd><dd>Churn atteso secondo lo score.</dd></div>
           <div><dt>Esposti a concorrenti</dt><dd class="formula">attivi con un concorrente entro 1 km e più vicino del punto vendita ÷ attivi</dd><dd>Possibilità di passaggio a un concorrente vicino.</dd></div>
@@ -515,10 +530,11 @@
         <div class="scala">
           <p><b>Zone.</b> Il territorio è diviso in esagoni di circa <span class="area-esa">0,7 km²</span> e ogni cliente è assegnato all'esagono in cui si trova. Si valutano solo gli esagoni con almeno 8 clienti. La dimensione degli esagoni si adatta alla densità dei clienti: 0,7 km² per un parco clienti concentrato, 5 o 36 km² per uno distribuito su tutta Italia.</p>
           <p><b>Punteggio 0-100.</b> Ogni quota è confrontata con la zona che ha il valore più alto: punteggio = quota della zona ÷ quota massima × 100.</p>
-          <p><b>Indice.</b> Media semplice dei punteggi, con lo stesso peso per ogni variabile. Le 10 zone con l'indice più alto sono numerate sulla mappa.</p>
+          <p><b>Indice.</b> Media semplice dei punteggi disponibili nella zona, con lo stesso peso per ogni variabile. Le 10 zone con l'indice più alto sono numerate sulla mappa.</p>
         </div>
         <p class="esempio"><b>Esempio.</b> Una zona con il 20% di clienti persi (massimo 40%: 50 punti), il 10% a rischio (massimo 20%: 50 punti) e il 30% di esposti (massimo 30%: 100 punti) ha indice (50 + 50 + 100) ÷ 3 = 67.</p>
         <p class="mp-nota" id="map-nota"></p>
+        <div class="top5" id="top5"></div>
       </div>
     </div>
   </section>
@@ -526,7 +542,7 @@
 
 <footer class="foot"><div class="wrap foot-inner">
   lume. AntiChurn · elaborazione nel browser: i dati dei clienti non vengono trasmessi a server esterni.<br>
-  Famiglie: ISTAT, Basi territoriali e dati per sezione di censimento (CC BY 4.0) · Griglia esagonale H3 (Apache 2.0) · Mappa: Esri, HERE, Garmin, © OpenStreetMap.
+  Famiglie: ISTAT, Basi territoriali e dati per sezione di censimento (CC BY 4.0) · Numeri civici: ANNCSU · Griglia esagonale H3 (Apache 2.0) · Mappa: Esri, HERE, Garmin, © OpenStreetMap.
 </div></footer>
 
 <div class="lavoro" id="lavoro" hidden>Analisi in corso…</div>
@@ -623,7 +639,8 @@ function controlla(f) {
 function stato(t, errore) { $('#stato').innerHTML = errore ? `<span class="err">${esc(t)}</span>` : esc(t) }
 
 const fase = async t => { $('#lavoro').textContent = t; await new Promise(r => setTimeout(r, 40)) }
-async function avvia(dati, nome) {
+async function avvia(dati, nome, famDemo = null) {
+  S.famDemo = famDemo
   $('#lavoro').hidden = false
   let f
   if (dati instanceof ArrayBuffer) {
@@ -661,7 +678,8 @@ $('#demo').onclick = async () => {     // stessi dati del file Excel demo, in JS
   if (!r.ok) { $('#lavoro').hidden = true; stato('File demo non trovato sul server.', true); return }
   const js = await r.json(), fogli = {}
   for (const k in js) fogli[k] = js[k].r.map(v => Object.fromEntries(js[k].c.map((c, j) => [c, v[j]])))
-  avvia(fogli, 'Dati demo')
+  const rf = await fetch('dati/demo/famiglie_h3r10.json')      // famiglie simulate, usate solo con i dati demo
+  avvia(fogli, 'Dati demo', rf.ok ? await rf.json() : null)
 }
 
 // ───────────────────────── analisi completa
@@ -1103,21 +1121,37 @@ function scegliRisoluzione() {
   const km2 = h3.getHexagonAreaAvg(RES, 'km2')
   document.querySelectorAll('.area-esa').forEach(el => el.textContent = fmt(km2, km2 < 10 ? 1 : 0) + ' km²')
 }
-async function caricaIstat() {        // famiglie ISTAT per esagono, a riquadri H3 di risoluzione 4
+async function caricaIstat() {        // famiglie per cella H3: ISTAT + civici ANNCSU (risoluzione 10) o formato precedente (risoluzione 8)
   S.istat = null
   try {
-    const r = await fetch('dati/istat/h3r8/indice.json'); if (!r.ok) return
-    const ind = await r.json(), disp = new Set(ind.riquadri)
-    const servono = new Set(S.d.righe.filter(o => o.lat != null).map(o => h3.cellToParent(h3.latLngToCell(o.lat, o.lon, 8), 4)))
-    const fam = new Map()
-    for (const q of servono) {
-      if (!disp.has(q)) continue
-      const rr = await fetch(`dati/istat/h3r8/${q}.json`); if (!rr.ok) continue
-      const js = await rr.json()
-      for (const c in js) { const k = RES < 8 ? h3.cellToParent(c, RES) : c; fam.set(k, (fam.get(k) || 0) + js[c]) }   // i file sono a risoluzione 8
+    if (S.famDemo) { S.istat = preparaFamiglie(Object.entries(S.famDemo.celle), S.famDemo.risoluzione, S.famDemo); return }
+    const pts = S.d.righe.filter(o => o.lat != null)
+    for (const r of [10, 8]) {
+      const resp = await fetch(`dati/istat/h3r${r}/indice.json`); if (!resp.ok) continue
+      const ind = await resp.json(), disp = new Set(ind.riquadri)
+      const servono = new Set(pts.map(o => h3.cellToParent(h3.latLngToCell(o.lat, o.lon, r), 4)))
+      const fam = []
+      for (const q of servono) {
+        if (!disp.has(q)) continue
+        const rr = await fetch(`dati/istat/h3r${r}/${q}.json`); if (!rr.ok) continue
+        for (const e of Object.entries(await rr.json())) fam.push(e)
+      }
+      if (fam.length) { S.istat = preparaFamiglie(fam, r, ind); return }
     }
-    if (fam.size) S.istat = { fam, anno: ind.anno, fonte: ind.fonte }
-  } catch (e) { console.warn('ISTAT non disponibile', e) }
+  } catch (e) { console.warn('Famiglie non disponibili', e) }
+}
+// residuo potenziale: in ogni cella fine (risoluzione 10, circa un isolato) si tolgono i clienti attivi
+// che vi si trovano, senza scendere sotto zero; poi si somma negli esagoni della mappa
+function preparaFamiglie(celle, r, info) {
+  const att = new Map()
+  for (const o of S.d.righe) if (!o.churn && o.lat != null) { const c = h3.latLngToCell(o.lat, o.lon, r); att.set(c, (att.get(c) || 0) + 1) }
+  const fam = new Map(), residuo = new Map()
+  for (const [c, f] of celle) {
+    const k = r > RES ? h3.cellToParent(c, RES) : c
+    fam.set(k, (fam.get(k) || 0) + f)
+    residuo.set(k, (residuo.get(k) || 0) + Math.max(f - (att.get(c) || 0), 0))
+  }
+  return { fam, residuo, anno: info.anno, fonte: info.fonte, risoluzione: r, quotaCivici: info.quota_su_civici }
 }
 const STRATI = [
   ['indice', 'Indice di priorità', 'media dei punteggi 0-100'],
@@ -1142,12 +1176,13 @@ function calcolaEsagoni() {
   const E = [...H.values()]
   E.forEach(e => {
     e.fam = S.istat ? (S.istat.fam.get(e.c) || 0) : null
+    e.residuo = S.istat ? (S.istat.residuo.get(e.c) || 0) : null
     const n = e.attivi + e.cessati
     e.ok = n >= MIN_CLIENTI
     e.persi = n ? e.cessati / n : null
     e.rischio = e.attivi ? e.alti / e.attivi : null
     e.switch = e.attivi ? e.sw / e.attivi : null
-    e.potenziali = e.fam >= MIN_FAMIGLIE ? Math.max(e.fam - e.attivi, 0) / e.fam : null
+    e.potenziali = e.fam >= MIN_FAMIGLIE ? e.residuo / e.fam : null
     e.clienti = e.attivi
     e.comune = Object.entries(e.comuni).sort((a, b) => b[1] - a[1])[0]?.[0] || ''
     const [lat, lon] = h3.cellToLatLng(e.c); e.lat = lat; e.lon = lon
@@ -1156,10 +1191,15 @@ function calcolaEsagoni() {
   const metr = ['persi', 'rischio', 'switch', ...(S.istat ? ['potenziali'] : [])]
   const ok = E.filter(e => e.ok)
   const max = Object.fromEntries(metr.map(m => [m, ok.reduce((a, e) => Math.max(a, e[m] ?? 0), 0) || 1]))
-  ok.forEach(e => { e.voti = metr.map(m => (e[m] ?? 0) / max[m] * 100); e.indice = ML.mean(e.voti) / 100 })
-  S.metr = metr
+  // punteggio 0-100 di ogni quota; l'indice e' la media dei punteggi disponibili nella zona
+  ok.forEach(e => {
+    e.punti = Object.fromEntries(metr.map(m => [m, e[m] == null ? null : e[m] / max[m] * 100]))
+    const v = metr.map(m => e.punti[m]).filter(x => x != null)
+    e.indice = v.length ? ML.mean(v) / 100 : null
+  })
+  S.metr = metr; S.max = max
   S.E = E
-  S.top = ok.sort((a, b) => b.indice - a.indice || b.attivi - a.attivi).slice(0, 10)
+  S.top = ok.filter(e => e.indice != null).sort((a, b) => b.indice - a.indice || b.attivi - a.attivi).slice(0, 10)
 }
 function disegnaMappa() {
   calcolaEsagoni()
@@ -1210,16 +1250,35 @@ function disegnaMappa() {
     const lo = i ? soglie[i - 1] : v[0], hi = i < soglie.length ? soglie[i] : v[v.length - 1]
     return `<div class="mp-row"><span class="sw" style="background:${colori[i]}"></span><span>${etich(lo)} – ${etich(hi)}</span><span></span></div>`
   }).join('') + `<div class="mp-row"><span class="sw" style="background:#E4E0D9"></span><span>meno di ${MIN_CLIENTI} clienti</span><span></span></div>`
+  disegnaTop5()
   $('#classifica').innerHTML = S.top.map((e, i) => `<button type="button" data-i="${i}"><span class="pick" style="width:22px;height:22px;line-height:18px;font-size:10px">${i + 1}</span><span>${esc(e.comune)}<br><span class="label">${fmt(e.attivi)} attivi · persi ${pct(e.persi, 0)} · rischio ${pct(e.rischio, 0)} · esposti ${pct(e.switch, 0)}</span></span><b>${fmt(e.indice * 100)}</b></button>`).join('')
   document.querySelectorAll('#classifica button').forEach(b => b.onclick = () => { const e = S.top[+b.dataset.i]; mappa.setView([e.lat, e.lon], 14); L.popup().setLatLng([e.lat, e.lon]).setContent(popup(e)).openOn(mappa) })
   $('#map-nota').innerHTML = `Esagoni H3 di risoluzione ${RES}, circa ${fmt(h3.getHexagonAreaAvg(RES, 'km2'), RES >= 7 ? 1 : 0)} km² (il ${pct(S.copertura, 0)} dei clienti cade in esagoni con almeno ${MIN_CLIENTI} clienti). In questa analisi l'indice usa ${S.metr.length} quote: ${S.metr.map(m => STRATI.find(s => s[0] === m)[1].toLowerCase()).join(', ')}.` +
-    (S.istat ? ` Famiglie: ${esc(S.istat.fonte)} ${esc(S.istat.anno)}.` : ` I dati ISTAT sulle famiglie non sono caricati, quindi i clienti potenziali non sono conteggiati.`) + ` ${fmt(S.E.filter(e => e.ok).length)} esagoni valutati. Lo strato Clienti attivi mostra il numero di clienti per esagono e non entra nell'indice.`
+    (S.istat ? ` Famiglie: ${esc(S.istat.fonte)}${S.istat.anno && S.istat.anno !== 'demo' ? ' ' + esc(S.istat.anno) : ''}${S.istat.quotaCivici != null && S.istat.anno !== 'demo' ? `, ${pct(S.istat.quotaCivici, 0)} collocate sui numeri civici` : ''}; residuo calcolato su celle di circa ${fmt(h3.getHexagonAreaAvg(S.istat.risoluzione, 'm2'), 0)} m².` : ` I dati ISTAT sulle famiglie non sono caricati, quindi i clienti potenziali non sono conteggiati.`) + ` ${fmt(S.E.filter(e => e.ok).length)} esagoni valutati. Lo strato Clienti attivi mostra il numero di clienti per esagono e non entra nell'indice.`
   if (!mappa._fatto) {
     const pts = S.d.righe.filter(o => o.lat != null).map(o => [o.lat, o.lon])
     if (pts.length) mappa.fitBounds(L.latLngBounds(pts).pad(0.05), { paddingTopLeft: [270, 10] })
     mappa._fatto = true
   }
   setTimeout(() => mappa.invalidateSize(), 50)
+}
+// le prime 5 zone: valore di ogni quota, punteggio (valore / massimo x 100) e contributo all'indice
+const COL_QUOTE = { potenziali: '#008F87', persi: '#9A7A0A', rischio: '#C2367A', switch: '#6A55C8' }
+function disegnaTop5() {
+  const M = ['potenziali', 'persi', 'rischio', 'switch'].filter(m => S.metr.includes(m)), T = S.top.slice(0, 5), nome = m => STRATI.find(s => s[0] === m)[1]
+  if (!T.length) { $('#top5').innerHTML = ''; return }
+  const contributo = (e, m) => { const n = M.filter(k => e.punti[k] != null).length; return e.punti[m] == null ? null : e.punti[m] / n }
+  const z = T[0], parti = M.filter(m => z.punti[m] != null)
+  $('#top5').innerHTML = `<h3>Le prime 5 zone: come si compone l'indice</h3>
+    <p class="sub-p">Per ogni quota: valore nella zona, punteggio rispetto al massimo tra le zone e contributo all'indice (punteggio ÷ numero di quote). L'indice è la somma dei contributi.</p>
+    <div class="tab"><table><thead><tr><th>#</th><th class="l">Zona</th>${M.map(m => `<th><i style="background:${COL_QUOTE[m]}"></i>${nome(m)}<small>massimo ${pct(S.max[m], 0)}</small></th>`).join('')}<th>Indice</th><th class="l">Composizione</th></tr></thead><tbody>${
+    T.map((e, i) => `<tr><td>${i + 1}</td><td class="l">${esc(e.comune)}<small>${fmt(e.attivi)} attivi${e.fam != null ? ' · ' + fmt(e.fam) + ' famiglie' : ''}</small></td>${
+      M.map(m => e.punti[m] == null ? '<td>—<small>dato assente</small></td>'
+        : `<td>${pct(e[m], 0)}<small>${fmt(e.punti[m])} pt · +${fmt(contributo(e, m), 1)}</small></td>`).join('')
+    }<td class="ind">${fmt(e.indice * 100)}</td><td class="l"><div class="comp" title="${M.filter(m => e.punti[m] != null).map(m => `${nome(m)} ${fmt(contributo(e, m), 1)}`).join(' · ')}">${
+      M.filter(m => e.punti[m] != null).map(m => `<span style="width:${contributo(e, m)}%;background:${COL_QUOTE[m]}"></span>`).join('')}</div></td></tr>`).join('')
+    }</tbody></table></div>
+    <p class="formula-zona">Zona 1 (${esc(z.comune)}): ${parti.map(m => `${fmt(z.punti[m])}`).join(' + ')} = ${fmt(parti.reduce((s, m) => s + z.punti[m], 0))} punti ÷ ${parti.length} quote = indice ${fmt(z.indice * 100)}.</p>`
 }
 function popup(e) {
   const r = (l, v) => `${l}: <b>${v}</b><br>`
@@ -1228,7 +1287,7 @@ function popup(e) {
     (e.indice != null ? r('Indice di priorità', fmt(e.indice * 100)) : '') +
     r('Clienti attivi', fmt(e.attivi)) + r('Cessati 12 mesi', `${fmt(e.cessati)} (${pct(e.persi, 0)})`) +
     r('A rischio alto', `${fmt(e.alti)} (${pct(e.rischio, 0)})`) + r('Esposti a concorrenti', `${fmt(e.sw)} (${pct(e.switch, 0)})`) +
-    (e.fam != null ? r('Famiglie ISTAT', fmt(e.fam)) + r('Potenziali', pct(e.potenziali, 0)) : '') +
+    (e.fam != null ? r('Famiglie stimate', fmt(e.fam)) + r('Famiglie non ancora clienti', `${fmt(e.residuo)} (${pct(e.potenziali, 0)})`) : '') +
     r('Punto vendita più vicino', vicini(S.d.pv, 'nome')) + r('Concorrente più vicino', vicini(S.d.co, 'marchio')) +
     `<a href="https://www.google.com/maps?q=${e.lat.toFixed(5)},${e.lon.toFixed(5)}" target="_blank" rel="noopener">Apri in Google Maps</a>`
 }

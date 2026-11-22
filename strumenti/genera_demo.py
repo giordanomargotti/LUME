@@ -412,3 +412,24 @@ if AREA == "italia":
     js = {"Clienti": tab(CL), "Punti_vendita": tab(PV), "Concorrenti": tab(CO), "Prodotti": tab(PRODOTTI), "Prezzi_mercato": tab(PM)}
     (cartella / "lume_demo.json").write_text(json.dumps(js, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     print(cartella / "lume_demo.json")
+
+    # famiglie SIMULATE per lo strato "clienti potenziali" della demo (non sono dati ISTAT), solo nelle tre aree
+    # metropolitane: civici sparsi un po' piu' larghi dei clienti, famiglie per civico variabili, celle H3 di risoluzione 10
+    import h3
+    COMPONENTI_SIM, FAM_PER_CIVICO = 2.2, 7.0
+    celle = {}
+    for nome in GRANDI:
+        c = CITTA[CITTA.nome == nome].iloc[0]
+        fam_tot = c["pop"] / COMPONENTI_SIM
+        n = int(fam_tot / FAM_PER_CIVICO)
+        largo = rng.random(n) < .25
+        sd = c.sd * np.where(largo, 2.0, 1.15)
+        la, lo = rng.normal(c.lat, sd), rng.normal(c.lon, sd * 1.3)
+        ok = globe.is_land(la, lo); la, lo = la[ok], lo[ok]
+        f = rng.lognormal(np.log(FAM_PER_CIVICO) - .18, .6, len(la)); f *= fam_tot / f.sum()
+        for a_, b_, ff in zip(la, lo, f):
+            k = h3.latlng_to_cell(a_, b_, 10); celle[k] = celle.get(k, 0) + ff
+    fd = {"fonte": "famiglie simulate per la demo (non sono dati ISTAT)", "anno": "demo", "risoluzione": 10,
+          "celle": {k: round(v, 1) for k, v in celle.items()}}
+    (cartella / "famiglie_h3r10.json").write_text(json.dumps(fd, separators=(",", ":")), encoding="utf-8")
+    print(cartella / "famiglie_h3r10.json", len(celle), "celle", round(sum(celle.values())), "famiglie")
