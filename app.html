@@ -128,7 +128,10 @@
   .sub { font-size: var(--t-l); font-weight: 500; margin: clamp(40px, 5vw, 64px) 0 8px; }
   .sub-p { color: var(--ink-2); font-size: var(--t-s); max-width: 70ch; margin-bottom: 20px; }
   .come { margin-top: 28px; display: grid; gap: 14px; border-top: 1px solid var(--ink); padding-top: 16px; }
-  .passi { list-style: none; counter-reset: p; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin: 0 0 14px; padding: 0; }
+  .passi { list-style: none; counter-reset: p; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; margin: 0; padding: 0; }
+  .come-testa { display: grid; gap: 6px; }
+  .come-intro { font-size: var(--t-m); color: var(--ink); max-width: none; }
+  .come .esempio { max-width: 90ch; }
   .passi li { counter-increment: p; font-size: var(--t-s); color: var(--ink-2); line-height: 1.5; }
   .passi li::before { content: '0' counter(p); display: block; font-family: var(--mono); font-size: var(--t-xs); color: var(--ink-3); margin-bottom: 4px; }
   .passi b { color: var(--ink); font-weight: 600; }
@@ -221,31 +224,34 @@
   .fasce-leg { font-family: var(--mono); font-size: 0.6875rem; color: var(--ink-3); }
 
   /* Mappa */
-  .mapwrap { display: grid; grid-template-columns: minmax(0, 1fr) 320px; min-height: min(80vh, 740px); border: 1px solid var(--line); }
-  .mapmain { position: relative; }
+  .mappa-riga { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: clamp(20px, 2.5vw, 36px); align-items: stretch; }
+  .mapwrap { position: relative; min-height: min(80vh, 740px); border: 1px solid var(--line); }
   #mappa { position: absolute; inset: 0; background: #E9ECEE; }
-  .maptitle { position: absolute; top: 14px; left: 14px; z-index: 500; background: rgba(250,248,244,.94); padding: 12px 16px 14px; pointer-events: none; max-width: 320px; }
+  .maptitle { position: absolute; top: 14px; left: 14px; z-index: 500; background: rgba(250,248,244,.95); padding: 12px 16px 14px; pointer-events: none; width: 250px; display: grid; gap: 4px; }
   .maptitle .label { font-size: 0.6875rem; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); }
-  .maptitle .mt { font-size: 1.5rem; line-height: 1.08; font-weight: 600; letter-spacing: -0.01em; margin-top: 6px; }
-  .maptitle .ms { font-size: var(--t-xs); color: var(--ink-2); margin-top: 6px; font-family: var(--mono); }
-  .mappanel { background: var(--cream); padding: 18px; display: grid; gap: 14px; align-content: start; font-size: var(--t-s); }
-  .layers { display: grid; gap: 0; border: 1px solid var(--ink); }
-  .layers button { font-family: var(--sans); font-size: var(--t-s); background: transparent; border: 0; padding: 8px 12px; cursor: pointer; color: var(--ink); text-align: left; display: flex; justify-content: space-between; }
-  .layers button + button { border-top: 1px solid var(--ink); }
+  .maptitle .mt { font-size: 1.375rem; line-height: 1.08; font-weight: 600; letter-spacing: -0.01em; margin-top: 4px; }
+  .maptitle .ms { font-size: var(--t-xs); color: var(--ink-2); font-family: var(--mono); margin-bottom: 8px; }
+  #legenda { border-top: 1px solid var(--line); padding-top: 8px; margin-bottom: 4px; }
+  .layers { display: flex; flex-wrap: wrap; border: 1px solid var(--ink); width: max-content; max-width: 100%; margin-bottom: 16px; }
+  .layers button { font-family: var(--sans); font-size: var(--t-s); background: transparent; border: 0; padding: 9px 14px; cursor: pointer; color: var(--ink); }
+  .layers button + button { border-left: 1px solid var(--ink); }
   .layers button[aria-pressed="true"] { background: var(--ink); color: var(--white); }
   .layers button:disabled { color: var(--ink-3); cursor: not-allowed; }
-  .layers small { font-family: var(--mono); font-size: 0.6875rem; opacity: .7; }
+  .layers small { font-family: var(--mono); font-size: 0.6875rem; }
   .mp-row { display: grid; grid-template-columns: 26px 1fr auto; align-items: center; gap: 8px; padding: 1px 0; font-size: var(--t-xs); }
   .mp-row .sw { width: 22px; height: 14px; }
   .mp-row span:last-child { font-variant-numeric: tabular-nums; color: var(--ink-2); font-family: var(--mono); }
-  .mp-nota { color: var(--ink-2); font-size: var(--t-xs); line-height: 1.55; border-top: 1px solid var(--cream-line); padding-top: 12px; }
+  .mp-nota { color: var(--ink-2); font-size: var(--t-xs); font-family: var(--mono); line-height: 1.6; }
+  .top10 { display: grid; align-content: start; gap: 6px; border-top: 1px solid var(--ink); padding-top: 14px; }
+  .top10 h3 { font-size: var(--t-m); font-weight: 600; }
+  .top10-sub { font-size: var(--t-xs); color: var(--ink-3); font-family: var(--mono); margin-bottom: 8px; }
   .classifica { display: grid; gap: 0; border-top: 1px solid var(--cream-line); }
-  .classifica button { display: grid; grid-template-columns: 26px 1fr auto; gap: 8px; align-items: center; text-align: left; background: none; border: 0; border-bottom: 1px solid var(--cream-line); padding: 7px 0; cursor: pointer; font-family: var(--sans); font-size: var(--t-xs); color: var(--ink); }
-  .classifica button:hover { background: #ECE6DB; }
-  .classifica b { font-variant-numeric: tabular-nums; color: var(--accent); }
+  .classifica button { display: grid; grid-template-columns: 28px 1fr auto; gap: 10px; align-items: center; text-align: left; background: none; border: 0; border-bottom: 1px solid var(--line); padding: 9px 4px; cursor: pointer; font-family: var(--sans); font-size: var(--t-s); color: var(--ink); }
+  .classifica button:hover { background: var(--cream); }
+  .classifica b { font-variant-numeric: tabular-nums; color: var(--accent); font-size: var(--t-m); }
   .pick { width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: #fff; font: 700 11px/20px var(--sans); text-align: center; border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,.35); }
   .pv { width: 14px; height: 14px; background: var(--gold); border: 1.5px solid #151412; }
-  @media (max-width: 900px) { .mapwrap { grid-template-columns: 1fr; } .mapmain { height: 70vh; } }
+  @media (max-width: 900px) { .mappa-riga { grid-template-columns: 1fr; } .mapwrap { min-height: 70vh; } }
   .leaflet-container { font-family: var(--sans); }
   .leaflet-popup-content { font-size: 0.8125rem; line-height: 1.5; }
   .leaflet-popup-content b { font-variant-numeric: tabular-nums; }
@@ -459,36 +465,44 @@
     </div>
     <div id="map-vuoto" class="attesa">Disponibile dopo il caricamento dei dati.</div>
     <div id="map-corpo" hidden>
-      <div class="mapwrap">
-        <div class="mapmain">
+      <div class="layers" id="layers" role="group" aria-label="Strato della mappa"></div>
+      <div class="mappa-riga">
+        <div class="mapwrap">
           <div id="mappa"></div>
-          <div class="maptitle"><p class="label" id="mt-l">Indice</p><p class="mt" id="mt-t"></p><p class="ms" id="mt-s"></p></div>
+          <div class="maptitle">
+            <p class="label" id="mt-l">Strato</p><p class="mt" id="mt-t"></p><p class="ms" id="mt-s"></p>
+            <div id="legenda"></div>
+            <div class="mp-row"><span class="pv" style="justify-self:center"></span><span>Punti vendita</span><span id="n-pv"></span></div>
+            <div class="mp-row"><svg width="22" height="14" aria-hidden="true"><circle cx="11" cy="7" r="4.5" fill="#151412" stroke="#fff"/></svg><span>Concorrenti</span><span id="n-co"></span></div>
+          </div>
         </div>
-        <aside class="mappanel">
-          <div class="layers" id="layers"></div>
-          <div id="legenda"></div>
-          <div class="mp-row"><span class="pv" style="justify-self:center"></span><span>Punti vendita</span><span id="n-pv"></span></div>
-          <div class="mp-row"><svg width="22" height="14" aria-hidden="true"><circle cx="11" cy="7" r="4.5" fill="#151412" stroke="#fff"/></svg><span>Concorrenti</span><span id="n-co"></span></div>
-          <p class="mp-h" style="font-weight:600">Le 10 zone con l'indice più alto</p>
+        <aside class="top10">
+          <h3>Le 10 zone con l'indice più alto</h3>
+          <p class="top10-sub">Indice da 0 a 100. Fai clic su una zona per vederla sulla mappa.</p>
           <div class="classifica" id="classifica"></div>
-          <p class="mp-nota" id="map-nota"></p>
         </aside>
       </div>
       <div class="come">
-        <p class="label">Come ragiona l'algoritmo</p>
+        <div class="come-testa">
+          <p class="label">Come si calcola l'indice di priorità</p>
+          <p class="come-intro">L'indice è un algoritmo a punteggio: per ogni zona valuta le altre quattro variabili della mappa e le riassume in un numero da 0 a 100. Più è alto, prima conviene intervenire.</p>
+        </div>
         <ol class="passi">
-          <li><b>Esagoni.</b> Ogni cliente è assegnato a un esagono di circa 0,7 km² in base alla posizione. I dati si leggono solo in forma aggregata.</li>
-          <li><b>Quote.</b> Per ogni esagono si calcolano le quote di clienti persi, a rischio, esposti a concorrenti e, con i dati ISTAT, di clienti potenziali.</li>
-          <li><b>Indice.</b> Ogni quota diventa un punteggio 0-100 rispetto all'esagono con il valore più alto. L'indice è la media dei punteggi, calcolata dove ci sono almeno 8 clienti.</li>
+          <li><b>Zone.</b> Il territorio è diviso in esagoni di circa 0,7 km² e ogni cliente è assegnato all'esagono in cui si trova. Si valutano solo gli esagoni con almeno 8 clienti.</li>
+          <li><b>Quattro quote.</b> Per ogni zona si calcolano clienti potenziali, clienti persi, clienti a rischio e clienti esposti a concorrenti, definiti qui sotto.</li>
+          <li><b>Punteggio 0-100.</b> Ogni quota è confrontata con la zona che ha il valore più alto: punteggio = quota della zona ÷ quota massima × 100.</li>
+          <li><b>Indice.</b> Media semplice dei punteggi, con lo stesso peso per ogni variabile. Le 10 zone con l'indice più alto sono numerate sulla mappa.</li>
         </ol>
-        <p class="label">Cosa mostra ogni strato</p>
+        <p class="esempio"><b>Esempio.</b> Una zona con il 20% di clienti persi (massimo 40%: 50 punti), il 10% a rischio (massimo 20%: 50 punti) e il 30% di esposti (massimo 30%: 100 punti) ha indice (50 + 50 + 100) ÷ 3 = 67.</p>
+        <p class="mp-nota" id="map-nota"></p>
+        <p class="label" style="margin-top:12px">Cosa mostra ogni strato</p>
         <dl class="strati-def">
-          <div><dt>Indice di priorità</dt><dd>Sintesi delle quote: più è alto, più la zona richiede un intervento. Le 10 zone con l'indice più alto sono numerate.</dd></div>
+          <div><dt>Indice di priorità</dt><dd>Media dei punteggi delle quattro quote, da 0 a 100.</dd></div>
           <div><dt>Clienti potenziali</dt><dd>Famiglie residenti (censimento ISTAT) non ancora clienti, in % delle famiglie dell'esagono.</dd></div>
           <div><dt>Clienti persi</dt><dd>Clienti cessati negli ultimi 12 mesi, in % dei clienti dell'esagono.</dd></div>
           <div><dt>Clienti a rischio</dt><dd>Clienti attivi in fascia di rischio alta, in % dei clienti attivi.</dd></div>
           <div><dt>Esposti a concorrenti</dt><dd>Clienti attivi con un concorrente entro 1 km e più vicino del punto vendita più vicino, in % dei clienti attivi.</dd></div>
-          <div><dt>Clienti attivi</dt><dd>Numero di clienti attivi per esagono.</dd></div>
+          <div><dt>Clienti attivi</dt><dd>Numero di clienti attivi per esagono. Non entra nell'indice.</dd></div>
         </dl>
       </div>
     </div>
@@ -1069,7 +1083,7 @@ function disegnaMappa() {
     L.control.scale({ imperial: false, position: 'bottomright', maxWidth: 120 }).addTo(mappa)
   }
   Object.values(strati).forEach(l => mappa.removeLayer(l)); strati = {}
-  $('#layers').innerHTML = STRATI.map(([k, t, s]) => `<button type="button" data-k="${k}" aria-pressed="${k === layerSel}" ${k === 'potenziali' && !S.istat ? 'disabled' : ''}><span>${t}</span><small>${k === 'potenziali' && !S.istat ? 'dati ISTAT assenti' : ''}</small></button>`).join('')
+  $('#layers').innerHTML = STRATI.map(([k, t, s]) => `<button type="button" data-k="${k}" aria-pressed="${k === layerSel}" ${k === 'potenziali' && !S.istat ? 'disabled' : ''}><span>${t}</span>${k === 'potenziali' && !S.istat ? '<small> · dati ISTAT assenti</small>' : ''}</button>`).join('')
   document.querySelectorAll('#layers button').forEach(b => b.onclick = () => { layerSel = b.dataset.k; disegnaMappa() })
   const [, tit, sott] = STRATI.find(s => s[0] === layerSel)
   $('#mt-l').textContent = 'Strato'; $('#mt-t').textContent = tit; $('#mt-s').textContent = sott
@@ -1108,13 +1122,13 @@ function disegnaMappa() {
     const lo = i ? soglie[i - 1] : v[0], hi = i < soglie.length ? soglie[i] : v[v.length - 1]
     return `<div class="mp-row"><span class="sw" style="background:${colori[i]}"></span><span>${etich(lo)} – ${etich(hi)}</span><span></span></div>`
   }).join('') + `<div class="mp-row"><span class="sw" style="background:#E4E0D9"></span><span>meno di ${MIN_CLIENTI} clienti</span><span></span></div>`
-  $('#classifica').innerHTML = S.top.map((e, i) => `<button type="button" data-i="${i}"><span class="pick" style="width:22px;height:22px;line-height:18px;font-size:10px">${i + 1}</span><span>${esc(e.comune)}<br><span class="label">${fmt(e.attivi)} attivi · persi ${pct(e.persi, 0)} · rischio ${pct(e.rischio, 0)}</span></span><b>${fmt(e.indice * 100)}</b></button>`).join('')
+  $('#classifica').innerHTML = S.top.map((e, i) => `<button type="button" data-i="${i}"><span class="pick" style="width:22px;height:22px;line-height:18px;font-size:10px">${i + 1}</span><span>${esc(e.comune)}<br><span class="label">${fmt(e.attivi)} attivi · persi ${pct(e.persi, 0)} · rischio ${pct(e.rischio, 0)} · esposti ${pct(e.switch, 0)}</span></span><b>${fmt(e.indice * 100)}</b></button>`).join('')
   document.querySelectorAll('#classifica button').forEach(b => b.onclick = () => { const e = S.top[+b.dataset.i]; mappa.setView([e.lat, e.lon], 14); L.popup().setLatLng([e.lat, e.lon]).setContent(popup(e)).openOn(mappa) })
-  $('#map-nota').innerHTML = `Esagoni H3 di risoluzione 8 (circa 0,74 km²). L'indice è la media dei punteggi di ${S.metr.length} quote (${S.metr.map(m => STRATI.find(s => s[0] === m)[1].toLowerCase()).join(', ')}). Punteggio = valore dell'esagono ÷ valore massimo × 100, calcolato sugli esagoni con almeno ${MIN_CLIENTI} clienti.` +
-    (S.istat ? ` Famiglie: ${esc(S.istat.fonte)} ${esc(S.istat.anno)}.` : ' <b>Dati ISTAT sulle famiglie non ancora caricati: lo strato dei clienti potenziali non è disponibile.</b>')
+  $('#map-nota').innerHTML = `In questa analisi l'indice usa ${S.metr.length} quote: ${S.metr.map(m => STRATI.find(s => s[0] === m)[1].toLowerCase()).join(', ')}.` +
+    (S.istat ? ` Famiglie: ${esc(S.istat.fonte)} ${esc(S.istat.anno)}.` : ` I dati ISTAT sulle famiglie non sono caricati, quindi i clienti potenziali non sono conteggiati. ${fmt(S.E.filter(e => e.ok).length)} esagoni valutati.`)
   if (!mappa._fatto) {
     const pts = S.d.righe.filter(o => o.lat != null).map(o => [o.lat, o.lon])
-    if (pts.length) mappa.fitBounds(L.latLngBounds(pts).pad(0.05))
+    if (pts.length) mappa.fitBounds(L.latLngBounds(pts).pad(0.05), { paddingTopLeft: [270, 10] })
     mappa._fatto = true
   }
   setTimeout(() => mappa.invalidateSize(), 50)
