@@ -245,6 +245,17 @@
   .pcard:hover { border-color: var(--ink-3); border-top-color: var(--c); }
   .pcard[aria-pressed="true"] { background: var(--cream); border-color: var(--ink); border-top-color: var(--c); }
   .pcard h3 { font-size: 1.125rem; font-weight: 600; line-height: 1.15; }
+  #per-metodo-corpo { display: grid; gap: 14px; }
+  #per-metodo-corpo table { width: 100%; border-collapse: collapse; font-size: var(--t-s); font-variant-numeric: tabular-nums; }
+  #per-metodo-corpo th { font-family: var(--mono); font-size: var(--t-xs); font-weight: 400; color: var(--ink-2); text-align: right; padding: 6px 10px; border-bottom: 1px solid var(--ink); vertical-align: bottom; }
+  #per-metodo-corpo th small { display: block; color: var(--ink-3); }
+  #per-metodo-corpo td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: right; }
+  #per-metodo-corpo .l { text-align: left; }
+  #per-metodo-corpo i { display: inline-block; width: 10px; height: 10px; margin-right: 8px; vertical-align: -1px; }
+  #per-metodo-corpo td.su { color: var(--accent); font-weight: 600; }
+  #per-metodo-corpo td.giu { color: #007068; font-weight: 600; }
+  #per-metodo-corpo .tutti { background: var(--cream); }
+  #per-metodo-corpo .z { font-family: var(--mono); font-size: var(--t-xs); color: var(--ink-3); }
   .ptesta { display: flex; align-items: center; gap: 12px; }
   .ptesta .faccia { width: 54px; height: 54px; flex: none; border-radius: 50%; }
   .pcard .quota { font-family: var(--mono); font-size: var(--t-xs); color: var(--ink-3); }
@@ -459,6 +470,10 @@
           <div class="pan c6"><h3>Distribuzione per fascia di rischio</h3><div class="tab" id="per-matrice"></div>
             <p class="nota">Quota di clienti attivi di ogni gruppo nelle fasce di rischio bassa, media e alta.</p></div>
         </div>
+        <details class="apri" id="per-metodo" style="margin-top:40px">
+          <summary>Come sono costruiti i gruppi</summary>
+          <div id="per-metodo-corpo"></div>
+        </details>
       </div>
     </div>
   </section>
@@ -861,18 +876,16 @@ const PERSONE = {
   classico:     { nome: 'Il Classico', profilo: {}, azione: 'Comunicazione standard e controllo periodico dello score.', look: { capelli: 'corti', colore: '#3B2F2A' } },
 }
 // assegna a ogni cluster il nome piu' simile (senza ripetizioni): somiglianza = pesi · z / |pesi|
+function somiglianza(g, id) {
+  const z = Object.fromEntries(g.zm.map(t => [t.u, t.z]))
+  if (id === 'classico') return 0.35 - ML.mean(g.zm.map(t => Math.abs(t.z)))
+  const w = Object.entries(PERSONE[id].profilo).filter(([u]) => u in z)
+  if (!w.length) return null
+  return w.reduce((s, [u, p]) => s + p * z[u], 0) / Math.sqrt(w.reduce((s, [, p]) => s + p * p, 0))
+}
 function nomina(gruppi) {
   const coppie = []
-  gruppi.forEach((g, gi) => {
-    const z = Object.fromEntries(g.zm.map(t => [t.u, t.z]))
-    for (const [id, P] of Object.entries(PERSONE)) {
-      const w = Object.entries(P.profilo).filter(([u]) => u in z)
-      if (id === 'classico') { coppie.push([0.35 - ML.mean(g.zm.map(t => Math.abs(t.z))), gi, id]); continue }
-      if (!w.length) continue
-      const norma = Math.sqrt(w.reduce((s, [, p]) => s + p * p, 0))
-      coppie.push([w.reduce((s, [u, p]) => s + p * z[u], 0) / norma, gi, id])
-    }
-  })
+  gruppi.forEach((g, gi) => { for (const id in PERSONE) { const v = somiglianza(g, id); if (v != null) coppie.push([v, gi, id]) } })
   const out = {}, usati = new Set()
   coppie.sort((a, b) => b[0] - a[0]).forEach(([, gi, id]) => { if (!(gi in out) && !usati.has(id)) { out[gi] = id; usati.add(id) } })
   return gruppi.map((_, gi) => out[gi] || 'classico')
@@ -924,6 +937,7 @@ function personasRegole() {
   const LOOK = { grande: 'oro', storico: 'fedelissimo', volatile: 'nuovo', digitale: 'connesso', main: 'classico' }
   S.regole = Object.entries(DEF).map(([k, [nome, descr, azione]], i) => ({ k, nome, descr, azione, colore: CAT[i], look: PERSONE[LOOK[k]].look, membri: R.filter(o => o.per_regole === k) }))
   S.regoleNota = `Soglie: ricavo da ${eur(p85)} al mese (85° percentile) · anzianità mediana ${fmt(med, 1)} anni`
+  S.regoleSoglie = { p85, med }
 }
 const TRATTI = {
   anz: ['di lunga data', 'nuovi'], ric: ['alto valore', 'basso valore'], dig: ['digitali', 'non digitali'], dom: ['domiciliati', 'senza domiciliazione'],
@@ -968,6 +982,7 @@ function personasCluster(k = 5) {
     return { k: i, nome: P.nome, gruppo: 'Gruppo ' + String.fromCharCode(65 + i), descr, azione, colore: CAT[i], look: P.look, membri }
   })
   S.clusterNota = `k-means su ${usate.length} variabili standardizzate · 5 gruppi · nome scelto dal catalogo in base ai tratti del gruppo`
+  S.clusterInfo = { usate, gruppi, scelti, n: R.length }
 }
 const ASSI = [   // [etichetta, valore del gruppo M] — l'asse compare solo se il dato esiste
   ['Anzianità', M => rk(M, 'anzianita_anni')], ['Valore', M => rk(M, 'ricavo')],
@@ -1006,9 +1021,71 @@ function disegnaPersonas() {
       { label: 'Tutti i clienti', data: radarValori(R), borderColor: '#8C867D', backgroundColor: 'transparent', borderDash: [5, 4], borderWidth: 1.5, pointRadius: 3, pointBackgroundColor: '#8C867D' }] },
     options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' }, tooltip: { callbacks: { label: c => `${c.dataset.label}: ${fmt(c.raw, 0)}` } } },
       scales: { r: { min: 0, max: 100, ticks: { stepSize: 25, backdropColor: 'transparent', font: { size: 10 } }, pointLabels: { font: { size: 12 } }, grid: { color: '#E4E0D9' }, angleLines: { color: '#E4E0D9' } } } } })
+  disegnaMetodo()
   $('#per-matrice').innerHTML = `<table><thead><tr><th class="l">Gruppo</th><th>Attivi</th><th>Basso</th><th>Medio</th><th>Alto</th><th>Ricavo mensile in fascia alta</th></tr></thead><tbody>${
     G.map(g => { const a = g.membri.filter(o => !o.churn), q = f => a.filter(o => o.fascia === f).length / (a.length || 1)
       return `<tr><td class="l"><span style="display:inline-block;width:10px;height:10px;background:${g.colore};margin-right:8px"></span>${esc(g.nome)}</td><td>${fmt(a.length)}</td><td>${pct(q('Basso'), 0)}</td><td>${pct(q('Medio'), 0)}</td><td class="pt">${pct(q('Alto'), 0)}</td><td>${eur(a.filter(o => o.fascia === 'Alto').reduce((s, o) => s + (o.ricavo || 0), 0))}</td></tr>` }).join('')}</tbody></table>`
+}
+// regole o metodo del clustering, piu' i valori medi di ogni gruppo
+const NOMI_VAR = { anz: 'anzianità (scala logaritmica)', ric: 'ricavo mensile (scala logaritmica)', dig: 'fattura digitale', dom: 'pagamento domiciliato',
+  var: 'prezzo variabile', prod: 'numero di prodotti', rec: 'reclami (fino a 4)', eta: 'età stimata dalla fascia', bus: 'cliente business',
+  tic: 'ticket (fino a 6)', web: 'area clienti web', sol: 'solleciti (fino a 5)', cam: 'cambi di prodotto (fino a 3)' }
+const presente = c => S.d.righe.some(o => o[c] != null && o[c] !== '')
+function righeMedie() {
+  const R = [
+    ['Churn 12 mesi', o => o.churn ? 1 : 0, 'q'],
+    ['Score medio (clienti attivi)', o => o.churn ? null : o.score, 'p'],
+    ['Anzianità media (anni)', o => o.anzianita_anni, 'n'],
+    ['Ricavo mensile medio', o => o.ricavo, 'e'],
+    ['Prezzo variabile', o => o.prezzo_variabile, 'q'],
+    ['Pagamento domiciliato', o => /domicil/i.test(o.metodo_pagamento || '') ? 1 : 0, 'q', 'metodo_pagamento'],
+    ['Fattura digitale', o => o.fattura_digitale == null || o.fattura_digitale === '' ? null : ML.si(o.fattura_digitale) ? 1 : 0, 'q', 'fattura_digitale'],
+    ['Area clienti web', o => o.area_clienti_web == null || o.area_clienti_web === '' ? null : ML.si(o.area_clienti_web) ? 1 : 0, 'q', 'area_clienti_web'],
+    ['Clienti business', o => /business/i.test(o.tipo_cliente || '') ? 1 : 0, 'q', 'tipo_cliente'],
+    ['Età media (stimata dalla fascia)', o => ETA[o.fascia_eta] ?? null, 'n', 'fascia_eta'],
+    ['Prodotti per cliente', o => ML.num(o.n_prodotti), 'n', 'n_prodotti'],
+    ['Reclami in 12 mesi', o => ML.num(o.n_reclami_12m), 'n', 'n_reclami_12m'],
+    ['Ticket in 12 mesi', o => ML.num(o.n_ticket_12m), 'n', 'n_ticket_12m'],
+    ['Solleciti in 12 mesi', o => ML.num(o.n_solleciti_12m), 'n', 'n_solleciti_12m'],
+    ['Cambi di prodotto', o => ML.num(o.n_cambi_prodotto), 'n', 'n_cambi_prodotto'],
+  ]
+  return R.filter(r => !r[3] || presente(r[3]))
+}
+function tabellaMedie(G) {
+  const tutti = S.d.righe, F = { q: v => pct(v, 0), p: v => pct(v, 1), n: v => fmt(v, 1), e: v => eur(v) }
+  const media = (M, f) => { const v = M.map(f).filter(x => x != null); return v.length ? ML.mean(v) : null }
+  const righe = righeMedie().map(([l, f, t]) => {
+    const vt = tutti.map(f).filter(x => x != null), m = ML.mean(vt), sd = Math.sqrt(ML.mean(vt.map(x => (x - m) ** 2))) || 1
+    return `<tr><td class="l">${l}</td>${G.map(g => { const v = media(g.membri, f); if (v == null) return '<td>—</td>'
+      const z = (v - m) / sd, cl = z >= 0.5 ? 'su' : z <= -0.5 ? 'giu' : ''
+      return `<td class="${cl}">${F[t](v)}${cl ? (cl === 'su' ? ' ↑' : ' ↓') : ''}</td>` }).join('')}<td class="tutti">${F[t](m)}</td></tr>`
+  }).join('')
+  return `<div class="tab"><table class="medie"><thead><tr><th class="l">Variabile</th>${G.map(g => `<th><i style="background:${g.colore}"></i>${esc(g.nome)}<small>${fmt(g.membri.length)} clienti</small></th>`).join('')}<th class="tutti">Tutti<small>${fmt(tutti.length)} clienti</small></th></tr></thead><tbody>${righe}</tbody></table></div>
+    <p class="nota">Con la freccia i valori che si scostano dalla media del parco clienti di almeno mezza deviazione standard: ↑ sopra, ↓ sotto.</p>`
+}
+function disegnaMetodo() {
+  let h
+  if (modoPer === 'regole') {
+    const { p85, med } = S.regoleSoglie, G = S.regole
+    const regola = { grande: `ricavo mensile da ${eur(p85)} (85° percentile dei clienti attivi)`,
+      storico: `anzianità da ${fmt(med, 1)} anni (mediana), prezzo fisso e pagamento domiciliato`,
+      volatile: `anzianità sotto ${fmt(med, 1)} anni e prezzo variabile`,
+      digitale: 'fattura digitale oppure area clienti web', main: 'tutti gli altri clienti' }
+    h = `<p class="sub-p">Ogni cliente entra nel primo gruppo di cui rispetta la regola, nell'ordine indicato. Le soglie si calcolano sui clienti attivi del file.</p>
+      <div class="tab"><table class="regole-tab"><thead><tr><th>#</th><th class="l">Gruppo</th><th class="l">Regola</th><th>Clienti</th></tr></thead><tbody>${
+        G.map((g, i) => `<tr><td>${i + 1}</td><td class="l"><i style="background:${g.colore}"></i>${esc(g.nome)}</td><td class="l">${regola[g.k]}</td><td>${fmt(g.membri.length)}</td></tr>`).join('')}</tbody></table></div>`
+  } else {
+    const I = S.clusterInfo, G = S.cluster
+    const z = v => (v > 0 ? '+' : '') + fmt(v, 1)
+    h = `<div class="scala">
+        <p><b>Variabili.</b> ${I.usate.map(u => NOMI_VAR[u]).join(', ')}. Ogni variabile è standardizzata, (valore − media) ÷ deviazione standard, così pesano tutte allo stesso modo.</p>
+        <p><b>K-means con 5 gruppi.</b> Ogni cliente va al centro più vicino e i centri si ricalcolano finché i gruppi non cambiano. Si provano 6 partenze diverse e si tiene la soluzione con i gruppi più compatti.${I.n > 30000 ? ` Con ${fmt(I.n)} clienti i centri si stimano su un campione di 30.000, poi si assegnano tutti i clienti.` : ''}</p>
+        <p><b>Nome.</b> Il profilo di ogni gruppo, cioè gli scarti dalla media, è confrontato con i profili del catalogo dei nomi. Ogni gruppo prende il nome più simile, senza ripetizioni.</p>
+      </div>
+      <div class="tab"><table class="regole-tab"><thead><tr><th class="l">Gruppo</th><th class="l">Tratti più marcati (scarto standardizzato)</th><th>Somiglianza con il nome</th></tr></thead><tbody>${
+        G.map((g, i) => `<tr><td class="l"><i style="background:${g.colore}"></i>${g.gruppo} · ${esc(g.nome)}</td><td class="l">${I.gruppi[i].zm.slice(0, 3).map(t => `${TRATTI[t.u][t.z > 0 ? 0 : 1]} <span class="z">${z(t.z)}</span>`).join(' · ')}</td><td>${fmt(somiglianza(I.gruppi[i], I.scelti[i]), 2)}</td></tr>`).join('')}</tbody></table></div>`
+  }
+  $('#per-metodo-corpo').innerHTML = h + '<p class="label" style="margin-top:24px">Valori medi per gruppo</p>' + tabellaMedie(modoPer === 'regole' ? S.regole : S.cluster)
 }
 document.querySelectorAll('#per-modo button').forEach(b => b.onclick = () => {
   modoPer = b.dataset.v; selPer = 0

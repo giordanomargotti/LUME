@@ -60,10 +60,6 @@
   .btn { display: inline-flex; justify-content: center; align-items: center; gap: 10px; background: var(--accent); color: #fff; font-family: var(--sans); font-size: 0.9375rem; font-weight: 500; padding: 14px 18px; border: 0; cursor: pointer; }
   .btn:hover { background: #A33608; }
   .btn:disabled { background: var(--ink-3); cursor: wait; }
-  .oppure { display: flex; align-items: center; gap: 12px; font-family: var(--mono); font-size: 0.6875rem; color: var(--ink-3); }
-  .oppure::before, .oppure::after { content: ''; flex: 1; height: 1px; background: var(--line); }
-  .google { display: inline-flex; justify-content: center; align-items: center; gap: 10px; background: transparent; color: var(--ink); border: 1px solid var(--ink); font-family: var(--sans); font-size: 0.9375rem; padding: 12px 18px; cursor: pointer; }
-  .google:hover { background: var(--cream); }
   .msg { font-family: var(--mono); font-size: 0.75rem; line-height: 1.6; padding: 10px 12px; border-left: 3px solid; }
   .msg.err { color: var(--accent); background: #FBEDE4; }
   .msg.ok { color: #3F7A3A; background: #EEF5EC; }
@@ -108,7 +104,7 @@
   <div class="box">
     <p class="label">Area riservata</p>
     <h2 id="titolo">Accedi</h2>
-    <p class="sub" id="sottotitolo">Con email e password o con un account Google.</p>
+    <p class="sub" id="sottotitolo">Con email e password.</p>
 
     <div class="seg" role="group" aria-label="Accesso o registrazione">
       <button type="button" aria-pressed="true" data-t="login">Accedi</button>
@@ -130,11 +126,6 @@
       <button class="btn" type="submit">Crea account</button>
     </form>
 
-    <div class="oppure">oppure</div>
-    <button class="google" type="button" id="google">
-      <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-      Continua con Google
-    </button>
 
     <p class="nota">I file dei clienti vengono elaborati nel browser e non sono trasmessi a server esterni.</p>
   </div>
@@ -172,7 +163,7 @@ document.querySelectorAll('.seg button').forEach(b => b.onclick = () => {
   document.querySelectorAll('.seg button').forEach(x => x.setAttribute('aria-pressed', x === b))
   $('loginForm').hidden = reg; $('registerForm').hidden = !reg
   $('titolo').textContent = reg ? 'Crea un account' : 'Accedi'
-  $('sottotitolo').textContent = reg ? 'Riceverai una email per confermare l\'indirizzo.' : 'Con email e password o con un account Google.'
+  $('sottotitolo').textContent = reg ? 'Riceverai una email per confermare l\'indirizzo.' : 'Con email e password.'
   nascondi()
 })
 
@@ -205,7 +196,6 @@ $('registerForm').onsubmit = async e => {
   else { msg('Account creato. Controlla la tua email per confermare.', 'ok'); btn.textContent = 'Email inviata' }
 }
 
-$('google').onclick = () => sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin + '/app.html' } })
 </script>
 </body>
 </html>
