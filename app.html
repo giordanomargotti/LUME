@@ -109,13 +109,23 @@
   .hero-text { grid-column: 1 / span 8; margin-top: clamp(28px, 4vw, 48px); font-size: clamp(1.125rem, 0.8rem + 1.1vw, 1.5rem); line-height: 1.4; letter-spacing: -0.01em; color: var(--ink-2); max-width: 52ch; }
   .hero-text b { color: var(--ink); font-weight: 600; }
   @media (max-width: 860px) { .hero h1, .hero-text { grid-column: 1 / -1; } }
-  .percorso { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--line); margin-top: clamp(40px, 5vw, 64px); }
-  .tappa { padding: 22px 20px 6px 0; display: grid; gap: 8px; align-content: start; text-decoration: none; }
-  .tappa + .tappa { padding-left: 20px; border-left: 1px solid var(--line); }
-  .tappa b { font-size: var(--t-m); font-weight: 600; }
-  .tappa p { color: var(--ink-2); font-size: var(--t-s); max-width: 30ch; }
+  .flusso { background: var(--white); border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
+  .flusso-in { padding-block: clamp(56px, 7vw, 88px); display: grid; gap: clamp(32px, 4vw, 44px); }
+  .flusso h2 { font-size: var(--t-xl); font-weight: 500; letter-spacing: -0.03em; line-height: 1.05; }
+  .percorso { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px; position: relative; }
+  .percorso::before { content: ''; position: absolute; left: 40px; right: calc(25% - 8px); top: 39px; height: 2px;
+    background: repeating-linear-gradient(90deg, var(--accent) 0 8px, transparent 8px 14px); }
+  .tappa { display: grid; gap: 12px; align-content: start; text-decoration: none; color: var(--ink); position: relative; }
+  .tappa svg { width: 80px; height: 80px; }
+  .tappa polygon { fill: var(--white); stroke: var(--accent); stroke-width: 2.5; transition: fill .15s; }
+  .tappa polygon.pieno { fill: var(--accent); }
+  .tappa text { font-family: var(--mono); font-size: 20px; fill: var(--accent); }
+  .tappa polygon.pieno + text { fill: var(--white); }
+  .tappa b { font-size: 1.375rem; font-weight: 600; letter-spacing: -0.01em; }
+  .tappa p { color: var(--ink-2); font-size: var(--t-s); line-height: 1.5; max-width: 30ch; }
+  .tappa:hover polygon:not(.pieno) { fill: #FBEDE4; }
   .tappa:hover b { color: var(--accent); }
-  @media (max-width: 760px) { .percorso { grid-template-columns: 1fr 1fr; } .tappa:nth-child(3) { padding-left: 0; border-left: 0; } }
+  @media (max-width: 760px) { .percorso { grid-template-columns: 1fr 1fr; row-gap: 40px; } .percorso::before { display: none; } }
 
   .carica { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 24px clamp(16px, 2vw, 32px); align-items: start; }
   .drop { grid-column: 1 / span 7; display: grid; gap: 6px; border: 1px dashed var(--cream-line); padding: 28px; cursor: pointer; font-size: var(--t-m); color: var(--ink-2); background: var(--white); }
@@ -319,7 +329,7 @@
       <b>lume.</b><span>AntiChurn</span>
     </a>
     <nav class="menu" aria-label="Sezioni">
-      <a href="#variabili">Variabili</a><a href="#personas">Personas</a><a href="#scoring">Scoring</a>
+      <a href="#variabili">Data discovery</a><a href="#personas">Personas</a><a href="#scoring">Scoring</a>
       <a class="cta" href="#mappa-sez">Mappa</a>
       <span class="utente" id="utente"></span><button class="esci" id="esci" type="button">esci</button>
     </nav>
@@ -374,13 +384,28 @@
     </div>
   </section>
 
-  <section class="wrap">
-    <nav class="percorso" aria-label="Percorso dell'analisi">
-      <a class="tappa" href="#variabili"><span class="label">01</span><b>Variabili</b><p>Quali caratteristiche dei clienti sono legate al churn e come si posizionano i prezzi rispetto al mercato.</p></a>
-      <a class="tappa" href="#personas"><span class="label">02</span><b>Personas</b><p>Cinque gruppi di clienti, costruiti con regole di segmentazione o con un algoritmo di clustering.</p></a>
-      <a class="tappa" href="#scoring"><span class="label">03</span><b>Scoring</b><p>Tre modelli di machine learning a confronto. Il più accurato assegna uno score a ogni cliente attivo.</p></a>
-      <a class="tappa" href="#mappa-sez"><span class="label">04</span><b>Mappa</b><p>Il territorio in esagoni da <span class="area-esa">0,7 km²</span>, ordinati per priorità di intervento.</p></a>
-    </nav>
+  <section class="flusso">
+    <div class="wrap flusso-in">
+      <h2>Flusso dell'analisi</h2>
+      <nav class="percorso" aria-label="Flusso dell'analisi">
+        <a class="tappa" href="#variabili">
+          <svg viewBox="0 0 80 80" aria-hidden="true"><polygon points="40,4 71,22 71,58 40,76 9,58 9,22"/><text x="40" y="47" text-anchor="middle">01</text></svg>
+          <b>Data discovery</b><p>Quali caratteristiche dei clienti sono legate al churn e come si posizionano i prezzi rispetto al mercato.</p>
+        </a>
+        <a class="tappa" href="#personas">
+          <svg viewBox="0 0 80 80" aria-hidden="true"><polygon points="40,4 71,22 71,58 40,76 9,58 9,22"/><text x="40" y="47" text-anchor="middle">02</text></svg>
+          <b>Personas</b><p>Cinque gruppi di clienti, costruiti con regole di segmentazione o con un algoritmo di clustering.</p>
+        </a>
+        <a class="tappa" href="#scoring">
+          <svg viewBox="0 0 80 80" aria-hidden="true"><polygon points="40,4 71,22 71,58 40,76 9,58 9,22"/><text x="40" y="47" text-anchor="middle">03</text></svg>
+          <b>Scoring</b><p>Tre modelli di machine learning a confronto. Il più accurato assegna uno score a ogni cliente attivo.</p>
+        </a>
+        <a class="tappa" href="#mappa-sez">
+          <svg viewBox="0 0 80 80" aria-hidden="true"><polygon points="40,4 71,22 71,58 40,76 9,58 9,22" class="pieno"/><text x="40" y="47" text-anchor="middle">04</text></svg>
+          <b>Mappa</b><p>Il territorio in esagoni da <span class="area-esa">0,7 km²</span>, ordinati per priorità di intervento.</p>
+        </a>
+      </nav>
+    </div>
   </section>
 
   <section class="band-cream">
@@ -412,7 +437,7 @@
   <!-- 01 VARIABILI -->
   <section class="section wrap" id="variabili">
     <div class="grid head">
-      <p class="label">01 · Variabili</p>
+      <p class="label">01 · Data discovery</p>
       <h2>Analisi delle caratteristiche legate al churn</h2>
       <p>Per ogni variabile: completezza nel file, capacità di distinguere i clienti persi da quelli attivi e tasso di churn per gruppo. In chiusura, il confronto dei prezzi con i concorrenti.</p>
     </div>
